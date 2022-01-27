@@ -10,6 +10,6 @@ public class FirstClassToSetupRepo {
 	 */
 	public static void main(String[] args) {
 		System.out.println("I love elevators again in a new branch");
-		System.out.println("This is print");
+		System.out.println("This is a print");
 	}
 }
