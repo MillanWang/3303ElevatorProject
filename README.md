@@ -1,6 +1,6 @@
 # 3303ElevatorProject
 Group project for SYSC 3303 : Real-Time Concurrent Systems
-Iteration 0&1 Due : February 5th @ Midnight
+Iteration 0&1 Due : February 5th @ 11:59 PM
 
 
 ## Project Planning Word Document
