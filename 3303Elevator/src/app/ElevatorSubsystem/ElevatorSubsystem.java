@@ -41,10 +41,17 @@ public class ElevatorSubsystem implements Runnable{
 		this.scheduler = scheduler;
 	}
 
+	/**
+	 * Logs message to console
+	 * @param message
+	 */
 	public void log(String message){
 		System.out.println("Elevator [" + this.name + "] " + message);
 	}
 
+	/**
+	 * Continuously retrieves directions from the scheduler to operate the elevators
+	 */
 	public void run(){
 		while (true) {
 			boolean isUp = elevator.getState() == Movement.UP ? true: false;

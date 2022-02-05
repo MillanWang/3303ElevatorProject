@@ -1,4 +1,4 @@
-/*
+/**
  * Elevator project 
  * The input class is the object that contains details of elevator request to be sent to the scheduler by  the floor subsystem 
  * 
@@ -14,7 +14,7 @@ public class Input {
 	private boolean Upwards;
 	private int destinationfloor;  
 	
-	/*
+	/**
 	 * Constructor parses the input string to assign the fields 
 	 * @param input; the input string (from text file)
 	 */
@@ -25,25 +25,28 @@ public class Input {
 		this.destinationfloor = destinationfloor;
 	}
 	
-	/*
+	/**
 	 * returns the time of request event
 	 */
 	public LocalTime getTime() {
 		return this.time;
 	}
-	/*
+	
+	/**
 	 * returns the floor at which the elevator is requested
 	 */
 	public int getStartFloor() {
 		return this.startfloor;
 	}
-	/*
+	
+	/**
 	 * returns True if the direction is Up and False if the direction is down
 	 */
 	public boolean isUpwards() {
 		return this.Upwards;
 	}
-	/*
+	
+	/**
 	 * returns the destination of the request  
 	 */
 	public int getDestinationFloor() {
