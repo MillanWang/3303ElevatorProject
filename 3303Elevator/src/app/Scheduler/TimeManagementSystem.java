@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class TimeManagementSystem {
 	public float timeMultiplier; //Used to scale time for testing purposes
 	
-	TimeManagementSystem(float multiplier){
+	public TimeManagementSystem(float multiplier){
 		this.timeMultiplier = multiplier;
 	}
 	
