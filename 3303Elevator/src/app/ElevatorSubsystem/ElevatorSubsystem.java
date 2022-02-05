@@ -62,9 +62,9 @@ public class ElevatorSubsystem implements Runnable{
 					this.log("has arrived at desitnation ");
 					this.log("doors starting to open");
 					if(elevator.loadElevator()) {
-						this.log("error occured opening doors");
-					}else{
 						this.log("doors are now closed");
+					}else{
+						this.log("error occured opening doors");
 					}
 				}
 			}
