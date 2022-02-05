@@ -31,8 +31,6 @@ public class TimeManagementSystem {
 		for(int i = 0; i < destinationFloor - currentFloor; i++) {
 			times.add(timeMultiplier * (2.77f + r.nextFloat() * 1.07f));
 		}
-		//Add loading time to first floor travel time
-		times.set(0, (times.get(0) + getElevatorLoadingTime()));
 		return times;
 	}
 }
