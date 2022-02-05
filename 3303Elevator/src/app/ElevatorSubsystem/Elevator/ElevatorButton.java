@@ -15,4 +15,8 @@ public class ElevatorButton {
 	public void press(){
 		this.status = true;
 	}
+	
+	public void turnOff() {
+		this.status = false;
+	}
 }

@@ -12,6 +12,7 @@ public class ElevatorDoor{
 	}
 
 	public void loadElevator() throws InterruptedException {
+		System.out.println("#ElevatorDoor#loadElevator() going to sleep");
 		Thread.sleep((int) this.tms.getElevatorLoadingTime());
 	}
 
