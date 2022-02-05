@@ -26,15 +26,15 @@ public class TextFileReader {
 			line = reader.readLine();
 			while (line != null) {
 				String[] values = line.split(",");
-				try {
-					System.out.println(LocalTime.parse(values[0]));
-				}
-				catch(Exception e){
-					System.out.println("time is null");
-				}
-				System.out.println(Integer.valueOf(values[1]));
-				System.out.println(String.valueOf(values[2]));
-				System.out.println(Integer.valueOf(values[3]));
+//				try {
+//					System.out.println(LocalTime.parse(values[0]));
+//				}
+//				catch(Exception e){
+//					System.out.println("time is null");
+//				}
+//				System.out.println(Integer.valueOf(values[1]));
+//				System.out.println(String.valueOf(values[2]));
+//				System.out.println(Integer.valueOf(values[3]));
 				if(String.valueOf(values[2]).equals("Up")){
 					upward = true;
 				}
@@ -60,10 +60,5 @@ public class TextFileReader {
 		}
 		return requests;
 		
-	}
-
-public static void main(String[] args) {
-	getrequests("app/FloorSubsystem/inputfile.txt"); //C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303Elevator/src/
-	}
-	
+	}	
 }
