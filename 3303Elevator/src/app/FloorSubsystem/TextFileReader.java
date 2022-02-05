@@ -1,4 +1,4 @@
-/*
+/**
  * Elevator project 
  * This class reads the text input file that has the elevator's requests 
  * @author Peter Tanyous 
@@ -12,7 +12,11 @@ import java.util.*;
 
 public class TextFileReader {
 	
-	
+	/**
+	 * Reads a file and creates an arrayList of Input objects to be passed to the Scheduler
+	 * @param inputfile file to be read
+	 * @return ArrayList of input files
+	 */
 	public static ArrayList<Input> getrequests(String inputfile){
 		ArrayList<Input> requests = new ArrayList<Input>(); //array list of all requests from text file
 		String line; //line being parsed in the text file

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.*;
 
 /**
@@ -186,38 +187,35 @@ public class Scheduler {
 		
 		//wait loop until there is a destination to visit - Waiting here means elevator is parked
 		while (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
-			//this.floorSubsystem.NOTIFY FLOOR SYS THAT THE ELEVATOR IS PARKED HERE MY DUDE
-		/**
-		 * DONT FORGET DONT FORGET DONT FORGET AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-		 */
-			
+			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Movement.PARKED);
+
 			try {wait();} catch (InterruptedException e) {}
 		}
 		
 		SortedSet<Integer> floorsToVisit;
+		boolean nextDirectionUp = currentElevatorDirection;
 		
 		if (currentElevatorDirection) {
 			floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
+			nextDirectionUp = true;
 			//Change direction if no more upwards floors to visit. Try scheduling the unscheduled
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();
 				floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
-			}
+				nextDirectionUp = false; 
+			} 
 		} else {
 			floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
+			nextDirectionUp = false; 
 			//Change direction if no more downwards floors to visit. Try scheduling the unscheduled
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();
 				floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
-			}
+				nextDirectionUp = true; 
+			} 
 		}
 		
-		
-		/**
-		 * DONT FORGET DONT FORGET DONT FORGET AHHHH	AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-		 */
-		//NEED TO UPDATE FLOOR ABOUT THE ELEVATOR MOVEMENTS
-//		this.floorSubsys.update(); Elevator position notification
+		this.floorSubsys.updateElevatorPosition(currentFloorNumber,nextDirectionUp? Movement.UP : Movement.DOWN);
 		return floorsToVisit;
 	}
 	
