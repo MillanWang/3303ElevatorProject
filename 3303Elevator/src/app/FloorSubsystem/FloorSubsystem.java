@@ -7,11 +7,15 @@
 
 package app.FloorSubsystem;
 import java.util.*;
-public class FloorSubsystem extends Threads{
+
+import app.Scheduler.Scheduler;
+public class FloorSubsystem extends Thread{
 	
 	private Scheduler scheduler; 
 	private ArrayList<Input> requests; 
 	private ArrayList<Input> schedulerRequests; 
+	private Integer elevatorPosition; 
+	private boolean upwards; 
 	
 	/*
 	 * Constructor initializes the floor subsystem with the serving scheduler 
@@ -27,32 +31,42 @@ public class FloorSubsystem extends Threads{
 	 * add_input_requests method adds all the inputs from the input.txt file
 	 * @path; file path to input.txt 
 	 */
-	public void add_input_requests(String path) {
+	public void addInputRequests(String path) {
 		this.requests.addAll(TextFileReader.getrequests(path)); //"C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303ElevatorProject/3303Elevator/src/app/FloorSubsystem/inputfile.txt"
 	}
 	/*
 	 * add_schedule_requests methods receives requests from the scheduler and adds it to the schedulerRequests collection
 	 * @param request; Input type parameter that holds the request's details
 	 */
-	public void add_schedule_requests(Input request) {
+	public void addScheduleRequests(Input request) {
 		this.schedulerRequests.add(request);
+		//this.scheduler.scheduleRequest(request);
 	}
 	/*
 	 * @return the requests added from the input.txt
 	 */
-	public ArrayList<Input> get_requests(){
+	public ArrayList<Input> getRequests(){
 		return this.requests;
 	}
 	/*
 	 * @return the requests received from the scheduler
 	 */
-	public ArrayList<Input> get_scheduler_requests(){
+	public ArrayList<Input> getSchedulerRequests(){
 		return this.schedulerRequests; 
 	}
 	
-	public synchronized void run() {
-		add_input_requests("C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303ElevatorProject/3303Elevator/src/app/FloorSubsystem/inputfile.txt");
+	public void updateElevatorPosition(Integer floorno, boolean isUpwards) {
 		
+		this.elevatorPosition = floorno;
+		this.upwards = isUpwards; 
+	}
+	
+	public synchronized void run() {
+		addInputRequests("C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303ElevatorProject/3303Elevator/src/app/FloorSubsystem/inputfile.txt");
+		for (Input request: this.requests) {
+			this.scheduler.floorSystemScheduleRequest(request);
+		}
+			
 	}
 
 }
