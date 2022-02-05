@@ -1,4 +1,4 @@
-/*
+/**
  * Elevator project
  * the floor subsystem class is responsible for sending and receiving requests from and to the scheduler
  * 
@@ -35,7 +35,7 @@ public class FloorSubsystem extends Thread{
 	 * @path; file path to input.txt 
 	 */
 	public void addInputRequests(String path) {
-		this.requests.addAll(TextFileReader.getrequests(path)); //"C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303ElevatorProject/3303Elevator/src/app/FloorSubsystem/inputfile.txt"
+		this.requests.addAll(TextFileReader.getrequests(path)); 
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public class FloorSubsystem extends Thread{
 	 * Runs the floorSubsystem thread
 	 */
 	public synchronized void run() {
-		addInputRequests("C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303ElevatorProject/3303Elevator/src/app/FloorSubsystem/inputfile.txt");
+		addInputRequests("src/app/FloorSubsystem/inputfile.txt");
 		for (Input request: this.requests) {
 			this.scheduler.floorSystemScheduleRequest(request);
 		}

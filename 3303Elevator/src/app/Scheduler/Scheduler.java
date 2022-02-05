@@ -34,6 +34,8 @@ public class Scheduler {
 	
 	
 	
+
+
 	/**
 	 * Constructor for scheduler lass
 	 * 
@@ -41,12 +43,11 @@ public class Scheduler {
 	 * @param skipDelaysOnFloorInputs boolean indicating if all incoming timeSpecified requests should be ran without delay
 	 * @param floorSubsys Reference to the floor subsystem dependency
 	 */
-	public Scheduler(int highestFloorNumber, boolean skipDelaysOnFloorInputs, FloorSubsystem floorSubsys) {
+	public Scheduler(int highestFloorNumber, boolean skipDelaysOnFloorInputs) {
 		this.highestFloorNumber = highestFloorNumber;
 		this.skipDelaysOnFloorInputs= skipDelaysOnFloorInputs; 
 		this.elevatorCurrentFloor = 1;
-		this.floorSubsys = floorSubsys; 
-
+		
 		//Sorted set of destinations to visit in each direction
 		this.upwardsToVisitSet = new TreeSet<Integer>();
 		this.downwardsToVisitSet = new TreeSet<Integer>();
@@ -55,6 +56,13 @@ public class Scheduler {
 		this.unscheduledRequests= new LinkedList<Integer[]>(); 
 	}
 	
+	/**
+	 * Sets the floorSubsys field to the FloorSubsystem
+	 * @param floorSubsys
+	 */
+	public void setFloorSubsys(FloorSubsystem floorSubsys) {
+		this.floorSubsys = floorSubsys;
+	}
 	
 	/**
 	 * Schedules an incoming floorSystemRequest to corresponding directional floor queue
