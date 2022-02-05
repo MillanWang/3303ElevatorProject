@@ -22,17 +22,31 @@ public class TextFileReader {
 			line = reader.readLine();
 			while (line != null) {
 				String[] values = line.split(",");
-				//System.out.println(LocalTime.parse(values[0]));
-				//System.out.println(Integer.valueOf(values[1]));
-				//System.out.println(String.valueOf(values[2]));
-				//System.out.println(Integer.valueOf(values[3]));
+				try {
+					System.out.println(LocalTime.parse(values[0]));
+				}
+				catch(Exception e){
+					System.out.println("time is null");
+				}
+				System.out.println(Integer.valueOf(values[1]));
+				System.out.println(String.valueOf(values[2]));
+				System.out.println(Integer.valueOf(values[3]));
 				if(String.valueOf(values[2]).equals("Up")){
 					upward = true;
 				}
 				else {
 					upward =  false; 
 				}
-				Input event = new Input(LocalTime.parse(values[0]) , Integer.valueOf(values[1]) , upward , Integer.valueOf(values[3])); 
+				LocalTime time;
+				try{
+					time = LocalTime.parse(values[0]);
+				}
+				catch(Exception e) {
+					time = null;
+				}
+				Integer source = Integer.valueOf(values[1]);
+				Integer destination = Integer.valueOf(values[3]);
+				Input event = new Input(time , source , upward , destination); 
 				requests.add(event);
 				line = reader.readLine();
 			}
@@ -44,8 +58,8 @@ public class TextFileReader {
 		
 	}
 
-//	public static void main(String[] args) {
-//		getrequests("C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303ElevatorProject/3303Elevator/src/app/FloorSubsystem/inputfile.txt");
-//	}
+public static void main(String[] args) {
+	getrequests("app/FloorSubsystem/inputfile.txt"); //C:/Users/peter/Desktop/Winter_2022/SYSC_3303_Assignments/3303ElevatorProject/3303Elevator/src/
+	}
 	
 }
