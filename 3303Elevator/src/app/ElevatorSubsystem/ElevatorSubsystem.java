@@ -49,6 +49,19 @@ public class ElevatorSubsystem implements Runnable{
 		System.out.println("Elevator [" + this.name + "] " + message);
 	}
 
+	public void checkFloor(int destinationFloor) {
+		this.log("at floor " + elevator.getFloor());
+		if(this.elevator.getFloor() == destinationFloor) {
+			this.log("has arrived at desitnation ");
+			this.log("doors starting to open");
+			if(this.elevator.loadElevator()) {
+				this.log("doors are now closed");
+			}else{
+				this.log("error occured opening doors");
+			}
+		}
+	}
+	
 	/**
 	 * Continuously retrieves directions from the scheduler to operate the elevators
 	 */
@@ -66,36 +79,24 @@ public class ElevatorSubsystem implements Runnable{
 			if(elevator.getState() != Movement.PARKED) {
 				int destinationFloor = elevator.getState() == Movement.UP ? floorsToVisit.first() : floorsToVisit.last();
 				//The move method will move the elevator accordingly does not handle parked
-				this.log("is moving " + elevator.getState());
+				this.log("is moving " + this.elevator.getState());
 				elevator.move();
-				this.log("at floor " + elevator.getFloor());
-
-				if(elevator.getFloor() == destinationFloor) {
-					this.log("has arrived at desitnation ");
-					this.log("doors starting to open");
-					if(elevator.loadElevator()) {
-						this.log("doors are now closed");
-					}else{
-						this.log("error occured opening doors");
-					}
-				}
+				this.checkFloor(destinationFloor);
 			}
 
 			if(elevator.getState() == Movement.PARKED) {
-
-				if(floorsToVisit.first() > this.elevator.getFloor()) {
+				this.log("is moving from " + this.elevator.getState());
+				int destinationFloor = floorsToVisit.first();
+				
+				if(destinationFloor > this.elevator.getFloor()) {
+					this.log("is moving up");
 					this.elevator.moveUp();
-				}else if(floorsToVisit.first() < this.elevator.getFloor()) {
-					this.elevator.moveDown();
-				}else {
-					this.log("has arrived at desitnation ");
-					this.log("doors starting to open");
-					if(elevator.loadElevator()) {
-						this.log("doors are now closed");
-					}else{
-						this.log("error occured opening doors");
-					}
+				}else if(destinationFloor < this.elevator.getFloor()) {
+					this.log("is moving down");
+					this.elevator.moveDown();	
 				}
+				
+				this.checkFloor(destinationFloor);
 			}
 
 		}

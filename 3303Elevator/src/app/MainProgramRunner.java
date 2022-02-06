@@ -27,7 +27,6 @@ public class MainProgramRunner {
 		floorThread.start();
 		
 		
-		
 		//COMMAND LINE QUIT OPTION
 	     Scanner sc = new Scanner(System.in);
 	     System.out.println("Elevator program running. Press q then enter to exit");
