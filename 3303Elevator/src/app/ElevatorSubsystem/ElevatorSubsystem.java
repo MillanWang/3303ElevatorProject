@@ -10,29 +10,29 @@ import app.Scheduler.*;
  * SYSC 3303, Final Project
  * ElevatorSubsystem.java
  * Purpose: system interactions between scheduler and elevator
- * 
+ *
  * @author Ben Kittilsen
  * */
 public class ElevatorSubsystem implements Runnable{
-	
+
 	/**
 	 * Name for the elevator
 	 * */
 	private String name;
-	
+
 	/**
 	 * Elevator the subsystem controls
 	 * */
 	private Elevator elevator;
-	
+
 	/**
 	 * The scheduler the elevator needs to communicate with
 	 * */
-	private Scheduler scheduler; 
-	
+	private Scheduler scheduler;
+
 	/**
 	 * Constructor used to create elevator subsystem
-	 * 
+	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
 	public ElevatorSubsystem(Scheduler scheduler){
@@ -55,21 +55,21 @@ public class ElevatorSubsystem implements Runnable{
 	public void run(){
 		while (true) {
 			boolean isUp = elevator.getState() == Movement.UP ? true: false;
-			//TODO replace isUp with elevator state. 
+			//TODO replace isUp with elevator state.
 			SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), isUp);
-			
+
 			if(floorsToVisit.size() == 0) {
 				this.elevator.park();
 				continue;
 			}
-			
+
 			if(elevator.getState() != Movement.PARKED) {
 				int destinationFloor = elevator.getState() == Movement.UP ? floorsToVisit.first() : floorsToVisit.last();
 				//The move method will move the elevator accordingly does not handle parked
 				this.log("is moving " + elevator.getState());
 				elevator.move();
 				this.log("at floor " + elevator.getFloor());
-				
+
 				if(elevator.getFloor() == destinationFloor) {
 					this.log("has arrived at desitnation ");
 					this.log("doors starting to open");
@@ -80,13 +80,12 @@ public class ElevatorSubsystem implements Runnable{
 					}
 				}
 			}
-			
+
 			if(elevator.getState() == Movement.PARKED) {
-				// Need to change this method
-				
-				if(floorsToVisit.first() - this.elevator.getFloor() > 0) {
+
+				if(floorsToVisit.first() > this.elevator.getFloor()) {
 					this.elevator.moveUp();
-				}else if(floorsToVisit.first() - this.elevator.getFloor() < 0) {
+				}else if(floorsToVisit.first() < this.elevator.getFloor()) {
 					this.elevator.moveDown();
 				}else {
 					this.log("has arrived at desitnation ");
@@ -98,8 +97,7 @@ public class ElevatorSubsystem implements Runnable{
 					}
 				}
 			}
-			// Need to add logic if the elevator is parked. 
-			
+
 		}
 	}
 
