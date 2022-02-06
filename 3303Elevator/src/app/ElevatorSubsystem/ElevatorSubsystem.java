@@ -58,12 +58,17 @@ public class ElevatorSubsystem implements Runnable{
 			//TODO replace isUp with elevator state. 
 			SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), isUp);
 			
+			if(floorsToVisit.size() == 0) {
+				this.elevator.park();
+				continue;
+			}
+			
 			if(elevator.getState() != Movement.PARKED) {
 				int destinationFloor = elevator.getState() == Movement.UP ? floorsToVisit.first() : floorsToVisit.last();
 				//The move method will move the elevator accordingly does not handle parked
 				this.log("is moving " + elevator.getState());
 				elevator.move();
-				this.log(" at floor " + elevator.getFloor());
+				this.log("at floor " + elevator.getFloor());
 				
 				if(elevator.getFloor() == destinationFloor) {
 					this.log("has arrived at desitnation ");
@@ -76,6 +81,23 @@ public class ElevatorSubsystem implements Runnable{
 				}
 			}
 			
+			if(elevator.getState() == Movement.PARKED) {
+				// Need to change this method
+				
+				if(floorsToVisit.first() - this.elevator.getFloor() > 0) {
+					this.elevator.moveUp();
+				}else if(floorsToVisit.first() - this.elevator.getFloor() < 0) {
+					this.elevator.moveDown();
+				}else {
+					this.log("has arrived at desitnation ");
+					this.log("doors starting to open");
+					if(elevator.loadElevator()) {
+						this.log("doors are now closed");
+					}else{
+						this.log("error occured opening doors");
+					}
+				}
+			}
 			// Need to add logic if the elevator is parked. 
 			
 		}

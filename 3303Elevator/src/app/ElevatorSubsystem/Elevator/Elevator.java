@@ -16,6 +16,7 @@ public class Elevator{
 	public Elevator() {
 		this.currentFloor = 1;
 		this.state = Movement.PARKED;
+		this.door = new ElevatorDoor();
 	}
 
 	public boolean loadElevator() {
@@ -40,12 +41,12 @@ public class Elevator{
 			System.out.println("[ERROR]#Elevator#move() can't handle parked");
 	}
 	
-	private void moveUp(){
+	public void moveUp(){
 		this.state = Movement.UP;
 		this.currentFloor++;
 	}
 	
-	private void moveDown() {
+	public void moveDown() {
 		this.state = Movement.DOWN;
 		this.currentFloor--;
 	}
