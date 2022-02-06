@@ -1,5 +1,6 @@
 package app.ElevatorSubsystem.Elevator;
 
+import app.Scheduler.TimeManagementSystem;
 /**
  * SYSC 3303, Final Project
  * Elevator.java
@@ -12,16 +13,19 @@ public class Elevator{
 	private ElevatorDoor door;
 	private int currentFloor;
 	private Movement state;
+	private TimeManagementSystem tms;
+	
 	/**
 	 * Maximum number of floors
 	 */
 	private int maxFloorCount;
 
-	public Elevator( int maxFloorCount) {
+	public Elevator(int maxFloorCount, float timeMultiplier) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
 		this.state = Movement.UP;
-		this.door = new ElevatorDoor();
+		this.tms = new TimeManagementSystem(timeMultiplier); 
+		this.door = new ElevatorDoor(this.tms);
 	}
 
 	public boolean loadElevator() {
@@ -38,18 +42,25 @@ public class Elevator{
 	}
 
 	public void move() {
-		if(this.state == Movement.UP)
-			this.moveUp();
-		else if(this.state == Movement.DOWN)
-			this.moveDown();
-		else if(this.state == Movement.PARKED)
-			System.out.println("[ERROR]#Elevator#move() can't handle parked");
+		try {
+			if(this.state == Movement.UP)
+				this.moveUp();
+			else if(this.state == Movement.DOWN)
+				this.moveDown();
+			else if(this.state == Movement.PARKED)
+				System.out.println("[ERROR]#Elevator#move() can't handle parked");
+		} catch(InterruptedException e) {
+			System.out.println("[ERROR]#Elevator#move() sleep error");
+		}
 	}
 	
-	public void moveUp(){
+	public void moveUp() throws InterruptedException {
 		this.state = Movement.UP;
 		if (currentFloor < maxFloorCount) {
 			this.currentFloor++;
+			float f = tms.getElevatorTransitTime(currentFloor, currentFloor+1).get(0) ;
+			int time = (int) f;
+			Thread.sleep(time);
 		} 
 		if(currentFloor >= maxFloorCount){
 			park();
@@ -57,10 +68,13 @@ public class Elevator{
 		
 	}
 	
-	public void moveDown() {
+	public void moveDown() throws InterruptedException {
 		this.state = Movement.DOWN;
 		if (currentFloor > 1) {
 			this.currentFloor--;
+			float f = tms.getElevatorTransitTime(currentFloor, currentFloor+1).get(0) ;
+			int time = (int) f;
+			Thread.sleep(time);
 		} 
 		if (currentFloor <= 1){
 			park();

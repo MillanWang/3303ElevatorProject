@@ -40,10 +40,10 @@ public class ElevatorSubsystem implements Runnable{
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount){
+	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount, float timeMultiplier){
 		this.maxFloorCount = maxFloorCount;
 		this.name = Thread.currentThread().getName();
-		this.elevator = new Elevator(maxFloorCount);
+		this.elevator = new Elevator(maxFloorCount, timeMultiplier);
 		this.scheduler = scheduler;
 	}
 
@@ -96,10 +96,18 @@ public class ElevatorSubsystem implements Runnable{
 				
 				if(destinationFloor > this.elevator.getFloor()) {
 					this.log("is moving up");
-					this.elevator.moveUp();
+					try {
+						this.elevator.moveUp();
+					} catch(InterruptedException e) {
+						this.log("sleep error");
+					}
 				}else if(destinationFloor < this.elevator.getFloor()) {
 					this.log("is moving down");
-					this.elevator.moveDown();	
+					try {
+						this.elevator.moveDown();
+					} catch(InterruptedException e) {
+						this.log("sleep error");
+					}
 				}
 				
 				this.checkFloor(destinationFloor);

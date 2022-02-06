@@ -13,11 +13,11 @@ public class MainProgramRunner {
 	
 	public static void main(String[] args) {
 		
-		
+		float timeMultiplier = 0; 
 		
 		Scheduler scheduler = new Scheduler(FLOOR_COUNT, INSTANTLY_SCHEDULE_REQUESTS);
 		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler);
-		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT);
+		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, timeMultiplier);
 		scheduler.setFloorSubsys(floorSubsys);
 		
 		Thread elevatorThread = new Thread(elevatorSubsys, "ElevatorSubsystemThread");

@@ -14,7 +14,7 @@ public class ElevatorTests {
 	
 	@Test
 	public void testElevator() {
-		Elevator elevator = new Elevator();
+		Elevator elevator = new Elevator(7,1);
 		assertSame(Movement.UP,elevator.getState());
 		assertSame(1,elevator.getFloor());
 	}
@@ -22,7 +22,7 @@ public class ElevatorTests {
 	
 	@Test
 	public void testGetFloor() {
-		Elevator elevator = new Elevator();
+		Elevator elevator = new Elevator(7,1);
 		assertSame(1,elevator.getFloor());
 	}
 
@@ -33,7 +33,7 @@ public class ElevatorTests {
 
 	@Test
 	public void testMoveUp() {
-		Elevator elevator = new Elevator();
+		Elevator elevator = new Elevator(7,1);
 		assertSame(1,elevator.getFloor());
 		elevator.moveUp(); 
 		assertSame(Movement.UP,elevator.getState());
@@ -42,7 +42,7 @@ public class ElevatorTests {
 
 	@Test
 	public void testMoveDown() {
-		Elevator elevator = new Elevator();
+		Elevator elevator = new Elevator(7,1);
 		assertSame(1,elevator.getFloor());
 		//need to move up before moving down assume move up works correct
 		elevator.moveUp(); 
@@ -55,13 +55,13 @@ public class ElevatorTests {
 
 	@Test
 	public void testGetState() {
-		Elevator elevator = new Elevator();
+		Elevator elevator = new Elevator(7,1);
 		assertSame(Movement.UP,elevator.getState());
 	}
 
 	@Test
 	public void testPark() {
-		Elevator elevator = new Elevator();
+		Elevator elevator = new Elevator(7,1);
 		elevator.park();
 		assertSame(Movement.PARKED,elevator.getState());
 	}
