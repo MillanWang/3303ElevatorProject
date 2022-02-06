@@ -8,27 +8,62 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.ElevatorSubsystem.Elevator.*;
+
 public class ElevatorTests {
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	
+	@Test
+	public void testElevator() {
+		Elevator elevator = new Elevator();
+		assertSame(Movement.UP,elevator.getState());
+		assertSame(1,elevator.getFloor());
 	}
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
+	
+	@Test
+	public void testGetFloor() {
+		Elevator elevator = new Elevator();
+		assertSame(1,elevator.getFloor());
 	}
 
 	@Test
-	public void test() {
+	public void testMove() {
 		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testMoveUp() {
+		Elevator elevator = new Elevator();
+		assertSame(1,elevator.getFloor());
+		elevator.moveUp(); 
+		assertSame(Movement.UP,elevator.getState());
+		assertSame(2,elevator.getFloor());
+	}
+
+	@Test
+	public void testMoveDown() {
+		Elevator elevator = new Elevator();
+		assertSame(1,elevator.getFloor());
+		//need to move up before moving down assume move up works correct
+		elevator.moveUp(); 
+
+		//testing move down
+		elevator.moveDown();
+		assertSame(Movement.DOWN,elevator.getState());
+		assertSame(1,elevator.getFloor());
+	}
+
+	@Test
+	public void testGetState() {
+		Elevator elevator = new Elevator();
+		assertSame(Movement.UP,elevator.getState());
+	}
+
+	@Test
+	public void testPark() {
+		Elevator elevator = new Elevator();
+		elevator.park();
+		assertSame(Movement.PARKED,elevator.getState());
 	}
 
 }
