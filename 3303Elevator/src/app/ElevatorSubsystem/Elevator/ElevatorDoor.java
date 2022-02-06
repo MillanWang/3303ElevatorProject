@@ -8,7 +8,7 @@ public class ElevatorDoor{
 	
 	//TODO: The constructor should use time system
 	public ElevatorDoor(){
-		this.tms = new TimeManagementSystem(1);
+		this.tms = new TimeManagementSystem(0); /////////////////////////////////DONT FORGEET THIS NEEDS TO BE A PARAM
 	}
 
 	public void loadElevator() throws InterruptedException {

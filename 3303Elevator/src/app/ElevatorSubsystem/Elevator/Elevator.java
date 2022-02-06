@@ -12,10 +12,15 @@ public class Elevator{
 	private ElevatorDoor door;
 	private int currentFloor;
 	private Movement state;
+	/**
+	 * Maximum number of floors
+	 */
+	private int maxFloorCount;
 
-	public Elevator() {
+	public Elevator( int maxFloorCount) {
+		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
-		this.state = Movement.PARKED;
+		this.state = Movement.UP;//PARKED;
 		this.door = new ElevatorDoor();
 	}
 
@@ -43,12 +48,23 @@ public class Elevator{
 	
 	public void moveUp(){
 		this.state = Movement.UP;
-		this.currentFloor++;
+		if (currentFloor < maxFloorCount) {
+			this.currentFloor++;
+		} 
+		if(currentFloor >= maxFloorCount){
+			park();
+		}
+		
 	}
 	
 	public void moveDown() {
 		this.state = Movement.DOWN;
-		this.currentFloor--;
+		if (currentFloor > 1) {
+			this.currentFloor--;
+		} 
+		if (currentFloor <= 1){
+			park();
+		}
 	}
 	
 	public Movement getState() {
