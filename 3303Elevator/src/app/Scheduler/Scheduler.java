@@ -117,7 +117,7 @@ public class Scheduler {
 	 */
 	public synchronized void addElevatorRequest(Integer startFloor, Integer destinationFloor) {
 
-		boolean didUnparking = false; //IDK BRO YOU BETTER WORK 
+		boolean didUnparking = false;
 		
 		//If we are currently parked, add the startFloor to the corresponding directional toVisitSet
 		if (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {

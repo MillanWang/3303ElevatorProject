@@ -20,7 +20,7 @@ public class Elevator{
 	public Elevator( int maxFloorCount) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
-		this.state = Movement.UP;//PARKED;
+		this.state = Movement.UP;
 		this.door = new ElevatorDoor();
 	}
 
