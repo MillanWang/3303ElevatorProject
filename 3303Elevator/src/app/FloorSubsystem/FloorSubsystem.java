@@ -70,7 +70,20 @@ public class FloorSubsystem extends Thread{
 		this.elevatorPosition = floorno;
 		this.elevatorStatus = elevatorStatus; 
 	}
-	
+	/**
+	 * gets the elevator position
+	 * @return elevator position (floor no)
+	 */
+	public Integer getElevatorPosition() {
+		return this.elevatorPosition;
+	}
+	/**
+	 * gets the elevator position
+	 * @return elevator status (Movement)
+	 */
+	public Movement getElevatorStatus() {
+		return this.elevatorStatus;
+	}
 	/**
 	 * Runs the floorSubsystem thread
 	 */
