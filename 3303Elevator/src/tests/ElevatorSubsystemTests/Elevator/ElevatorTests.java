@@ -26,16 +26,17 @@ public class ElevatorTests {
 		assertSame(1,elevator.getFloor());
 	}
 
-	@Test
-	public void testMove() {
-		fail("Not yet implemented");
-	}
 
 	@Test
 	public void testMoveUp() {
 		Elevator elevator = new Elevator(7,1);
 		assertSame(1,elevator.getFloor());
-		elevator.moveUp(); 
+		try {
+			elevator.moveUp();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 		assertSame(Movement.UP,elevator.getState());
 		assertSame(2,elevator.getFloor());
 	}
@@ -45,11 +46,20 @@ public class ElevatorTests {
 		Elevator elevator = new Elevator(7,1);
 		assertSame(1,elevator.getFloor());
 		//need to move up before moving down assume move up works correct
-		elevator.moveUp(); 
+		try {
+			elevator.moveUp();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 
 		//testing move down
-		elevator.moveDown();
-		assertSame(Movement.DOWN,elevator.getState());
+		try {
+			elevator.moveDown();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		assertSame(1,elevator.getFloor());
 	}
 
