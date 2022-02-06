@@ -22,19 +22,6 @@ import java.util.ArrayList;
  */
 public class TimeManagementTest {
 	TimeManagementSystem tms;
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	}
 	
 	/**
 	 * Tests that a multiplier of 0 will only return 0 values from the 2 time management functions
