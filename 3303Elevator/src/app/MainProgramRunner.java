@@ -1,6 +1,9 @@
 package app;
 
+import java.io.File;
 import java.util.Scanner;
+
+import javax.swing.JFileChooser;
 
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.FloorSubsystem.FloorSubsystem;
@@ -11,12 +14,17 @@ public class MainProgramRunner {
 	public static final boolean INSTANTLY_SCHEDULE_REQUESTS = true;
 	public static final float TIME_MULTIPLIER = 0;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
+	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
 	
+	public static final String DEFAULT_INPUT_FILE_ABSOLUTE_PATH = System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 	
 	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		//File system selection of input file. Defaults to the one in FloorSubsystem area
+		System.out.println(askToChooseFileOrUseDefault(sc)); // NEEDS TEXT FILE READER TO CHECK IF FILE IS LEGIT?
 
 		Scheduler scheduler = new Scheduler(FLOOR_COUNT, INSTANTLY_SCHEDULE_REQUESTS);
-		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler);
+		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler); //NEEDS TO HAVE INPUT FOR FILEPATH
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, TIME_MULTIPLIER);
 		scheduler.setFloorSubsys(floorSubsys);
 		
@@ -26,17 +34,61 @@ public class MainProgramRunner {
 		elevatorThread.start();
 		floorThread.start();
 		
-		runCommandLineUI(scheduler);
-		
-		
+		runCommandLineUI(sc, scheduler);//NEED TO CHANGE TO FLOOR SUBSYSTEM
 	}
+	
+	/**
+	 * Asks the user if they would like to specify an input file.
+	 * Opens file explorer if yes
+	 * returns default file path if no
+	 * @return The absolute file path to use for the input file
+	 */
+	private static String askToChooseFileOrUseDefault(Scanner sc) {
+	    System.out.println(UI_ASK_TO_CHOOSE_FILE_STRING);
+	    while(sc.hasNextLine()) {
+	    	 //Read the current command line
+	    	 String next = sc.nextLine();
+	    	 
+	    	 //CHOOSE FILE OPTION
+	    	 if (next.equals("y") || next.equals("Y")) {
+	    		 String x = chooseFile();
+	    		 return x;
+	   	    // ANY OTHER OPTION
+	    	 } else {
+	    		 return DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
+	    	}
+	     }
+	    return null;//Should never get here
+	}
+
+	/**
+     * Return the chosen file name path or the default if none selected
+     * @return fileName Absolute path of selected file if not default file
+     */
+    private static String chooseFile(){
+        String fileName="";
+        //so we let the fileChooser open in the current directory of the user
+        String userDirLocation = System.getProperty("user.dir");
+        File userDir = new File(userDirLocation);
+        // default to user directory
+        JFileChooser fileChooser = new JFileChooser(userDir);
+        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
+            //get the file
+            fileName = fileChooser.getSelectedFile().getPath();
+            System.out.println(fileName);
+        } else {
+        	return DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
+        }
+        return fileName;
+    }
+    
+    
 	
 	/**
 	 * Command line user interface for adding new requests to the elevator system dynamically
 	 * @param scheduler The elevator system scheduler
 	 */
-	private static void runCommandLineUI(Scheduler scheduler) {
-	     Scanner sc = new Scanner(System.in);
+	private static void runCommandLineUI(Scanner sc, Scheduler scheduler) {
 	     System.out.println(UI_COMMAND_EXPLAIN_STRING);
 	     while(sc.hasNextLine()) {
 	    	 //Read the current command line
@@ -49,8 +101,10 @@ public class MainProgramRunner {
 	    		 System.exit(0);
 	    		 
 	    	//ADD REQUEST OPTION
+	    		 
+	    		 //TODO : THIS GOTTA BE TAILORED TO FLOOR SUBSYSTEM MAKING INPUT REQUESTS
 	    	 } else if (next.equals("n")) {
-	    		 System.out.println("Enter your command with the following format <CurrentFloor> <DestinationFloor>\n"+"Example: 2 6 for a request to go from fllor 2 to 6");
+	    		 System.out.println("Enter your command with the following format <CurrentFloor> <DestinationFloor>\n"+"Example: 2 6 for a request to go from floor 2 to 6");
 	    		 next = sc.nextLine();
 	    		 String commands[] = next.split(" ");
    	    	 
