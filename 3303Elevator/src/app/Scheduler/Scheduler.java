@@ -117,16 +117,20 @@ public class Scheduler {
 	 */
 	public synchronized void addElevatorRequest(Integer startFloor, Integer destinationFloor) {
 
+		boolean didUnparking = false;
+		
 		//If we are currently parked, add the startFloor to the corresponding directional toVisitSet
 		if (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
 			
 			//Need to go down if startFloor is below current
 			if (elevatorCurrentFloor > startFloor) {
 				this.downwardsToVisitSet.add(startFloor);
+				didUnparking = true;
 				
 			} //Need to go up if startFloor is above current
 			else if (elevatorCurrentFloor < startFloor) {	
 				this.upwardsToVisitSet.add(startFloor);
+				didUnparking = true;
 			} 
 			//Already at start floor otherwise. No need to move elevator
 			//After un-parking and adding startFloor as a destination, try to schedule the request
@@ -139,7 +143,7 @@ public class Scheduler {
 		if (isUpwards) { 
 			
 			//Add to visit set iff the start floor is above or equal to current. Otherwise add to unscheduledRequests
-			if (startFloor >= elevatorCurrentFloor) {
+			if (startFloor >= elevatorCurrentFloor || didUnparking) {
 				this.upwardsToVisitSet.add(startFloor);
 				this.upwardsToVisitSet.add(destinationFloor);
 			} else {
@@ -149,7 +153,7 @@ public class Scheduler {
 			
 		} else if (!isUpwards ) {
 			//Add to visit set iff the start floor is below or equal to current. Otherwise add to unscheduledRequests
-			if (startFloor <= elevatorCurrentFloor) {
+			if (startFloor <= elevatorCurrentFloor || didUnparking) {
 				this.downwardsToVisitSet.add(startFloor);
 				this.downwardsToVisitSet.add(destinationFloor);
 			} else {
@@ -181,8 +185,15 @@ public class Scheduler {
 	 * @return TreeSet of the remaining floors to visit in this direction
 	 */
 	public synchronized SortedSet<Integer> getNextFloorsToVisit(Integer currentFloorNumber, boolean currentElevatorDirection) {
-		
+		//wait loop until there is a destination to visit - Waiting here means elevator is parked
+		while (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
+			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Movement.PARKED);
+
+			try {wait();} catch (InterruptedException e) {}
+		}
+
 		this.elevatorCurrentFloor = currentFloorNumber;
+		
 		
 		//just visited currentFloorNumber. pop it out of the corresponding directional to visit set
 		//Inconsequential attempting to remove non existing element
@@ -191,15 +202,7 @@ public class Scheduler {
 		} else {
 			downwardsToVisitSet.remove(currentFloorNumber);
 		}
-		
-		
-		//wait loop until there is a destination to visit - Waiting here means elevator is parked
-		while (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
-			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Movement.PARKED);
 
-			try {wait();} catch (InterruptedException e) {}
-		}
-		
 		SortedSet<Integer> floorsToVisit;
 		boolean nextDirectionUp = currentElevatorDirection;
 		
@@ -209,8 +212,11 @@ public class Scheduler {
 			//Change direction if no more upwards floors to visit. Try scheduling the unscheduled
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();
-				floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
-				nextDirectionUp = false; 
+				floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
+				if (floorsToVisit.isEmpty()) {
+					floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
+					nextDirectionUp = false; 
+				}
 			} 
 		} else {
 			floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
@@ -218,11 +224,26 @@ public class Scheduler {
 			//Change direction if no more downwards floors to visit. Try scheduling the unscheduled
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();
-				floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
-				nextDirectionUp = true; 
+				if (floorsToVisit.isEmpty()) {
+					floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
+					nextDirectionUp = true; 
+				}
 			} 
 		}
 		
+		
+		
+		//When at the bottom floor, cannot have any more downwards floors to visit
+		if (currentFloorNumber == 1 ) {
+			this.downwardsToVisitSet.clear();
+		}
+
+		//When at the top floor, cannot have any more downwards floors to visit
+		if (currentFloorNumber == this.highestFloorNumber) {
+			this.upwardsToVisitSet.clear();
+		}
+		
+
 		this.floorSubsys.updateElevatorPosition(currentFloorNumber,nextDirectionUp? Movement.UP : Movement.DOWN);
 		return floorsToVisit;
 	}
@@ -235,6 +256,9 @@ public class Scheduler {
 	 * @return List of floors that the current elevator needs to visit
 	 */
 	private synchronized SortedSet<Integer> getStopsGoingUpwards(Integer currentFloorNumber) {
+		
+		this.upwardsToVisitSet =new TreeSet<Integer>( this.upwardsToVisitSet.tailSet(currentFloorNumber, false));
+		
 		return this.upwardsToVisitSet.tailSet(currentFloorNumber, false);
 	}
 	
@@ -245,6 +269,9 @@ public class Scheduler {
 	 * @return List of floors that the current elevator needs to visit
 	 */
 	private synchronized SortedSet<Integer> getRemainingStopsGoingDownward(Integer currentFloorNumber) {
+		
+		this.downwardsToVisitSet = new TreeSet<Integer>( this.downwardsToVisitSet.headSet(currentFloorNumber, false));
+		
 		return this.downwardsToVisitSet.headSet(currentFloorNumber, false);
 	}
 

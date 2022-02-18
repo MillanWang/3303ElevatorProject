@@ -31,13 +31,19 @@ public class ElevatorSubsystem implements Runnable{
 	private Scheduler scheduler;
 
 	/**
+	 * Maximum number of floors
+	 */
+	private int maxFloorCount;
+	
+	/**
 	 * Constructor used to create elevator subsystem
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(Scheduler scheduler){
+	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount, float timeMultiplier){
+		this.maxFloorCount = maxFloorCount;
 		this.name = Thread.currentThread().getName();
-		this.elevator = new Elevator();
+		this.elevator = new Elevator(maxFloorCount, timeMultiplier);
 		this.scheduler = scheduler;
 	}
 
@@ -51,12 +57,12 @@ public class ElevatorSubsystem implements Runnable{
 
 	public void checkFloor(int destinationFloor) {
 		this.log("at floor " + elevator.getFloor());
-		if(this.elevator.getFloor() == destinationFloor) {
+		if(this.elevator.getFloor() == destinationFloor || this.elevator.getFloor()==this.maxFloorCount) {
 			this.log("has arrived at desitnation ");
 			this.log("doors starting to open");
 			if(this.elevator.loadElevator()) {
 				this.log("doors are now closed");
-			}else{
+			} else {
 				this.log("error occured opening doors");
 			}
 		}
@@ -82,23 +88,31 @@ public class ElevatorSubsystem implements Runnable{
 				this.log("is moving " + this.elevator.getState());
 				elevator.move();
 				this.checkFloor(destinationFloor);
-			}
-
-			if(elevator.getState() == Movement.PARKED) {
+				
+				
+			} else if (elevator.getState() == Movement.PARKED) {
 				this.log("is moving from " + this.elevator.getState());
 				int destinationFloor = floorsToVisit.first();
 				
 				if(destinationFloor > this.elevator.getFloor()) {
 					this.log("is moving up");
-					this.elevator.moveUp();
+					try {
+						this.elevator.moveUp();
+					} catch(InterruptedException e) {
+						this.log("sleep error");
+					}
 				}else if(destinationFloor < this.elevator.getFloor()) {
 					this.log("is moving down");
-					this.elevator.moveDown();	
+					try {
+						this.elevator.moveDown();
+					} catch(InterruptedException e) {
+						this.log("sleep error");
+					}
 				}
 				
 				this.checkFloor(destinationFloor);
 			}
-
+System.out.println("\n\n");
 		}
 	}
 
