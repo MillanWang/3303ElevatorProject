@@ -17,12 +17,12 @@ import org.junit.Test;
 
 import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.FloorSubsystem;
-import app.FloorSubsystem.Input;
+import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 public class InputTest {
-	Input req = new Input(LocalTime.now(), 1 , true, 5);
-	Input reqTwo = new Input(LocalTime.now(), 6, false, 2);
-	Input reqThree = new Input(null, 2, true, 4); 
+	ScheduledElevatorRequest req = new ScheduledElevatorRequest(LocalTime.now(), 1 , true, 5);
+	ScheduledElevatorRequest reqTwo = new ScheduledElevatorRequest(LocalTime.now(), 6, false, 2);
+	ScheduledElevatorRequest reqThree = new ScheduledElevatorRequest(null, 2, true, 4); 
 	
 	@Test
 	/*

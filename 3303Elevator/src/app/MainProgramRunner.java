@@ -24,7 +24,7 @@ public class MainProgramRunner {
 		System.out.println(askToChooseFileOrUseDefault(sc)); // NEEDS TEXT FILE READER TO CHECK IF FILE IS LEGIT?
 
 		Scheduler scheduler = new Scheduler(FLOOR_COUNT, INSTANTLY_SCHEDULE_REQUESTS);
-		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler); //NEEDS TO HAVE INPUT FOR FILEPATH
+		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, "src/app/FloorSubsystem/inputfile.txt");
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, TIME_MULTIPLIER);
 		scheduler.setFloorSubsys(floorSubsys);
 		

@@ -17,14 +17,14 @@ import org.junit.Test;
 
 import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.FloorSubsystem;
-import app.FloorSubsystem.Input;
+import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 
 public class FloorSubsystemTests {
 	
 	Scheduler scheduler = new Scheduler(5, true); 
 	FloorSubsystem floorSubsys = new FloorSubsystem(scheduler);
-	Input testInput; 
+	ScheduledElevatorRequest testInput; 
 	@Test
 	/**
 	 * tests the InputRequests in floorSubsystem (Checks for proper file reading, and additional getter methods to confirm the addition of the requests
@@ -41,7 +41,7 @@ public class FloorSubsystemTests {
 	 * tests the schedule requests to be received from the scheduler 
 	 */
 	public void addScheduleRequeststest() {
-		testInput = new Input(LocalTime.now(), 1 , true, 5); //LocalTime time, int startfloor, boolean Upwards, int destinationfloor
+		testInput = new ScheduledElevatorRequest(LocalTime.now(), 1 , true, 5); //LocalTime time, int startfloor, boolean Upwards, int destinationfloor
 		assertEquals(0, floorSubsys.getSchedulerRequests().size());
 		floorSubsys.addScheduleRequests(testInput);
 		assertEquals(1, floorSubsys.getSchedulerRequests().size());

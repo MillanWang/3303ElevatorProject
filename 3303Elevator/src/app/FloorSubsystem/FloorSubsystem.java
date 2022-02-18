@@ -14,20 +14,34 @@ public class FloorSubsystem extends Thread{
 
 	
 	private Scheduler scheduler; 
-	private ArrayList<Input> requests; 
-	private ArrayList<Input> schedulerRequests; 
+	private ArrayList<ScheduledElevatorRequest> requests; 
+	private ArrayList<ScheduledElevatorRequest> schedulerRequests; 
 	private Integer elevatorPosition; 
 	private Movement elevatorStatus; 
+	private String inputFileLocation;
 	
 	/**
 	 * Constructor initializes the floor subsystem with the serving scheduler 
 	 * @param Scheduler 
+	 * @param inputFile: the file path to be accessed 
 	 */
 	public FloorSubsystem(Scheduler scheduler) {
 		this.scheduler = scheduler; 
-		this.requests = new ArrayList<Input>();
-		this.schedulerRequests = new ArrayList<Input>();
-		
+		this.requests = new ArrayList<ScheduledElevatorRequest>();
+		this.schedulerRequests = new ArrayList<ScheduledElevatorRequest>();
+		this.inputFileLocation = "src/app/FloorSubsystem/inputfile.txt";
+	}
+	
+	/**
+	 * Constructor initializes the floor subsystem with the serving scheduler 
+	 * @param Scheduler 
+	 * @param inputFile: the file path to be accessed 
+	 */
+	public FloorSubsystem(Scheduler scheduler, String inputFile) {
+		this.scheduler = scheduler; 
+		this.requests = new ArrayList<ScheduledElevatorRequest>();
+		this.schedulerRequests = new ArrayList<ScheduledElevatorRequest>();
+		this.inputFileLocation = inputFile;
 	}
 	
 	/**
@@ -42,7 +56,7 @@ public class FloorSubsystem extends Thread{
 	 * add_schedule_requests methods receives requests from the scheduler and adds it to the schedulerRequests collection
 	 * @param request; Input type parameter that holds the request's details
 	 */
-	public void addScheduleRequests(Input request) {
+	public void addScheduleRequests(ScheduledElevatorRequest request) {
 		this.schedulerRequests.add(request);
 		//this.scheduler.scheduleRequest(request);
 	}
@@ -50,14 +64,14 @@ public class FloorSubsystem extends Thread{
 	/**
 	 * @return the requests added from the input.txt
 	 */
-	public ArrayList<Input> getRequests(){
+	public ArrayList<ScheduledElevatorRequest> getRequests(){
 		return this.requests;
 	}
 	
 	/**
 	 * @return the requests received from the scheduler
 	 */
-	public ArrayList<Input> getSchedulerRequests(){
+	public ArrayList<ScheduledElevatorRequest> getSchedulerRequests(){
 		return this.schedulerRequests; 
 	}
 	
@@ -88,8 +102,8 @@ public class FloorSubsystem extends Thread{
 	 * Runs the floorSubsystem thread
 	 */
 	public synchronized void run() {
-		addInputRequests("src/app/FloorSubsystem/inputfile.txt");
-		for (Input request: this.requests) {
+		addInputRequests(this.inputFileLocation); 
+		for (ScheduledElevatorRequest request: this.requests) {
 			this.scheduler.floorSystemScheduleRequest(request);
 		}
 			

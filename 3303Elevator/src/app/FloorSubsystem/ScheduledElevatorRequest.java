@@ -1,0 +1,98 @@
+/**
+ * Elevator project 
+ * The ScheduledElevatorRequest class is the object that contains details of elevator request to be sent to the scheduler by  the floor subsystem 
+ * 
+ * @author petertanyous
+ * #ID 101127203 
+ */
+package app.FloorSubsystem;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit; 
+public class ScheduledElevatorRequest {
+	
+	private LocalTime time; //time of request
+	private long millisecondDelay; 
+	private int startfloor;
+	private boolean Upwards;
+	private int destinationfloor;  
+	
+	/**
+	 * Constructor parses the input string to assign the fields 
+	 * @param input; the input string (from text file)
+	 */
+	public ScheduledElevatorRequest(LocalTime time, int startfloor, boolean Upwards, int destinationfloor) {
+		this.time = time;
+		this.startfloor = startfloor; 
+		this.Upwards = Upwards;
+		this.destinationfloor = destinationfloor;
+		this.millisecondDelay = this.getMilliSecondDelay(time);
+	}
+	public ScheduledElevatorRequest(long time, int startfloor, boolean Upwards, int destinationfloor) {
+		this.time = this.getLocalTimeDelay(time);
+		this.startfloor = startfloor; 
+		this.Upwards = Upwards;
+		this.destinationfloor = destinationfloor;
+		this.millisecondDelay = time;
+	}
+	
+	
+	/**
+	 * returns the time of request event
+	 */
+	public LocalTime getTime() {
+		return this.time;
+	}
+	
+	/**
+	 * returns the floor at which the elevator is requested
+	 */
+	public int getStartFloor() {
+		return this.startfloor;
+	}
+	
+	/**
+	 * returns True if the direction is Up and False if the direction is down
+	 */
+	public boolean isUpwards() {
+		return this.Upwards;
+	}
+	
+	/**
+	 * returns the destination of the request  
+	 */
+	public int getDestinationFloor() {
+		return this.destinationfloor;
+	}
+	/**
+	 * Calculates the time in milliseconds to delay between now and the given the LocalTime execution time
+	 * @param time
+	 * @return milliseconds
+	 */
+	public long getMilliSecondDelay(LocalTime time) {
+		
+		long milliseconds = LocalTime.now().until(time, ChronoUnit.MILLIS );
+		
+		//if the scheduled time is before now, milliseconds will be negative. Add it to ms in a day to get time until it occurs again tomorrow
+		if (milliseconds < 0) {
+			milliseconds = 24*60*60*1000 + milliseconds;
+		}
+		return milliseconds;
+	}
+	/**
+	 * Calculates the time in LocalTime stamp to delay between now and the given milliseconds delay
+	 * 
+	 * @param MilliSecond
+	 * @return LocalTime timeDelay
+	 */
+	public LocalTime getLocalTimeDelay(long MilliSecond) {
+		if(MilliSecond > 0) {
+		LocalTime timeDelay = LocalTime.now().plus(MilliSecond, ChronoUnit.MILLIS);
+		return timeDelay;
+		
+		}
+		else {
+			return LocalTime.now();
+		}
+	}
+	
+}
