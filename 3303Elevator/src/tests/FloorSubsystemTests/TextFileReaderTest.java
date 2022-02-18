@@ -17,11 +17,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.FloorSubsystem.Input;
+import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.FloorSubsystem.TextFileReader;
 
 public class TextFileReaderTest {
-	ArrayList<Input> reqs;
+	ArrayList<ScheduledElevatorRequest> reqs;
 	
 	@Test
 	/**

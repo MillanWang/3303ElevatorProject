@@ -68,7 +68,7 @@ public class Scheduler {
 	 * Schedules an incoming floorSystemRequest to corresponding directional floor queue
 	 * @param requestEvent
 	 */
-	public synchronized void floorSystemScheduleRequest(Input floorSystemRequest) {
+	public synchronized void floorSystemScheduleRequest(ScheduledElevatorRequest floorSystemRequest) {
 		//Assuming sanitized inputs
 		Integer startFloor = floorSystemRequest.getStartFloor();
 		Integer destinationFloor = floorSystemRequest.getDestinationFloor();

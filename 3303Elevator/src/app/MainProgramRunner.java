@@ -16,7 +16,7 @@ public class MainProgramRunner {
 		
 		
 		Scheduler scheduler = new Scheduler(FLOOR_COUNT, INSTANTLY_SCHEDULE_REQUESTS);
-		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler);
+		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, "src/app/FloorSubsystem/inputfile.txt");
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler);
 		scheduler.setFloorSubsys(floorSubsys);
 		
