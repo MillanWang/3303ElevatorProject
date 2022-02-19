@@ -20,11 +20,12 @@ public class MainProgramRunner {
 	
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
-		//File system selection of input file. Defaults to the one in FloorSubsystem area
-		System.out.println(askToChooseFileOrUseDefault(sc)); // NEEDS TEXT FILE READER TO CHECK IF FILE IS LEGIT?
 
 		Scheduler scheduler = new Scheduler(FLOOR_COUNT, INSTANTLY_SCHEDULE_REQUESTS);
-		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, "src/app/FloorSubsystem/inputfile.txt");
+
+		//Asks user via cmd line if they want to specify an input file or go with default
+		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, askToChooseFileOrUseDefault(sc));
+		
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, TIME_MULTIPLIER);
 		scheduler.setFloorSubsys(floorSubsys);
 		
@@ -34,7 +35,7 @@ public class MainProgramRunner {
 		elevatorThread.start();
 		floorThread.start();
 		
-		runCommandLineUI(sc, scheduler);//NEED TO CHANGE TO FLOOR SUBSYSTEM
+		runCommandLineUI(sc, scheduler);
 	}
 	
 	/**
@@ -51,8 +52,7 @@ public class MainProgramRunner {
 	    	 
 	    	 //CHOOSE FILE OPTION
 	    	 if (next.equals("y") || next.equals("Y")) {
-	    		 String x = chooseFile();
-	    		 return x;
+	    		 return chooseFile();
 	   	    // ANY OTHER OPTION
 	    	 } else {
 	    		 return DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
@@ -75,6 +75,12 @@ public class MainProgramRunner {
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
             //get the file
             fileName = fileChooser.getSelectedFile().getPath();
+            
+            File f = new File(fileName);
+            if (!f.exists() || f.isDirectory()) {
+            	//If file is invalid, use default
+            	fileName = DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
+            }
             System.out.println(fileName);
         } else {
         	return DEFAULT_INPUT_FILE_ABSOLUTE_PATH;

@@ -70,6 +70,10 @@ public class ScheduledElevatorRequest {
 	 */
 	public long getMilliSecondDelay(LocalTime time) {
 		
+		if (time==null) {
+			return 0;
+		}
+		
 		long milliseconds = LocalTime.now().until(time, ChronoUnit.MILLIS );
 		
 		//if the scheduled time is before now, milliseconds will be negative. Add it to ms in a day to get time until it occurs again tomorrow
