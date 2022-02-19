@@ -20,20 +20,13 @@ public class TextFileReader {
 	public static ArrayList<ScheduledElevatorRequest> getrequests(String inputfile){
 		ArrayList<ScheduledElevatorRequest> requests = new ArrayList<ScheduledElevatorRequest>(); //array list of all requests from text file
 		String line; //line being parsed in the text file
-		boolean upward; //boolean representing if the elevator is to go upward from the current floor (True if Up, False if Down) 
-		LocalTime time; //time at which the call is made: read from the input file 
-		Integer source; //source floor where the elevator was called 
-		Integer destination; // destination floor where the elevator if requested to go 
+		
 		try {
 			BufferedReader reader  = new BufferedReader(new FileReader(inputfile));
 			line = reader.readLine();
 			while (line != null) {
 
-				upward = getIsUpward(line);
-				time = getTime(line);
-				source = getSource(line);
-				destination = getDestination(line);
-				ScheduledElevatorRequest event = new ScheduledElevatorRequest(time , source , upward , destination); 
+				ScheduledElevatorRequest event = getRequest(line); 
 				requests.add(event);
 				line = reader.readLine();
 			}
@@ -46,60 +39,36 @@ public class TextFileReader {
 	}
 	
 	/**
-	 * gets the direction of the elevator request 
-	 * 
-	 * @param line: the line read from the txt file 
-	 * @return true if the direction is upward, false if downward
+	 * parses a request line and returns a ScheduledElevatorRequest object
+	 * @param line: the line read from the file
+	 * @return ScheduledElevatorRequest Object
 	 */
-	public static boolean getIsUpward(String line) {
+	public static ScheduledElevatorRequest getRequest(String line) {
+		boolean isUpward;
+		LocalTime time;
+		Integer source;
+		Integer destination;
+		
 		String[] lineValues = line.split(",");
+		
 		if(String.valueOf(lineValues[2]).equals("Up")){
-			return  true;
+			isUpward =  true;
 		}
 		else {
-			return false;
+			isUpward = false;
 		}
-	}
-	
-	/**
-	 * gets the time the request was made from the txt file 
-	 * 
-	 * @param line: the line read from the txt file 
-	 * @return the time the request was made as logged in the input file.
-	 */
-	public static LocalTime getTime(String line) {
-		String[] lineValues = line.split(",");
 		try{
-			return LocalTime.parse(lineValues[0]);
+			time =  LocalTime.parse(lineValues[0]);
 		}
 		catch(Exception e) {
 			
-			return null; 
+			time = null;
 		}
-	}
-	
-	/**
-	 * gets the source where the request was made from in the txt file
-	 * 
-	 * @param line: the line read from the txt file 
-	 * @return int: the floor number of the source 
-	 */
-	public static int getSource(String line) {
-		String[] lineValues = line.split(",");
+		source = Integer.valueOf(lineValues[1]);
+		destination = Integer.valueOf(lineValues[3]);
+		ScheduledElevatorRequest event = new ScheduledElevatorRequest(time , source , isUpward , destination);
+		return event; 
 		
-		return Integer.valueOf(lineValues[1]);
-		
-	}
-	
-	/**
-	 * gets the destination the elevator is to go to in the txt file
-	 * 
-	 * @param line: the line read from the txt file 
-	 * @return int: the floor number of the destination  
-	 */
-	public static int getDestination(String line) {
-		String[] lineValues = line.split(",");
-		return Integer.valueOf(lineValues[3]);
 	}
 	
 	

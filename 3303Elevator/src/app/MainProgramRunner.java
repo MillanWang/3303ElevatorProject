@@ -7,6 +7,7 @@ import javax.swing.JFileChooser;
 
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.FloorSubsystem.FloorSubsystem;
+import app.FloorSubsystem.Logger;
 import app.Scheduler.Scheduler;
 
 public class MainProgramRunner {
@@ -15,17 +16,22 @@ public class MainProgramRunner {
 	public static final float TIME_MULTIPLIER = 0;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
 	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
-	
+	public static final boolean ELEVATOR_LOGGING = true;
+	public static final boolean SCHEDULER_LOGGING = true;
+	public static final boolean FLOORSUBSYSTEM_LOGGING = true;
+	public static final boolean TIMEMANAGEMENT_LOGGING = true;
 	public static final String DEFAULT_INPUT_FILE_ABSOLUTE_PATH = System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 	
+	
 	public static void main(String[] args) {
+		Logger log = new Logger(ELEVATOR_LOGGING,SCHEDULER_LOGGING ,FLOORSUBSYSTEM_LOGGING,TIMEMANAGEMENT_LOGGING); 
 		Scanner sc = new Scanner(System.in);
 
 		Scheduler scheduler = new Scheduler(FLOOR_COUNT, INSTANTLY_SCHEDULE_REQUESTS);
 
-		//Asks user via cmd line if they want to specify an input file or go with default
-		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, askToChooseFileOrUseDefault(sc));
-		
+    //Asks user via cmd line if they want to specify an input file or go with default
+		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler,askToChooseFileOrUseDefault(sc), log);
+
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, TIME_MULTIPLIER);
 		scheduler.setFloorSubsys(floorSubsys);
 		
