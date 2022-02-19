@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.FloorSubsystem;
+import app.FloorSubsystem.Logger;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 
@@ -27,7 +28,7 @@ public class SchedulerTests {
 	@Before
 	public void setUp() throws Exception {
 		this.scheduler = new Scheduler(3,false);
-		this.scheduler.setFloorSubsys(new FloorSubsystem(scheduler));
+		this.scheduler.setFloorSubsys(new FloorSubsystem(scheduler, new Logger(true,true,true,true)));
 	}
 
 	/**
