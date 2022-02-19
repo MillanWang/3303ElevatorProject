@@ -89,10 +89,10 @@ public class ElevatorSubsystem implements Runnable{
 			// the three states that we need to consider are moving up (MoveUp), moving down (MoveDown),
 			// and finally the parked state which is now (nextProcessing, or Idle state) almost identical.
 			
-			log("" + elevator.getState());
+			//log("" + elevator.getState());
 			
 			SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), true);//tmp for now
-			log("" + floorsToVisit);
+			//log("" + floorsToVisit);
 			if(floorsToVisit.size() == 0) {
 				if(!elevator.isStationary()) {
 					//error here
@@ -114,6 +114,8 @@ public class ElevatorSubsystem implements Runnable{
 				}else {
 					//There is an issue
 				}
+				
+				elevator.waitTransite();
 				elevator.nextState();
 				checkFloor(destFloor);
 			// check if the elevator is moving up or down
@@ -126,6 +128,8 @@ public class ElevatorSubsystem implements Runnable{
 				}else if(destFloor < elevator.getFloor()) {
 					elevator.setDirection(Direction.DOWN);
 				}
+				
+				elevator.waitTransite();
 				elevator.nextState();
 				checkFloor(destFloor);
 			}
