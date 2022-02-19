@@ -17,13 +17,15 @@ import org.junit.Test;
 
 import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.FloorSubsystem;
+import app.FloorSubsystem.Logger;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 
 public class FloorSubsystemTests {
 	
 	Scheduler scheduler = new Scheduler(5, true); 
-	FloorSubsystem floorSubsys = new FloorSubsystem(scheduler);
+	Logger log = new Logger(true, true, true, true);
+	FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, log);
 	ScheduledElevatorRequest testInput; 
 	@Test
 	/**
