@@ -25,7 +25,7 @@ public class ScheduledElevatorRequest {
 		this.startfloor = startfloor; 
 		this.Upwards = Upwards;
 		this.destinationfloor = destinationfloor;
-		this.millisecondDelay = this.getMilliSecondDelay(time);
+		this.millisecondDelay = this.calculateMilliSecondDelay(time);
 	}
 	public ScheduledElevatorRequest(long time, int startfloor, boolean Upwards, int destinationfloor) {
 		this.time = this.getLocalTimeDelay(time);
@@ -51,6 +51,12 @@ public class ScheduledElevatorRequest {
 	}
 	
 	/**
+	 * @return the millisecondDelay
+	 */
+	public long getMillisecondDelay() {
+		return millisecondDelay;
+	}
+	/**
 	 * returns True if the direction is Up and False if the direction is down
 	 */
 	public boolean isUpwards() {
@@ -63,12 +69,13 @@ public class ScheduledElevatorRequest {
 	public int getDestinationFloor() {
 		return this.destinationfloor;
 	}
+	
 	/**
 	 * Calculates the time in milliseconds to delay between now and the given the LocalTime execution time
 	 * @param time
 	 * @return milliseconds
 	 */
-	public long getMilliSecondDelay(LocalTime time) {
+	private long calculateMilliSecondDelay(LocalTime time) {
 		
 		long milliseconds = LocalTime.now().until(time, ChronoUnit.MILLIS );
 		
@@ -84,7 +91,7 @@ public class ScheduledElevatorRequest {
 	 * @param MilliSecond
 	 * @return LocalTime timeDelay
 	 */
-	public LocalTime getLocalTimeDelay(long MilliSecond) {
+	private LocalTime getLocalTimeDelay(long MilliSecond) {
 		if(MilliSecond > 0) {
 		LocalTime timeDelay = LocalTime.now().plus(MilliSecond, ChronoUnit.MILLIS);
 		return timeDelay;
@@ -94,5 +101,7 @@ public class ScheduledElevatorRequest {
 			return LocalTime.now();
 		}
 	}
+	
+	
 	
 }

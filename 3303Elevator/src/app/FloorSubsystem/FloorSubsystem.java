@@ -19,17 +19,19 @@ public class FloorSubsystem extends Thread{
 	private Integer elevatorPosition; 
 	private Movement elevatorStatus; 
 	private String inputFileLocation;
+	private Logger currentLogger; 
 	
 	/**
 	 * Constructor initializes the floor subsystem with the serving scheduler 
 	 * @param Scheduler 
 	 * @param inputFile: the file path to be accessed 
 	 */
-	public FloorSubsystem(Scheduler scheduler) {
+	public FloorSubsystem(Scheduler scheduler, Logger log) {
 		this.scheduler = scheduler; 
 		this.requests = new ArrayList<ScheduledElevatorRequest>();
 		this.schedulerRequests = new ArrayList<ScheduledElevatorRequest>();
-		this.inputFileLocation = "src/app/FloorSubsystem/inputfile.txt";
+		this.inputFileLocation = System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
+		this.currentLogger = log;
 	}
 	
 	/**
@@ -37,11 +39,12 @@ public class FloorSubsystem extends Thread{
 	 * @param Scheduler 
 	 * @param inputFile: the file path to be accessed 
 	 */
-	public FloorSubsystem(Scheduler scheduler, String inputFile) {
+	public FloorSubsystem(Scheduler scheduler, String inputFile, Logger log) {
 		this.scheduler = scheduler; 
 		this.requests = new ArrayList<ScheduledElevatorRequest>();
 		this.schedulerRequests = new ArrayList<ScheduledElevatorRequest>();
 		this.inputFileLocation = inputFile;
+		this.currentLogger = log;
 	}
 	
 	/**
@@ -50,6 +53,9 @@ public class FloorSubsystem extends Thread{
 	 */
 	public void addInputRequests(String path) {
 		this.requests.addAll(TextFileReader.getrequests(path)); 
+		for(int i = 0; i < requests.size(); i++) {
+			currentLogger.logFloorEvent(requests.get(i));
+		}
 	}
 	
 	/**
@@ -58,6 +64,7 @@ public class FloorSubsystem extends Thread{
 	 */
 	public void addScheduleRequests(ScheduledElevatorRequest request) {
 		this.schedulerRequests.add(request);
+		currentLogger.logFloorEvent(request);
 		//this.scheduler.scheduleRequest(request);
 	}
 	
