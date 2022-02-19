@@ -2,8 +2,10 @@ package app.ElevatorSubsystem;
 
 import java.util.SortedSet;
 
+import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.Movement;
+import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.Scheduler.*;
 
 /**
@@ -57,14 +59,21 @@ public class ElevatorSubsystem implements Runnable{
 
 	public void checkFloor(int destinationFloor) {
 		this.log("at floor " + elevator.getFloor());
-		if(this.elevator.getFloor() == destinationFloor || this.elevator.getFloor()==this.maxFloorCount) {
-			this.log("has arrived at desitnation ");
-			this.log("doors starting to open");
-			if(this.elevator.loadElevator()) {
-				this.log("doors are now closed");
-			} else {
-				this.log("error occured opening doors");
+		if(this.elevator.getFloor() == destinationFloor){ //or max floor
+			elevator.nextState();// stopping or opening door
+			
+			if(elevator.getState() == ElevatorStateMachine.Stopping) {
+				//elevator slowing down
+				elevator.nextState();//open door if stopping before
 			}
+			this.log("has arrived at desitnation ");
+			
+			this.log("doors starting to open");
+			elevator.nextState();//open door
+			elevator.loadElevator();
+			elevator.nextState();//door closing
+			elevator.nextState();
+			this.log("doors finished closing");
 		}
 	}
 	
@@ -72,47 +81,55 @@ public class ElevatorSubsystem implements Runnable{
 	 * Continuously retrieves directions from the scheduler to operate the elevators
 	 */
 	public void run(){
+		this.log("starting at floor 1");
+		System.out.println("\n\n");
 		while (true) {
-			boolean isUp = elevator.getState() == Movement.UP ? true: false;
-			//TODO replace isUp with elevator state.
-			SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), isUp);
-
+			boolean movingUp = elevator.getState() == ElevatorStateMachine.MoveUp;
+			// I think we should pass the elevator state to the scheduler
+			// the three states that we need to consider are moving up (MoveUp), moving down (MoveDown),
+			// and finally the parked state which is now (nextProcessing, or Idle state) almost identical.
+			
+			log("" + elevator.getState());
+			
+			SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), true);//tmp for now
+			log("" + floorsToVisit);
 			if(floorsToVisit.size() == 0) {
-				this.elevator.park();
+				if(!elevator.isStationary()) {
+					//error here
+				}
 				continue;
 			}
 
-			if(elevator.getState() != Movement.PARKED) {
-				int destinationFloor = elevator.getState() == Movement.UP ? floorsToVisit.first() : floorsToVisit.last();
-				//The move method will move the elevator accordingly does not handle parked
-				this.log("is moving " + this.elevator.getState());
-				elevator.move();
-				this.checkFloor(destinationFloor);
+			
+			// checking if the elevator is idle or next processing
+			if(elevator.isStationary()) {
+				int destFloor = floorsToVisit.first();
 				
-				
-			} else if (elevator.getState() == Movement.PARKED) {
-				this.log("is moving from " + this.elevator.getState());
-				int destinationFloor = floorsToVisit.first();
-				
-				if(destinationFloor > this.elevator.getFloor()) {
-					this.log("is moving up");
-					try {
-						this.elevator.moveUp();
-					} catch(InterruptedException e) {
-						this.log("sleep error");
-					}
-				}else if(destinationFloor < this.elevator.getFloor()) {
-					this.log("is moving down");
-					try {
-						this.elevator.moveDown();
-					} catch(InterruptedException e) {
-						this.log("sleep error");
-					}
+				if(destFloor > elevator.getFloor()) {
+					elevator.setDirection(Direction.UP);
+				}else if(destFloor < elevator.getFloor()) {
+					elevator.setDirection(Direction.DOWN);
+				}else if(destFloor == elevator.getFloor()) {
+					elevator.setDirection(Direction.NONE);
+				}else {
+					//There is an issue
 				}
+				elevator.nextState();
+				checkFloor(destFloor);
+			// check if the elevator is moving up or down
+			}else if(elevator.isMoving()) {
+				// used to determine the movement we need to continue
+				int destFloor = elevator.getState() == ElevatorStateMachine.MoveUp ? floorsToVisit.first() : floorsToVisit.last();
 				
-				this.checkFloor(destinationFloor);
+				if(destFloor > elevator.getFloor()) {
+					elevator.setDirection(Direction.UP);
+				}else if(destFloor < elevator.getFloor()) {
+					elevator.setDirection(Direction.DOWN);
+				}
+				elevator.nextState();
+				checkFloor(destFloor);
 			}
-System.out.println("\n\n");
+			System.out.println("\n\n");
 		}
 	}
 
