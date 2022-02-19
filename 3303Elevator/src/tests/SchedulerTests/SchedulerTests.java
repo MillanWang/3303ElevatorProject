@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.FloorSubsystem;
-import app.FloorSubsystem.Input;
+import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 
 public class SchedulerTests {
@@ -39,14 +39,14 @@ public class SchedulerTests {
 	@Test
 	public void testFloorSystemScheduleRequestCanGetPickedUp_AShape_SplitRequests() {
 		//Schedule trip from 1 to 3 and 
-		scheduler.floorSystemScheduleRequest(new Input(null,1,false,3));
+		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,1,false,3));
 		Assert.assertFalse(scheduler.getNextFloorsToVisit(1, true).isEmpty());
 		Assert.assertFalse(scheduler.getNextFloorsToVisit(2, true).isEmpty());
 		//Once we reach the top, no more next floors to visit
 		Assert.assertTrue(scheduler.getNextFloorsToVisit(3, true).isEmpty());
 		
-		scheduler.floorSystemScheduleRequest(new Input(null,3,true,1));
-		scheduler.floorSystemScheduleRequest(new Input(null,2,true,1));
+		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,3,true,1));
+		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,2,true,1));
 		Assert.assertFalse(scheduler.getNextFloorsToVisit(3, false).isEmpty());
 		Assert.assertFalse(scheduler.getNextFloorsToVisit(2, false).isEmpty());
 		//Once we reach the bottom, no more next floors to visit
@@ -62,9 +62,9 @@ public class SchedulerTests {
 	@Test
 	public void testFloorSystemScheduleRequestCanGetPickedUp_AShape_UpFrontRequests() {
 		//Schedule trip from 1 to 3 and 
-		scheduler.floorSystemScheduleRequest(new Input(null,1,false,3));
-		scheduler.floorSystemScheduleRequest(new Input(null,3,true,1));
-		scheduler.floorSystemScheduleRequest(new Input(null,2,true,1));
+		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,1,false,3));
+		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,3,true,1));
+		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,2,true,1));
 		
 		Assert.assertFalse(scheduler.getNextFloorsToVisit(1, true).isEmpty());
 		Assert.assertFalse(scheduler.getNextFloorsToVisit(2, true).isEmpty());

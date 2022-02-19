@@ -1,6 +1,8 @@
 package app.ElevatorSubsystem.Elevator;
 
 import app.Scheduler.TimeManagementSystem;
+import app.ElevatorSubsystem.Direction.Direction;
+import app.ElevatorSubsystem.StateMachine.*;
 /**
  * SYSC 3303, Final Project
  * Elevator.java
@@ -12,7 +14,7 @@ public class Elevator{
 
 	private ElevatorDoor door;
 	private int currentFloor;
-	private Movement state;
+	private ElevatorStateMachine state;
 	private TimeManagementSystem tms;
 	
 	/**
@@ -23,7 +25,7 @@ public class Elevator{
 	public Elevator(int maxFloorCount, float timeMultiplier) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
-		this.state = Movement.UP;
+		this.state = ElevatorStateMachine.Idle;
 		this.tms = new TimeManagementSystem(timeMultiplier); 
 		this.door = new ElevatorDoor(this.tms);
 	}
@@ -40,53 +42,45 @@ public class Elevator{
 	public int getFloor() {
 		return this.currentFloor;
 	}
-
-	public void move() {
-		try {
-			if(this.state == Movement.UP)
-				this.moveUp();
-			else if(this.state == Movement.DOWN)
-				this.moveDown();
-			else if(this.state == Movement.PARKED)
-				System.out.println("[ERROR]#Elevator#move() can't handle parked");
-		} catch(InterruptedException e) {
-			System.out.println("[ERROR]#Elevator#move() sleep error");
-		}
+	
+	public ElevatorStateMachine getState() {
+		return state;
 	}
 	
-	public void moveUp() throws InterruptedException {
-		this.state = Movement.UP;
-		if (currentFloor < maxFloorCount) {
-			this.currentFloor++;
-			float f = tms.getElevatorTransitTime(currentFloor, currentFloor+1).get(0) ;
-			int time = (int) f;
-			Thread.sleep(time);
-		} 
-		if(currentFloor >= maxFloorCount){
-			park();
+	public void nextState() {
+		state = state.nextState();
+		
+		if(state == ElevatorStateMachine.MoveUp) {
+			currentFloor++;
+		}else if(state == ElevatorStateMachine.MoveDown) {
+			currentFloor--;
 		}
 		
 	}
 	
-	public void moveDown() throws InterruptedException {
-		this.state = Movement.DOWN;
-		if (currentFloor > 1) {
-			this.currentFloor--;
-			float f = tms.getElevatorTransitTime(currentFloor, currentFloor+1).get(0) ;
-			int time = (int) f;
-			Thread.sleep(time);
-		} 
-		if (currentFloor <= 1){
-			park();
+	public boolean isMoving() {
+		return state == ElevatorStateMachine.MoveUp || state == ElevatorStateMachine.MoveDown;
+	}
+
+	public boolean isStationary() {
+		return state == ElevatorStateMachine.Idle || state == ElevatorStateMachine.NextStopProcessing;
+	}
+	
+	public Direction getDirection() {
+		return state.getDirection();
+	}
+	
+	public void setDirection(Direction d) {
+		
+		if(this.currentFloor == 1 && d == Direction.DOWN) {
+			d = Direction.NONE;
 		}
-	}
-	
-	public Movement getState() {
-		return this.state; 
-	}
-	
-	public void park() {
-		this.state = Movement.PARKED;
+		
+		if( this.currentFloor == this.maxFloorCount && d == Direction.UP) {
+			d = Direction.NONE;
+		}
+		
+		state.setDirection(d);
 	}
 	
 }

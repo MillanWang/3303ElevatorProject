@@ -31,10 +31,6 @@ public class Scheduler {
 	private int elevatorCurrentFloor; //Eventually expand to be an array for all elevators
 	private FloorSubsystem floorSubsys;
 	
-	
-	
-	
-
 
 	/**
 	 * Constructor for scheduler lass
