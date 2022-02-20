@@ -14,7 +14,7 @@ public class MainProgramRunner {
 	public static final boolean INSTANTLY_SCHEDULE_REQUESTS = true;
 	public static final float TIME_MULTIPLIER = 0;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
-	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
+	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\" - no input file";
 	
 	//LOGGER INITIALIZATION PARAMS
 	public static final boolean ELEVATOR_LOGGING = true;
@@ -65,10 +65,10 @@ public class MainProgramRunner {
 
 	   	    // ANY OTHER OPTION
 	    	 } else {
-	    		 return DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
+	    		 return "";
 	    	}
 	     }
-	    return null;//Should never get here
+	    return "";//Should never get here
 	}
 
 	/**
@@ -88,12 +88,12 @@ public class MainProgramRunner {
             
             File f = new File(fileName);
             if (!f.exists() || f.isDirectory()) {
-            	//If file is invalid, use default
-            	fileName = DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
+            	//If file is invalid, use no file
+            	fileName = "";
             }
             System.out.println(fileName);
         } else {
-        	return DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
+        	return "";
         }
         return fileName;
     }
