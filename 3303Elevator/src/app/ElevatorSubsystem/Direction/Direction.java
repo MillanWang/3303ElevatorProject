@@ -10,6 +10,6 @@ package app.ElevatorSubsystem.Direction;
 public enum Direction{
 	UP,
 	DOWN,
-	CURRENT,
-	NONE
+	STOPPED_AT_FLOOR,
+	AWAITING_NEXT_REQUEST
 }

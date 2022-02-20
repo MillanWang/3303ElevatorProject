@@ -1,22 +1,26 @@
 package app.ElevatorSubsystem.Elevator;
 
+
+/**
+ * WORK IN PROGRESS - For eventual use in the GUI to indicate future floors that
+ * an elevator will visit. Also to log info for when destinations get set
+ * 
+ * @author Millan Wang
+ *
+ */
 public class ElevatorButton {
 
-	private boolean status;
+	private boolean isPressed;
 
 	public ElevatorButton(){
-		this.status = false;
+		this.isPressed = false;
 	}
 
-	public boolean getStatus(){
-		return this.status;
+	public boolean getIsPressed(){
+		return this.isPressed;
 	}
 
-	public void press(){
-		this.status = true;
-	}
-	
-	public void turnOff() {
-		this.status = false;
+	public void setIsPressed(boolean isPressed){
+		this.isPressed = isPressed;
 	}
 }

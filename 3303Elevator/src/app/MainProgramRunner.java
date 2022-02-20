@@ -16,23 +16,27 @@ public class MainProgramRunner {
 	public static final float TIME_MULTIPLIER = 0;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
 	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
+	
+	//LOGGER INITIALIZATION PARAMS
 	public static final boolean ELEVATOR_LOGGING = true;
 	public static final boolean SCHEDULER_LOGGING = true;
 	public static final boolean FLOORSUBSYSTEM_LOGGING = true;
 	public static final boolean TIMEMANAGEMENT_LOGGING = true;
+
+
 	public static final String DEFAULT_INPUT_FILE_ABSOLUTE_PATH = System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 	
 	
 	public static void main(String[] args) {
-		Logger log = new Logger(ELEVATOR_LOGGING,SCHEDULER_LOGGING ,FLOORSUBSYSTEM_LOGGING,TIMEMANAGEMENT_LOGGING); 
+		Logger logger = new Logger(ELEVATOR_LOGGING,SCHEDULER_LOGGING ,FLOORSUBSYSTEM_LOGGING,TIMEMANAGEMENT_LOGGING); 
 		Scanner sc = new Scanner(System.in);
 
 		Scheduler scheduler = new Scheduler(FLOOR_COUNT, INSTANTLY_SCHEDULE_REQUESTS);
 
     //Asks user via cmd line if they want to specify an input file or go with default
-		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler,askToChooseFileOrUseDefault(sc), log);
+		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler,askToChooseFileOrUseDefault(sc), logger);
 
-		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, TIME_MULTIPLIER);
+		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, TIME_MULTIPLIER, logger);
 		scheduler.setFloorSubsys(floorSubsys);
 		
 		Thread elevatorThread = new Thread(elevatorSubsys, "ElevatorSubsystemThread");
@@ -58,7 +62,8 @@ public class MainProgramRunner {
 	    	 
 	    	 //CHOOSE FILE OPTION
 	    	 if (next.equals("y") || next.equals("Y")) {
-	    		 return chooseFile();
+	    		 return chooseFileWithExplorer();
+
 	   	    // ANY OTHER OPTION
 	    	 } else {
 	    		 return DEFAULT_INPUT_FILE_ABSOLUTE_PATH;
@@ -71,7 +76,7 @@ public class MainProgramRunner {
      * Return the chosen file name path or the default if none selected
      * @return fileName Absolute path of selected file if not default file
      */
-    private static String chooseFile(){
+    private static String chooseFileWithExplorer(){
         String fileName="";
         //so we let the fileChooser open in the current directory of the user
         String userDirLocation = System.getProperty("user.dir");

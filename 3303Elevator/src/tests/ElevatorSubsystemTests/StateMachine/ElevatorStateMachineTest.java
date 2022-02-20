@@ -11,7 +11,7 @@ public class ElevatorStateMachineTest {
 	@Test
 	public void testNextState() {
 		ElevatorStateMachine state = ElevatorStateMachine.Idle;
-		assertSame(Direction.NONE, state.getDirection());
+		assertSame(Direction.AWAITING_NEXT_REQUEST, state.getDirection());
 		assertSame(ElevatorStateMachine.Idle, state);
 		assertSame("idle",state.toString());
 		state = state.nextState();
@@ -35,7 +35,7 @@ public class ElevatorStateMachineTest {
 		state = state.nextState();
 		assertSame(ElevatorStateMachine.DoorClosing, state);
 		assertSame("door closing",state.toString());
-		state.setDirection(Direction.CURRENT);
+		state.setDirection(Direction.STOPPED_AT_FLOOR);
 		state = state.nextState();
 		assertSame(ElevatorStateMachine.DoorOpening, state);
 		state = state.nextState();
@@ -75,7 +75,7 @@ public class ElevatorStateMachineTest {
 		
 		//idle current
 		state = ElevatorStateMachine.Idle;
-		state.setDirection(Direction.CURRENT);
+		state.setDirection(Direction.STOPPED_AT_FLOOR);
 		state = state.nextState();
 		assertSame(ElevatorStateMachine.DoorOpening, state); 
 	}

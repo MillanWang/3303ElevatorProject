@@ -17,12 +17,12 @@ public class TextFileReader {
 	 * @param inputfile file to be read
 	 * @return ArrayList of input files
 	 */
-	public static ArrayList<ScheduledElevatorRequest> getrequests(String inputfile){
+	public static ArrayList<ScheduledElevatorRequest> getRequests(String inputFilePath){
 		ArrayList<ScheduledElevatorRequest> requests = new ArrayList<ScheduledElevatorRequest>(); //array list of all requests from text file
 		String line; //line being parsed in the text file
 		
 		try {
-			BufferedReader reader  = new BufferedReader(new FileReader(inputfile));
+			BufferedReader reader  = new BufferedReader(new FileReader(inputFilePath));
 			line = reader.readLine();
 			while (line != null) {
 

@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.FloorSubsystem;
 import app.FloorSubsystem.Logger;
 import app.FloorSubsystem.ScheduledElevatorRequest;

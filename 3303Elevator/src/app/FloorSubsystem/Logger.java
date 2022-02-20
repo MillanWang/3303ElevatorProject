@@ -9,7 +9,7 @@ package app.FloorSubsystem;
 
 import java.time.LocalTime;
 
-import app.ElevatorSubsystem.Elevator.Movement;
+import app.ElevatorSubsystem.Direction.Direction;
 
 public class Logger {
 
@@ -41,15 +41,15 @@ public class Logger {
 	 * @param movement: movement enum specifying the movement state of the elevator 
 	 * @param floorNumber: floor number to which the elevator is moving to or is parked at 
 	 */
-	public void logElevatorEvents(Movement movement , int floorNumber  ) {
+	public void logElevatorEvents(Direction movement , int floorNumber  ) {
 		if(printElevatorEvents == true) {
-			if(movement == Movement.UP) {
+			if(movement == Direction.UP) {
 				System.out.println("Elevator is moving up to floor number " + floorNumber);
-			}
-			else if(movement == Movement.DOWN) {
+			} else if(movement == Direction.DOWN) {
 				System.out.println("Elevator is moving down to floor number " + floorNumber);
-			}
-			else if(movement == Movement.PARKED) {
+			} else if(movement == Direction.STOPPED_AT_FLOOR) {
+				System.out.println("Elevator is stopped at floor number " + floorNumber);
+			} else if(movement == Direction.AWAITING_NEXT_REQUEST) {
 				System.out.println("Elevator is parked at floor number " + floorNumber);
 			}
 		}

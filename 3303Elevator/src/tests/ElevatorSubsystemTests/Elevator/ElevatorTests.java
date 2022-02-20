@@ -94,19 +94,19 @@ public class ElevatorTests {
 	@Test
 	public void testGetDirection() {
 		Elevator e = new Elevator(7,1);
-		assertSame(Direction.NONE, e.getDirection());
+		assertSame(Direction.AWAITING_NEXT_REQUEST, e.getDirection());
 	}
 	
 	@Test
 	public void testSetDirection() {
 		Elevator e = new Elevator(2,1);
 		e.setDirection(Direction.DOWN);
-		assertSame(Direction.NONE, e.getDirection());
+		assertSame(Direction.AWAITING_NEXT_REQUEST, e.getDirection());
 		e.setDirection(Direction.UP);
 		e.nextState();
 		e.setDirection(Direction.UP);
 		assertSame(2, e.getFloor());
-		assertSame(Direction.NONE, e.getDirection());
+		assertSame(Direction.AWAITING_NEXT_REQUEST, e.getDirection());
 	}
 	
 	

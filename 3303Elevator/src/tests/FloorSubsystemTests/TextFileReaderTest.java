@@ -28,9 +28,9 @@ public class TextFileReaderTest {
 	 * getRequestTest reads an empty file to ensure nothing gets added and tests an input file with 9 requests to ensure all are added accordingly 
 	 */
 	public void getRequestTest() {
-		reqs = TextFileReader.getrequests("src/app/FloorSubsystem/emptyinputfile.txt");
+		reqs = TextFileReader.getRequests("src/app/FloorSubsystem/emptyinputfile.txt");
 		assertEquals(0, reqs.size());
-		reqs = TextFileReader.getrequests("src/app/FloorSubsystem/inputfile.txt");
+		reqs = TextFileReader.getRequests("src/app/FloorSubsystem/inputfile.txt");
 		assertNotEquals(0,reqs.size());
 		assertNull(reqs.get(reqs.size() - 1).getTime());
 		assertNotNull(reqs.get(0).getTime());
