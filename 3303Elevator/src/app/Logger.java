@@ -5,11 +5,12 @@
  * @author petertanyous
  * #ID 101127203 
  */
-package app.FloorSubsystem;
+package app;
 
 import java.time.LocalTime;
 
 import app.ElevatorSubsystem.Direction.Direction;
+import app.FloorSubsystem.ScheduledElevatorRequest;
 
 public class Logger {
 

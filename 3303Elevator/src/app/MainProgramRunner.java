@@ -7,7 +7,6 @@ import javax.swing.JFileChooser;
 
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.FloorSubsystem.FloorSubsystem;
-import app.FloorSubsystem.Logger;
 import app.Scheduler.Scheduler;
 
 public class MainProgramRunner {

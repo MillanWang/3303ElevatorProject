@@ -12,8 +12,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import org.junit.Test;
 
+import app.Logger;
 import app.ElevatorSubsystem.Direction.Direction;
-import app.FloorSubsystem.Logger;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 
 import org.junit.After;

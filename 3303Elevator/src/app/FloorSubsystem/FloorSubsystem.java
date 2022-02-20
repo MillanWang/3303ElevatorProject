@@ -8,6 +8,7 @@
 package app.FloorSubsystem;
 import java.util.*;
 
+import app.Logger;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.Scheduler.Scheduler;
 public class FloorSubsystem extends Thread{
