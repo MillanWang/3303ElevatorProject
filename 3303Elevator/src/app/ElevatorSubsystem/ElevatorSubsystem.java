@@ -58,11 +58,11 @@ public class ElevatorSubsystem implements Runnable{
 	}
 
 	/**
-	 * Logs message to console 
-	 * WIP NEEDS TO INTEGRATE WITH LOGGER
+	 * Logs message to logger
 	 * @param message
 	 */
 	public void log(String message){
+//		logger.logElevatorEvents(elevator.getDirection(), elevator.getFloor());
 		System.out.println("Elevator [" + this.name + "] " + message);
 	}
 
