@@ -13,7 +13,7 @@ public class ScheduledElevatorRequest {
 	private LocalTime time; //time of request
 	private long millisecondDelay; 
 	private int startfloor;
-	private boolean Upwards;
+	private boolean isUpwards;
 	private int destinationfloor;  
 	
 	/**
@@ -23,16 +23,16 @@ public class ScheduledElevatorRequest {
 	public ScheduledElevatorRequest(LocalTime time, int startfloor, boolean Upwards, int destinationfloor) {
 		this.time = time;
 		this.startfloor = startfloor; 
-		this.Upwards = Upwards;
+		this.isUpwards = Upwards;
 		this.destinationfloor = destinationfloor;
 		this.millisecondDelay = this.calculateMilliSecondDelay(time);
 	}
-	public ScheduledElevatorRequest(long time, int startfloor, boolean Upwards, int destinationfloor) {
-		this.time = this.getLocalTimeDelay(time);
+	public ScheduledElevatorRequest(long millisecondDelay, int startfloor, boolean Upwards, int destinationfloor) {
+		this.time = this.getLocalTimeDelay(millisecondDelay);
 		this.startfloor = startfloor; 
-		this.Upwards = Upwards;
+		this.isUpwards = Upwards;
 		this.destinationfloor = destinationfloor;
-		this.millisecondDelay = time;
+		this.millisecondDelay = millisecondDelay;
 	}
 	
 	
@@ -60,7 +60,7 @@ public class ScheduledElevatorRequest {
 	 * returns True if the direction is Up and False if the direction is down
 	 */
 	public boolean isUpwards() {
-		return this.Upwards;
+		return this.isUpwards;
 	}
 	
 	/**
@@ -95,13 +95,11 @@ public class ScheduledElevatorRequest {
 	 * @param MilliSecond
 	 * @return LocalTime timeDelay
 	 */
-	private LocalTime getLocalTimeDelay(long MilliSecond) {
-		if(MilliSecond > 0) {
-		LocalTime timeDelay = LocalTime.now().plus(MilliSecond, ChronoUnit.MILLIS);
-		return timeDelay;
-		
-		}
-		else {
+	private LocalTime getLocalTimeDelay(long milliSeconds) {
+		if(milliSeconds > 0) {
+			LocalTime timeDelay = LocalTime.now().plus(milliSeconds, ChronoUnit.MILLIS);
+			return timeDelay;
+		} else {
 			return LocalTime.now();
 		}
 	}

@@ -9,13 +9,10 @@ package tests.FloorSubsystemTests;
 import static org.junit.Assert.*;
 
 import java.time.LocalTime;
-import java.util.*;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.ElevatorSubsystem.Elevator.Movement;
+import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.FloorSubsystem;
 import app.FloorSubsystem.Logger;
 import app.FloorSubsystem.ScheduledElevatorRequest;
@@ -55,8 +52,8 @@ public class FloorSubsystemTests {
 	public void updateElevatorPositiontest() {
 		assertNull(floorSubsys.getElevatorPosition());
 		assertNull(floorSubsys.getElevatorStatus()); 
-		floorSubsys.updateElevatorPosition(2, Movement.UP);
+		floorSubsys.updateElevatorPosition(2, Direction.UP);
 		assertEquals( 2 , (int)floorSubsys.getElevatorPosition()); 
-		assertEquals(Movement.UP, floorSubsys.getElevatorStatus());
+		assertEquals(Direction.UP, floorSubsys.getElevatorStatus());
 	}
 }

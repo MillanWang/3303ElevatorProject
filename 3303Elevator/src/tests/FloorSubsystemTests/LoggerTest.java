@@ -11,7 +11,8 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import org.junit.Test;
-import app.ElevatorSubsystem.Elevator.Movement;
+
+import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.Logger;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 
@@ -28,24 +29,27 @@ public class LoggerTest {
 	public void setUp() {
 	    System.setOut(new PrintStream(outputStreamCaptor));
 	}
+	
 	@After
 	public void tearDown() {
 	    System.setOut(standardOut);
 	}
+	
 	@Test
 	/*
 	 * tests the elevator log message when elevator is moving up 
 	 */
 	public void elevatorUpLoggerTest() {
-		log.logElevatorEvents(Movement.UP, 4);
+		log.logElevatorEvents(Direction.UP, 4);
 		assertEquals("Elevator is moving up to floor number 4", outputStreamCaptor.toString().trim() );
 	}
+	
 	@Test
 	/*
 	 * tests the elevator log message when elevator is moving down
 	 */
 	public void elevatorDownLoggerTest() {
-		log.logElevatorEvents(Movement.DOWN, 2);
+		log.logElevatorEvents(Direction.DOWN, 2);
 		assertEquals("Elevator is moving down to floor number 2", outputStreamCaptor.toString().trim() );
 	}
 	
@@ -54,9 +58,19 @@ public class LoggerTest {
 	 * tests the elevator log message when elevator is parked
 	 */
 	public void elevatorParkedLoggerTest() {
-		log.logElevatorEvents(Movement.PARKED, 2);
+		log.logElevatorEvents(Direction.AWAITING_NEXT_REQUEST, 2);
 		assertEquals("Elevator is parked at floor number 2", outputStreamCaptor.toString().trim() );
 	}
+	
+	@Test
+	/*
+	 * tests the elevator log message when elevator is parked
+	 */
+	public void elevatorStoppedLoggerTest() {
+		log.logElevatorEvents(Direction.STOPPED_AT_FLOOR, 2);
+		assertEquals("Elevator is stopped at floor number 2", outputStreamCaptor.toString().trim() );
+	}
+	
 	@Test
 	/*
 	 * tests the floor log message when new request is added
@@ -69,7 +83,7 @@ public class LoggerTest {
 	
 	@Test
 	/*
-	 * tests the Sheduler logger message
+	 * tests the Scheduler logger message
 	 */
 	public void logSchedulerEventTest() {
 		log.logSchedulerEvent("A new request is scheduled");

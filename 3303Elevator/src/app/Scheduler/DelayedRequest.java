@@ -17,11 +17,11 @@ public class DelayedRequest implements Runnable{
 	 * @param destinationFloor floor that the request ends at
 	 * @param delay time in milliseconds to wait before sending the request
 	 */
-	public DelayedRequest(Scheduler scheduler, Integer startFloor, Integer destinationFloor, long delay) {
+	public DelayedRequest(Scheduler scheduler, Integer startFloor, Integer destinationFloor, long millisecondDelay) {
 		this.scheduler = scheduler;
 		this.startFloor = startFloor;
 		this.destinationFloor = destinationFloor;
-		this.delay = delay;
+		this.delay = millisecondDelay;
 	}
 
 	/**

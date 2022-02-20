@@ -1,7 +1,5 @@
 package app.ElevatorSubsystem.StateMachine;
 
-import static org.junit.Assert.assertSame;
-
 import app.ElevatorSubsystem.Direction.Direction;
 
 /**
@@ -25,13 +23,13 @@ public enum ElevatorStateMachine {
 				state = MoveUp;
 			}else if(this.getDirection() == Direction.DOWN) {
 				state = MoveDown;
-			}else if(this.getDirection() == Direction.CURRENT){
+			}else if(this.getDirection() == Direction.STOPPED_AT_FLOOR){
 				state = DoorOpening;
 			}else {
 				state = Idle;
 			}
 			
-			this.setDirection(Direction.NONE);
+			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -52,7 +50,7 @@ public enum ElevatorStateMachine {
 				state = MoveUp;
 			}
 			
-			this.setDirection(Direction.NONE);
+			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -73,7 +71,7 @@ public enum ElevatorStateMachine {
 				state = MoveDown;
 			}
 			
-			this.setDirection(Direction.NONE);
+			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -131,13 +129,13 @@ public enum ElevatorStateMachine {
 		@Override
 		public ElevatorStateMachine nextState() {
 			ElevatorStateMachine state; 
-			if(this.getDirection() == Direction.CURRENT) {
+			if(this.getDirection() == Direction.STOPPED_AT_FLOOR) {
 				state = DoorOpening; 
 			}else {
 				state = NextStopProcessing;
 			}
 			
-			this.setDirection(Direction.NONE);
+			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -162,7 +160,7 @@ public enum ElevatorStateMachine {
 				state = Idle;
 			}
 			
-			this.setDirection(Direction.NONE);
+			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -175,7 +173,7 @@ public enum ElevatorStateMachine {
 	public abstract ElevatorStateMachine nextState();
 	public abstract String toString();
 	
-	private Direction direction = Direction.NONE;
+	private Direction direction = Direction.AWAITING_NEXT_REQUEST;
 	public Direction getDirection() {
 		return direction;
 	}

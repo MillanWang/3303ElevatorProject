@@ -4,8 +4,8 @@ import java.util.SortedSet;
 
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.Elevator;
-import app.ElevatorSubsystem.Elevator.Movement;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
+import app.FloorSubsystem.Logger;
 import app.Scheduler.*;
 
 /**
@@ -38,25 +38,36 @@ public class ElevatorSubsystem implements Runnable{
 	private int maxFloorCount;
 	
 	/**
+	 * Logger to track what happens
+	 */
+	private Logger logger;
+	
+	/**
 	 * Constructor used to create elevator subsystem
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount, float timeMultiplier){
+	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount, float timeMultiplier, Logger logger){
 		this.maxFloorCount = maxFloorCount;
 		this.name = Thread.currentThread().getName();
 		this.elevator = new Elevator(maxFloorCount, timeMultiplier);
 		this.scheduler = scheduler;
+		this.logger = logger;
 	}
 
 	/**
-	 * Logs message to console
+	 * Logs message to console 
+	 * WIP NEEDS TO INTEGRATE WITH LOGGER
 	 * @param message
 	 */
 	public void log(String message){
 		System.out.println("Elevator [" + this.name + "] " + message);
 	}
 
+	/**
+	 * Checks the destination floor and updates the elevators state
+	 * @param destinationFloor
+	 */
 	public void checkFloor(int destinationFloor) {
 		this.log("at floor " + elevator.getFloor());
 		if(this.elevator.getFloor() == destinationFloor){ //or max floor
@@ -110,12 +121,12 @@ public class ElevatorSubsystem implements Runnable{
 				}else if(destFloor < elevator.getFloor()) {
 					elevator.setDirection(Direction.DOWN);
 				}else if(destFloor == elevator.getFloor()) {
-					elevator.setDirection(Direction.NONE);
+					elevator.setDirection(Direction.AWAITING_NEXT_REQUEST);
 				}else {
 					//There is an issue
 				}
 				
-				elevator.waitTransite();
+				elevator.waitTransit();
 				elevator.nextState();
 				checkFloor(destFloor);
 			// check if the elevator is moving up or down
@@ -129,7 +140,7 @@ public class ElevatorSubsystem implements Runnable{
 					elevator.setDirection(Direction.DOWN);
 				}
 				
-				elevator.waitTransite();
+				elevator.waitTransit();
 				elevator.nextState();
 				checkFloor(destFloor);
 			}

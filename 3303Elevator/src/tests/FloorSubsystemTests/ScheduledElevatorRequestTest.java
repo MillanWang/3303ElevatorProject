@@ -15,10 +15,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import app.ElevatorSubsystem.Elevator.Movement;
 import app.FloorSubsystem.FloorSubsystem;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
+
 public class ScheduledElevatorRequestTest {
 	ScheduledElevatorRequest req = new ScheduledElevatorRequest(LocalTime.now(), 1 , true, 5);
 	ScheduledElevatorRequest reqTwo = new ScheduledElevatorRequest(LocalTime.now(), 6, false, 2);

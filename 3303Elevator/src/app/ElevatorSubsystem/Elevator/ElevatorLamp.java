@@ -1,18 +1,26 @@
 package app.ElevatorSubsystem.Elevator;
 
-public class ElevatorLamp {
+import app.ElevatorSubsystem.Direction.Direction;
 
-	private Lamp status;
+/**
+ * WORK IN PROGRESS - Eventually for GUI operations to indicate the status of the elevator with the lamp
+ * @author Millan Wang
+ *
+ */
+public class ElevatorLamp {
+	
+
+	private Direction lampDirection;
 
 	public ElevatorLamp(){
-		this.status = Lamp.OFF;
+		this.lampDirection = Direction.AWAITING_NEXT_REQUEST;
 	}
 
-	public Lamp getElevatorLamp(){
-		return this.status;
+	public Direction getElevatorLampDirection(){
+		return this.lampDirection;
 	}
 
-	public void setElevatorLamp(Lamp status){
-		this.status = status;
+	public void setElevatorLampDirection(Direction direction){
+		this.lampDirection = direction;
 	}
 }

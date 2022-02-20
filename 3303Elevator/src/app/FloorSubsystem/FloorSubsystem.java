@@ -8,7 +8,7 @@
 package app.FloorSubsystem;
 import java.util.*;
 
-import app.ElevatorSubsystem.Elevator.Movement;
+import app.ElevatorSubsystem.Direction.Direction;
 import app.Scheduler.Scheduler;
 public class FloorSubsystem extends Thread{
 
@@ -17,7 +17,7 @@ public class FloorSubsystem extends Thread{
 	private ArrayList<ScheduledElevatorRequest> requests; 
 	private ArrayList<ScheduledElevatorRequest> schedulerRequests; 
 	private Integer elevatorPosition; 
-	private Movement elevatorStatus; 
+	private Direction elevatorStatus; 
 	private String inputFileLocation;
 	private Logger currentLogger; 
 	
@@ -52,7 +52,7 @@ public class FloorSubsystem extends Thread{
 	 * @path; file path to input.txt 
 	 */
 	public void addInputRequests(String path) {
-		this.requests.addAll(TextFileReader.getrequests(path)); 
+		this.requests.addAll(TextFileReader.getRequests(path)); 
 		for(int i = 0; i < requests.size(); i++) {
 			currentLogger.logFloorEvent(requests.get(i));
 		}
@@ -87,7 +87,7 @@ public class FloorSubsystem extends Thread{
 	 * @param floorno
 	 * @param isUpwards
 	 */
-	public void updateElevatorPosition(Integer floorno, Movement elevatorStatus) {
+	public void updateElevatorPosition(Integer floorno, Direction elevatorStatus) {
 		this.elevatorPosition = floorno;
 		this.elevatorStatus = elevatorStatus; 
 	}
@@ -100,9 +100,9 @@ public class FloorSubsystem extends Thread{
 	}
 	/**
 	 * gets the elevator position
-	 * @return elevator status (Movement)
+	 * @return elevator status (Direction)
 	 */
-	public Movement getElevatorStatus() {
+	public Direction getElevatorStatus() {
 		return this.elevatorStatus;
 	}
 	/**

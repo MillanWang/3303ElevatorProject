@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import app.ElevatorSubsystem.Elevator.Movement;
+import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.*;
 
 /**
@@ -183,7 +183,7 @@ public class Scheduler {
 	public synchronized SortedSet<Integer> getNextFloorsToVisit(Integer currentFloorNumber, boolean currentElevatorDirection) {
 		//wait loop until there is a destination to visit - Waiting here means elevator is parked
 		while (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
-			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Movement.PARKED);
+			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Direction.AWAITING_NEXT_REQUEST);
 
 			try {wait();} catch (InterruptedException e) {}
 		}
@@ -240,7 +240,7 @@ public class Scheduler {
 		}
 		
 
-		this.floorSubsys.updateElevatorPosition(currentFloorNumber,nextDirectionUp? Movement.UP : Movement.DOWN);
+		this.floorSubsys.updateElevatorPosition(currentFloorNumber,nextDirectionUp? Direction.UP : Direction.DOWN);
 		return floorsToVisit;
 	}
 	

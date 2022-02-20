@@ -46,7 +46,7 @@ public class Elevator{
 	/**
 	 * Delay thread while moving up or down 
 	 * */
-	public void waitTransite() {
+	public void waitTransit() {
 		
 		int dest; 
 		if(state.getDirection() == Direction.UP) {
@@ -93,25 +93,25 @@ public class Elevator{
 	}
 	
 	/**
-	 * Deterimens if the elevator is in a state that is moving
-	 * @return
+	 * Determines if the elevator is in a state that is moving
+	 * @return if the elevator is moving
 	 */
 	public boolean isMoving() {
 		return state == ElevatorStateMachine.MoveUp || state == ElevatorStateMachine.MoveDown;
 	}
 	
 	/**
-	 * Deterimans if the elevator is idle or waiting for next stopping processing
+	 * Determines if the elevator is idle or waiting for next stopping processing
 	 * 
-	 * @return
+	 * @return if the elevator is currently stationary
 	 */
 	public boolean isStationary() {
 		return state == ElevatorStateMachine.Idle || state == ElevatorStateMachine.NextStopProcessing;
 	}
 	
 	/**
-	 * Get the states direction
-	 * @return
+	 * Get the elevator's direction state
+	 * @return the elevator's direction state
 	 */
 	public Direction getDirection() {
 		return state.getDirection();
@@ -119,16 +119,16 @@ public class Elevator{
 	
 	/***
 	 * Set the direction of the state, can not set direction up if on max floor, can not set direction down if on bottom floor.
-	 * @param d
+	 * @param d Direction
 	 */
 	public void setDirection(Direction d) {
 		
 		if(this.currentFloor == 1 && d == Direction.DOWN) {
-			d = Direction.NONE;
+			d = Direction.AWAITING_NEXT_REQUEST;
 		}
 		
 		if( this.currentFloor == this.maxFloorCount && d == Direction.UP) {
-			d = Direction.NONE;
+			d = Direction.AWAITING_NEXT_REQUEST;
 		}
 		
 		state.setDirection(d);
