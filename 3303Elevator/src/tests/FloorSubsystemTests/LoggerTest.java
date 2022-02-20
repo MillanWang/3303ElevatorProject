@@ -10,6 +10,8 @@ package tests.FloorSubsystemTests;
 import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.time.LocalTime;
+
 import org.junit.Test;
 
 import app.Logger;
@@ -18,13 +20,14 @@ import app.FloorSubsystem.ScheduledElevatorRequest;
 
 import org.junit.After;
 import org.junit.Before;
+import static org.junit.Assert.assertTrue;
 
 public class LoggerTest {
 
 	private Logger log = new Logger(true, true, true, true) ;
 	private final PrintStream standardOut = System.out;
 	private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-	
+	private LocalTime time; 
 	@Before
 	public void setUp() {
 	    System.setOut(new PrintStream(outputStreamCaptor));
@@ -41,7 +44,7 @@ public class LoggerTest {
 	 */
 	public void elevatorUpLoggerTest() {
 		log.logElevatorEvents(Direction.UP, 4);
-		assertEquals("Elevator is moving up to floor number 4", outputStreamCaptor.toString().trim() );
+		assertTrue(outputStreamCaptor.toString().trim().contains(" Elevator is moving up to floor number 4"));
 	}
 	
 	@Test
@@ -50,7 +53,7 @@ public class LoggerTest {
 	 */
 	public void elevatorDownLoggerTest() {
 		log.logElevatorEvents(Direction.DOWN, 2);
-		assertEquals("Elevator is moving down to floor number 2", outputStreamCaptor.toString().trim() );
+		assertTrue(outputStreamCaptor.toString().trim().contains(" Elevator is moving down to floor number 2"));
 	}
 	
 	@Test
@@ -59,7 +62,7 @@ public class LoggerTest {
 	 */
 	public void elevatorParkedLoggerTest() {
 		log.logElevatorEvents(Direction.AWAITING_NEXT_REQUEST, 2);
-		assertEquals("Elevator is parked at floor number 2", outputStreamCaptor.toString().trim() );
+		assertTrue(outputStreamCaptor.toString().trim().contains("Elevator is parked at floor number 2"));
 	}
 	
 	@Test
@@ -68,7 +71,7 @@ public class LoggerTest {
 	 */
 	public void elevatorStoppedLoggerTest() {
 		log.logElevatorEvents(Direction.STOPPED_AT_FLOOR, 2);
-		assertEquals("Elevator is stopped at floor number 2", outputStreamCaptor.toString().trim() );
+		assertTrue(outputStreamCaptor.toString().trim().contains("Elevator is stopped at floor number 2"));
 	}
 	
 	@Test
@@ -78,7 +81,7 @@ public class LoggerTest {
 	public void logFloorEventTest() {
 		ScheduledElevatorRequest request = new ScheduledElevatorRequest(10000, 2, true, 6);
 		log.logFloorEvent(request);
-		assertEquals("floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor(), outputStreamCaptor.toString().trim() );
+		assertTrue(outputStreamCaptor.toString().trim().contains("floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor()));
 	}
 	
 	@Test
@@ -87,7 +90,7 @@ public class LoggerTest {
 	 */
 	public void logSchedulerEventTest() {
 		log.logSchedulerEvent("A new request is scheduled");
-		assertEquals("A new request is scheduled", outputStreamCaptor.toString().trim() );
+		assertTrue(outputStreamCaptor.toString().trim().contains("A new request is scheduled"));
 	}
 	
 	@Test
@@ -96,7 +99,7 @@ public class LoggerTest {
 	 */
 	public void logTimeManagementSystemEventTest() {
 		log.logTimeManagementSystemEvent("New wait time is set");
-		assertEquals("New wait time is set", outputStreamCaptor.toString().trim() );
+		assertTrue(outputStreamCaptor.toString().trim().contains("New wait time is set"));
 	}
 }
 

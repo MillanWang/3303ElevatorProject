@@ -45,13 +45,13 @@ public class Logger {
 	public void logElevatorEvents(Direction movement , int floorNumber  ) {
 		if(printElevatorEvents == true) {
 			if(movement == Direction.UP) {
-				System.out.println("Elevator is moving up to floor number " + floorNumber);
+				System.out.println(dateTime.now()+ " Elevator is moving up to floor number " + floorNumber);
 			} else if(movement == Direction.DOWN) {
-				System.out.println("Elevator is moving down to floor number " + floorNumber);
+				System.out.println(dateTime.now()+ " Elevator is moving down to floor number " + floorNumber);
 			} else if(movement == Direction.STOPPED_AT_FLOOR) {
-				System.out.println("Elevator is stopped at floor number " + floorNumber);
+				System.out.println(dateTime.now()+ " Elevator is stopped at floor number " + floorNumber);
 			} else if(movement == Direction.AWAITING_NEXT_REQUEST) {
-				System.out.println("Elevator is parked at floor number " + floorNumber);
+				System.out.println(dateTime.now()+ " Elevator is parked at floor number " + floorNumber);
 			}
 		}
 		
@@ -65,7 +65,7 @@ public class Logger {
 	 */
 	public void logFloorEvent(ScheduledElevatorRequest request) {
 		if(printFloorEvents == true) {
-			System.out.println("floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor());
+			System.out.println(dateTime.now()+ " floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor());
 		}
 		
 	}
@@ -77,7 +77,7 @@ public class Logger {
 	 */
 	public void logSchedulerEvent(String temp) {
 		if(printSchedulerEvents == true) {
-			System.out.println(temp);
+			System.out.println(dateTime.now()+ temp);
 		}
 	}
 	
@@ -88,7 +88,8 @@ public class Logger {
 	 */
 	public void logTimeManagementSystemEvent(String temp) {
 		if(printTimeManagementSystemEvent == true) {
-			System.out.println(temp);
+			System.out.println(dateTime.now()+ temp);
 		}
 	}
+	
 }
