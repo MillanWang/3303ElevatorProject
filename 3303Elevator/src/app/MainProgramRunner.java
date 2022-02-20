@@ -8,6 +8,7 @@ import javax.swing.JFileChooser;
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.FloorSubsystem.FloorSubsystem;
 import app.Scheduler.Scheduler;
+import app.Scheduler.TimeManagementSystem;
 
 public class MainProgramRunner {
 	public static final int FLOOR_COUNT = 7;
@@ -15,6 +16,7 @@ public class MainProgramRunner {
 	public static final float TIME_MULTIPLIER = 0;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
 	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
+	public static final TimeManagementSystem tms = new TimeManagementSystem(TIME_MULTIPLIER, new Logger(false, false, false, true)); //Time management system to be used by all elevators
 	
 	//LOGGER INITIALIZATION PARAMS
 	public static final boolean ELEVATOR_LOGGING = true;
@@ -35,7 +37,7 @@ public class MainProgramRunner {
     //Asks user via cmd line if they want to specify an input file or go with default
 		FloorSubsystem floorSubsys = new FloorSubsystem(scheduler,askToChooseFileOrUseDefault(sc), logger);
 
-		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, TIME_MULTIPLIER, logger);
+		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(scheduler, FLOOR_COUNT, logger, tms);
 		scheduler.setFloorSubsys(floorSubsys);
 		
 		Thread elevatorThread = new Thread(elevatorSubsys, "ElevatorSubsystemThread");

@@ -23,11 +23,11 @@ public class Elevator{
 	 */
 	private int maxFloorCount;
 
-	public Elevator(int maxFloorCount, float timeMultiplier) {
+	public Elevator(int maxFloorCount, TimeManagementSystem tms) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
 		this.state = ElevatorStateMachine.Idle;
-		this.tms = new TimeManagementSystem(timeMultiplier); 
+		this.tms = tms; 
 		this.door = new ElevatorDoor(this.tms);
 	}
 

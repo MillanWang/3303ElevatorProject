@@ -42,17 +42,19 @@ public class ElevatorSubsystem implements Runnable{
 	 */
 	private Logger logger;
 	
+	private TimeManagementSystem tms;
 	/**
 	 * Constructor used to create elevator subsystem
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount, float timeMultiplier, Logger logger){
+	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount, Logger logger, TimeManagementSystem tms){
 		this.maxFloorCount = maxFloorCount;
 		this.name = Thread.currentThread().getName();
-		this.elevator = new Elevator(maxFloorCount, timeMultiplier);
+		this.elevator = new Elevator(maxFloorCount, tms);
 		this.scheduler = scheduler;
 		this.logger = logger;
+		this.tms = tms;
 	}
 
 	/**
