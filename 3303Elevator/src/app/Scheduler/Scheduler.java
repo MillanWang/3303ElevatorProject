@@ -31,6 +31,7 @@ public class Scheduler {
 	private boolean skipDelaysOnFloorInputs;
 	private int highestFloorNumber;
 	private int elevatorCurrentFloor; //Eventually expand to be an array for all elevators
+	private Direction currentElevatorDirection; //Eventually expand to be an array for all elevators
 	private FloorSubsystem floorSubsys;
 	
 	private Logger logger;
@@ -49,6 +50,7 @@ public class Scheduler {
 		this.highestFloorNumber = highestFloorNumber;
 		this.skipDelaysOnFloorInputs= skipDelaysOnFloorInputs; 
 		this.elevatorCurrentFloor = 1;
+		this.currentElevatorDirection = Direction.AWAITING_NEXT_REQUEST;
 		
 		//Sorted set of destinations to visit in each direction
 		this.upwardsToVisitSet = new TreeSet<Integer>();
@@ -160,6 +162,8 @@ public class Scheduler {
 	 * Adds an elevator request to the scheduling system
 	 * ATTEMPTING TO CHANGE ALGORITHM FOR ITERATION 2
 	 * 
+	 * WORK IN PROGRESS - NOT PERFECT YET
+	 * 
 	 * @param startFloor Starting floor of the request
 	 * @param destinationFloor destination floor of the request
 	 */
@@ -199,6 +203,8 @@ public class Scheduler {
 	
 	/**
 	 * Returns a TreeSet of the floors to be visited by the current elevator given it's current direction and location
+	 * 
+	 * WORK IN PROGRESS - NOT PERFECT YET
 	 *
 	 * @param currentFloorNumber The elevators current floor number
 	 * @param currentElevatorDirectionIsUpwards if the elevator is currently going upwards
@@ -209,7 +215,7 @@ public class Scheduler {
 		while (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
 			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Direction.AWAITING_NEXT_REQUEST);
 			
-			//LOG THE ELEVATOR IS WAITING
+			logger.logSchedulerEvent("Elevator is waiting for Scheduler's next request");
 
 			try {wait();} catch (InterruptedException e) {}
 		}
@@ -233,7 +239,7 @@ public class Scheduler {
 			nextDirectionUp = true;
 			//Change direction if no more upwards floors to visit. Try scheduling the unscheduled
 			
-			//LOG CHANGING DIRECTION
+			logger.logSchedulerEvent("Elevator has no more upwards floors to visit. Attempting to change directions");
 			
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();
@@ -247,8 +253,7 @@ public class Scheduler {
 			floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
 			nextDirectionUp = false; 
 			//Change direction if no more downwards floors to visit. Try scheduling the unscheduled
-			
-			//LOG CHANGING DIRECTION
+			logger.logSchedulerEvent("Elevator has no more downwards floors to visit. Attempting to change directions");
 			
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();

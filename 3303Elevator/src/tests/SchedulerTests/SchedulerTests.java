@@ -1,13 +1,11 @@
 package tests.SchedulerTests;
 
 
-import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.AfterClass;
+
+
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import app.Logger;
@@ -26,7 +24,7 @@ public class SchedulerTests {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.scheduler = new Scheduler(3,false);
+		this.scheduler = new Scheduler(new Logger(true,true,true,true), 3,false);
 		this.scheduler.setFloorSubsys(new FloorSubsystem(scheduler, new Logger(true,true,true,true)));
 	}
 
