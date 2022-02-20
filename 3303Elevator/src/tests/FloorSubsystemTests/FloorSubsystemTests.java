@@ -12,9 +12,9 @@ import java.time.LocalTime;
 
 import org.junit.Test;
 
+import app.Logger;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.FloorSubsystem;
-import app.FloorSubsystem.Logger;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 

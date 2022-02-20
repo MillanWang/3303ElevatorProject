@@ -2,10 +2,10 @@ package app.ElevatorSubsystem;
 
 import java.util.SortedSet;
 
+import app.Logger;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
-import app.FloorSubsystem.Logger;
 import app.Scheduler.*;
 
 /**
