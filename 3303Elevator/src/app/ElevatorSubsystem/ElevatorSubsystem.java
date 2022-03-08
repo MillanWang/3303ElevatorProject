@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 
 import app.Logger;
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.Scheduler.*;
-import app.config.Config;
 
 /**
  * SYSC 3303, Final Project

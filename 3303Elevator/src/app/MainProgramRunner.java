@@ -28,7 +28,6 @@ public class MainProgramRunner {
 	
 	
 	public static void main(String[] args) {
-		
 
 		Logger logger = new Logger(ELEVATOR_LOGGING,SCHEDULER_LOGGING ,FLOORSUBSYSTEM_LOGGING,TIMEMANAGEMENT_LOGGING); 
 		Scanner sc = new Scanner(System.in);
