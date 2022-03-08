@@ -114,7 +114,7 @@ public class ElevatorSubsystem implements Runnable{
 	}
 	
 	public static void main(String[] args){
-		Config config = new Config("local.config");
+		Config config = new Config("local.properties");
 		int numFloors = Integer.parseInt(config.get("floor.number"));
 		int numElevators = Integer.parseInt(config.get("elevator.number"));
 		int multiplier = Integer.parseInt(config.get("time.multiplier"));
@@ -128,7 +128,7 @@ public class ElevatorSubsystem implements Runnable{
 		}
 		
 		Logger logger = new Logger(true, false, false, false);
-		TimeManagementSystem tms = new TimeManagementSystem(0, logger);
+		TimeManagementSystem tms = new TimeManagementSystem(multiplier, logger);
 		
 		ElevatorSubsystem e = new ElevatorSubsystem(schedulerAddr,numElevators,numFloors,logger, tms);
 		//Thread elevatorSubThread = new Thread(e, "ElevatorSubsystemThread");

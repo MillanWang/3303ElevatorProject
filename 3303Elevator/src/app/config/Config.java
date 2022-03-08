@@ -9,7 +9,6 @@ import java.util.Properties;
 /***
  * Class used to load configuration files
  * @author Ben Kittilsen
- *
  */
 public class Config {
 	
