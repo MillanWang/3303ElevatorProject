@@ -11,6 +11,7 @@ import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.Scheduler.*;
+import app.config.Config;
 
 /**
  * SYSC 3303, Final Project
@@ -23,7 +24,7 @@ public class ElevatorSubsystem implements Runnable{
 
 	private String name;
 	private ArrayList<Elevator> elevators;
-	private SocketAddress schedulerAddr;
+	private InetSocketAddress schedulerAddr;
 	private int maxFloor;
 	private Logger logger;
 	private TimeManagementSystem tms;
@@ -33,7 +34,7 @@ public class ElevatorSubsystem implements Runnable{
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(SocketAddress schedulerAddr, int numElevators, int maxFloor, Logger logger, TimeManagementSystem tms){
+	public ElevatorSubsystem(InetSocketAddress schedulerAddr, int numElevators, int maxFloor, Logger logger, TimeManagementSystem tms){
 		this.name = Thread.currentThread().getName();
 		this.maxFloor = maxFloor;
 		
@@ -45,9 +46,11 @@ public class ElevatorSubsystem implements Runnable{
 		this.tms = tms;
 		this.schedulerAddr = schedulerAddr;
 		this.logger = logger;
-		
 	}
 
+	public void handShake() {
+		// make request to scheduler
+	}
 	
 	/**
 	 * Continuously retrieves directions from the scheduler to operate the elevators
@@ -111,14 +114,19 @@ public class ElevatorSubsystem implements Runnable{
 	}
 	
 	public static void main(String[] args){
-		SocketAddress schedulerAddr = null;
+		Config config = new Config("local.config");
+		int numFloors = Integer.parseInt(config.get("floor.number"));
+		int numElevators = Integer.parseInt(config.get("elevator.number"));
+		int multiplier = Integer.parseInt(config.get("time.multiplier"));
+		
+		
+		InetSocketAddress schedulerAddr = null;
 		try {
-			schedulerAddr = new InetSocketAddress(InetAddress.getLocalHost(), 3000);
+			schedulerAddr = new InetSocketAddress(config.get("scheduler.address"), Integer.parseInt(config.get("scheduler.port")));
 		}catch(Exception e) {
 			System.exit(1);
 		}
-		int numFloors = 7;
-		int numElevators = 4;
+		
 		Logger logger = new Logger(true, false, false, false);
 		TimeManagementSystem tms = new TimeManagementSystem(0, logger);
 		
