@@ -4,19 +4,41 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Objects;
 import java.util.Properties;
 
+/***
+ * Class used to load configuration files
+ * @author Ben Kittilsen
+ *
+ */
 public class Config {
-
+	
+	/***
+	 * Properties from the loaded configuration file
+	 */
 	private Properties prop;
 	
+	/***
+	 * Loads Properties from a configuration file looks in default 
+	 * configuration path. 
+	 * Default path is "src/app/config"
+	 * 
+	 * @param filename for the file in the default directory
+	 */
 	public Config(String filename){
+		this("src/app/config", filename);
+	}
+	
+	/***
+	 * Load Properties from a configuration file given path and filename
+	 * 
+	 * @param path location configuration file is stored
+	 * @param filename configuration file name
+	 */
+	public Config(String path, String filename){
 		this.prop = new Properties();
 		try {
-			String path = "src/app/config/" + filename;
-			File file = new File(path);
+			File file = new File(path + '/' + filename);
 			InputStream is = new FileInputStream(file);
 			prop.load(is);
 		}catch(IOException e) {
@@ -25,14 +47,15 @@ public class Config {
 		}
 	}
 	
+	/***
+	 * Used to get a properties from a configuration file that was loaded
+	 * 
+	 * @param key the key or properties that a user is looking 
+	 * for within the configuration file loaded
+	 * @return the value for that key
+	 */
 	public String get(String key) {
 		return prop.getProperty(key);
 	}
-	
-	public static void main(String[] args) {
-		Config config = new Config("local.config");
 		
-		System.out.print(config.get("scheduler.port"));
-	}
-	
 }
