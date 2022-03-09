@@ -1,4 +1,6 @@
-package app.Scheduler;
+package app.Scheduler.SchedulerThreads;
+
+import app.Scheduler.Scheduler;
 
 /**
  * Internal class for delaying the execution of scheduled requests

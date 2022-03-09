@@ -5,8 +5,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import app.Logger;
+import app.MainProgramRunner;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.*;
+import app.Scheduler.SchedulerThreads.DelayedRequest;
+import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
+import app.Scheduler.SchedulerThreads.FloorSubsystemPacketReceiver;
 
 /**
  * SYSC 3303, Final Project Iteration 2
@@ -17,7 +21,7 @@ import app.FloorSubsystem.*;
  * @author Millan Wang
  *
  */
-public class Scheduler {
+public class Scheduler implements Runnable{
 	
 	private TreeSet<Integer> upwardsToVisitSet;
 	private TreeSet<Integer> downwardsToVisitSet;
@@ -307,5 +311,20 @@ public class Scheduler {
 		
 		return this.downwardsToVisitSet.headSet(currentFloorNumber, false);
 	}
+	
 
+
+	@Override
+	public void run() {
+		// Create message receiver threads for messages from floor subsystem and elevator subsystem
+		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver(2, this);
+		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver(2, this);
+		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
+		(new Thread(essReceiver, "ElevatorSubsystemPacketReceiver")).start();
+	}
+	
+	public static void main(String[] args) {
+		Scheduler scheduler = new Scheduler(null, MainProgramRunner.FLOOR_COUNT, MainProgramRunner.INSTANTLY_SCHEDULE_REQUESTS);
+		(new Thread(scheduler, "Scheduler")).start();
+	}
 }
