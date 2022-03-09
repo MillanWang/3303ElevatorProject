@@ -30,19 +30,13 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
 		this.scheduler = scheduler;
 	}
 
-	
 	/**
-	 * Repeated process for receiving packets and replying to the sender
+	 * Creates a reply packet given a request packet
 	 */
 	@Override
-	protected void receiveNextPacket_sendReply() {
-		//Receive packet. Happens in PacketReceiver
-        DatagramPacket receivedPacket = this.receiveNextPacket();
-        
-        
-        
+	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
         //Deserialize packet contents to become input for scheduler's next floors to visit
-        Object elevatorSubsystemComms = new String(receivedPacket.getData()); //TODO: Plan out a comms object and then Deserialize 
+        Object elevatorSubsystemComms = new String(requestPacket.getData()); //TODO: Plan out a comms object and then Deserialize 
         
         //Get the next toVisitList from scheduler
         Object schedulerUpdate = this.scheduler.getNextFloorsToVisit(1, true);
@@ -60,8 +54,8 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
         
         //Create packet to reply with. Then send
         byte[] replyData = packetMessageOutputStream.toByteArray();
-        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, receivedPacket.getAddress(), receivedPacket.getPort());
-        this.sendReply(replyPacket);
+        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, requestPacket.getAddress(), requestPacket.getPort());
+		return replyPacket;
 	}
 
 }

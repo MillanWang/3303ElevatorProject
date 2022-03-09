@@ -31,21 +31,15 @@ public class FloorSubsystemPacketReceiver extends PacketReceiver {
 	}
 
 	/**
-	 * Repeated process for receiving packets and replying to the sender
+	 * Creates a reply packet given a request packet
 	 */
 	@Override
-	protected void receiveNextPacket_sendReply() {
-		//Receive packet. Happens in PacketReceiver
-        DatagramPacket receivedPacket = this.receiveNextPacket();
-        
-        
-        
-        
+	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
         //Create byte array to build reply packet contents more easily
         ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
         
         //Get contents of packet. Attempt to deserialize to an object and call scheduler
-        String packetDataString = new String(receivedPacket.getData());
+        String packetDataString = new String(requestPacket.getData());
 
         //Set the appropriate reply message in the packet
         if (packetDataString.equals("PLACEHOLDER HERE NEED TO DESERIALIZE AND CHECK IF OK")) { //TODO: NEED TO ATTEMPT TO DESERIALIZE
@@ -62,14 +56,10 @@ public class FloorSubsystemPacketReceiver extends PacketReceiver {
 			} catch (IOException e) {e.printStackTrace();}
         }
         
-
-        
-        
-        //Create packet to reply with. Then send
+      //Create packet to reply with. Then send
         byte[] replyData = packetMessageOutputStream.toByteArray();
-        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, receivedPacket.getAddress(), receivedPacket.getPort());
-        this.sendReply(replyPacket);
-
+        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, requestPacket.getAddress(), requestPacket.getPort());
+		return replyPacket;
 	}
 
 }
