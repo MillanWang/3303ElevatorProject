@@ -1,8 +1,13 @@
 package app.ElevatorSubsystem;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.SortedSet;
 
 import app.Logger;
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
@@ -17,83 +22,41 @@ import app.Scheduler.*;
  * */
 public class ElevatorSubsystem implements Runnable{
 
-	/**
-	 * Name for the elevator
-	 * */
 	private String name;
-
-	/**
-	 * Elevator the subsystem controls
-	 * */
-	private Elevator elevator;
-
-	/**
-	 * The scheduler the elevator needs to communicate with
-	 * */
-	private Scheduler scheduler;
-
-	/**
-	 * Maximum number of floors
-	 */
-	private int maxFloorCount;
-	
-	/**
-	 * Logger to track what happens
-	 */
+	private ArrayList<Elevator> elevators;
+	private InetSocketAddress schedulerAddr;
+	private int maxFloor;
 	private Logger logger;
-	
 	private TimeManagementSystem tms;
+
 	/**
 	 * Constructor used to create elevator subsystem
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(Scheduler scheduler, int maxFloorCount, Logger logger, TimeManagementSystem tms){
-		this.maxFloorCount = maxFloorCount;
+	public ElevatorSubsystem(InetSocketAddress schedulerAddr, int numElevators, int maxFloor, Logger logger, TimeManagementSystem tms){
 		this.name = Thread.currentThread().getName();
-		this.elevator = new Elevator(maxFloorCount, tms);
-		this.scheduler = scheduler;
-		this.logger = logger;
-		this.tms = tms;
-	}
+		this.maxFloor = maxFloor;
 
-	/**
-	 * Logs message to logger
-	 * @param message
-	 */
-	public void log(String message){
-//		logger.logElevatorEvents(elevator.getDirection(), elevator.getFloor());
-		System.out.println("Elevator [" + this.name + "] " + message);
-	}
-
-	/**
-	 * Checks the destination floor and updates the elevators state
-	 * @param destinationFloor
-	 */
-	public void checkFloor(int destinationFloor) {
-		this.log("at floor " + elevator.getFloor());
-		if(this.elevator.getFloor() == destinationFloor){ //or max floor
-			elevator.nextState();// stopping or opening door
-			
-			if(elevator.getState() == ElevatorStateMachine.Stopping) {
-				//elevator slowing down
-				elevator.nextState();//open door if stopping before
-			}
-			this.log("has arrived at desitnation ");
-			
-			this.log("doors starting to open");
-			elevator.nextState();//open door
-			elevator.loadElevator();
-			elevator.nextState();//door closing
-			elevator.nextState();
-			this.log("doors finished closing");
+		elevators = new ArrayList<Elevator>();
+		for(int i = 0; i < numElevators; i++) {
+			elevators.add(new Elevator(i+1,maxFloor,logger, tms));
 		}
+
+		this.tms = tms;
+		this.schedulerAddr = schedulerAddr;
+		this.logger = logger;
 	}
-	
+
+	public void handShake() {
+		// make request to scheduler
+	}
+
 	/**
 	 * Continuously retrieves directions from the scheduler to operate the elevators
 	 */
 	public void run(){
+		/*
 		this.log("starting at floor 1");
 		System.out.println("\n\n");
 		while (true) {
@@ -101,9 +64,9 @@ public class ElevatorSubsystem implements Runnable{
 			// I think we should pass the elevator state to the scheduler
 			// the three states that we need to consider are moving up (MoveUp), moving down (MoveDown),
 			// and finally the parked state which is now (nextProcessing, or Idle state) almost identical.
-			
+
 			//log("" + elevator.getState());
-			
+
 			SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), true);//tmp for now
 			//log("" + floorsToVisit);
 			if(floorsToVisit.size() == 0) {
@@ -113,11 +76,11 @@ public class ElevatorSubsystem implements Runnable{
 				continue;
 			}
 
-			
+
 			// checking if the elevator is idle or next processing
 			if(elevator.isStationary()) {
 				int destFloor = floorsToVisit.first();
-				
+
 				if(destFloor > elevator.getFloor()) {
 					elevator.setDirection(Direction.UP);
 				}else if(destFloor < elevator.getFloor()) {
@@ -127,7 +90,7 @@ public class ElevatorSubsystem implements Runnable{
 				}else {
 					//There is an issue
 				}
-				
+
 				elevator.waitTransit();
 				elevator.nextState();
 				checkFloor(destFloor);
@@ -135,19 +98,41 @@ public class ElevatorSubsystem implements Runnable{
 			}else if(elevator.isMoving()) {
 				// used to determine the movement we need to continue
 				int destFloor = elevator.getState() == ElevatorStateMachine.MoveUp ? floorsToVisit.first() : floorsToVisit.last();
-				
+
 				if(destFloor > elevator.getFloor()) {
 					elevator.setDirection(Direction.UP);
 				}else if(destFloor < elevator.getFloor()) {
 					elevator.setDirection(Direction.DOWN);
 				}
-				
+
 				elevator.waitTransit();
 				elevator.nextState();
 				checkFloor(destFloor);
 			}
 			System.out.println("\n\n");
+		}*/
+	}
+
+	public static void main(String[] args){
+		Config config = new Config("local.properties");
+		int numFloors = Integer.parseInt(config.get("floor.number"));
+		int numElevators = Integer.parseInt(config.get("elevator.number"));
+		int multiplier = Integer.parseInt(config.get("time.multiplier"));
+
+
+		InetSocketAddress schedulerAddr = null;
+		try {
+			schedulerAddr = new InetSocketAddress(config.get("scheduler.address"), Integer.parseInt(config.get("scheduler.port")));
+		}catch(Exception e) {
+			System.exit(1);
 		}
+
+		Logger logger = new Logger(true, false, false, false);
+		TimeManagementSystem tms = new TimeManagementSystem(multiplier, logger);
+
+		ElevatorSubsystem e = new ElevatorSubsystem(schedulerAddr,numElevators,numFloors,logger, tms);
+		//Thread elevatorSubThread = new Thread(e, "ElevatorSubsystemThread");
+		//elevatorSubThread.start();
 	}
 
 }

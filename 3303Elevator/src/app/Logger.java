@@ -42,19 +42,10 @@ public class Logger {
 	 * @param movement: movement enum specifying the movement state of the elevator 
 	 * @param floorNumber: floor number to which the elevator is moving to or is parked at 
 	 */
-	public void logElevatorEvents(Direction direction , int floorNumber  ) {
+	public void logElevatorEvents(String message) {
 		if(printElevatorEvents == true) {
-			if(direction == Direction.UP) {
-				System.out.println(dateTime.now()+ " Elevator is moving up to floor number " + floorNumber);
-			} else if(direction == Direction.DOWN) {
-				System.out.println(dateTime.now()+ " Elevator is moving down to floor number " + floorNumber);
-			} else if(direction == Direction.STOPPED_AT_FLOOR) {
-				System.out.println(dateTime.now()+ " Elevator is stopped at floor number " + floorNumber);
-			} else if(direction == Direction.AWAITING_NEXT_REQUEST) {
-				System.out.println(dateTime.now()+ " Elevator is parked at floor number " + floorNumber);
-			}
+			System.out.println(dateTime.now() + message);
 		}
-		
 	}
 	
 	/**
