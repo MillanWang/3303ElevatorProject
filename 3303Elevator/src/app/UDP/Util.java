@@ -14,7 +14,7 @@ public class Util {
      * @param packet The packet to send
      * @return The the received data packet
      */
-    public static DatagramPacket sendRequest(DatagramPacket packet) {
+    public static DatagramPacket sendRequest_ReturnReply(DatagramPacket packet) {
         //Create socket instance to send request
         DatagramSocket socket = null;
         try {
@@ -27,7 +27,7 @@ public class Util {
 
         //Create a packet to hold the reply packet
         byte[] data = new byte[512];
-        DatagramPacket receievedPacket = new DatagramPacket(data, data.length);
+        DatagramPacket receivedPacket = new DatagramPacket(data, data.length);
 
         //Receive reply response on same socket before closing
         try {
