@@ -15,13 +15,25 @@ import app.UDP.PacketReceiver;
  */
 public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
 
+	/**
+	 * The scheduler to get next instructions
+	 */
 	private Scheduler scheduler;
 	
+	/**
+	 * Constructor for the ElevaorSubsystemPacketReceiver class
+	 * @param port Port to be used as the receive port
+	 * @param scheduler to contact to get instructions
+	 */
 	public ElevatorSubsystemPacketReceiver(int port, Scheduler scheduler) {
 		super("ElevatorSubsystemPacketReceiver", port);
 		this.scheduler = scheduler;
 	}
 
+	
+	/**
+	 * Repeated process for receiving packets and replying to the sender
+	 */
 	@Override
 	protected void receiveNextPacket_sendReply() {
 		//Receive packet. Happens in PacketReceiver

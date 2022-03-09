@@ -15,13 +15,24 @@ import app.UDP.PacketReceiver;
  *
  */
 public class FloorSubsystemPacketReceiver extends PacketReceiver {
+	/**
+	 * The scheduler to get next instructions
+	 */
 	private Scheduler scheduler;
 
+	/**
+	 * Constructor for the FloorSubsystemPacketReceiver class
+	 * @param port The port to be used to receive on the DatagramSocket
+	 * @param scheduler The scheduler to send requests to 
+	 */
 	public FloorSubsystemPacketReceiver(int port, Scheduler scheduler) {
 		super("FloorSubsystemPacketReceiver", port);
 		this.scheduler = scheduler;
 	}
 
+	/**
+	 * Repeated process for receiving packets and replying to the sender
+	 */
 	@Override
 	protected void receiveNextPacket_sendReply() {
 		//Receive packet. Happens in PacketReceiver
