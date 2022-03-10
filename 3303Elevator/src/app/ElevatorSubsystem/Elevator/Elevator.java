@@ -41,6 +41,15 @@ public class Elevator{
 		return this.id;
 	}
 
+	/***
+	 * For this current elevator creates instance of the elevator Info
+	 * 
+	 * @return a new elevator info object
+	 */
+	public ElevatorInfo getInfo() {
+		return new ElevatorInfo(this.id, this.currentFloor, this.state);
+	}
+	
 	/**
 	 * delay thread while elevator is being loaded
 	 * */
