@@ -31,13 +31,46 @@ public class Util {
 
         //Receive reply response on same socket before closing
         try {
-            socket.receive(receievedPacket);
+            socket.receive(receivedPacket);
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
 
-        return receievedPacket;
+        return receivedPacket;
     }
+    
+    /***
+     * Given an object that can be serialized returns the bytes for that object
+     * 
+     * @param s an object that can be serialized
+     * @return an array of bytes
+     * @throws IOException 
+     */
+    public static byte[] serialize(Serializable s) throws IOException {
+    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    	ObjectOutputStream oos = new ObjectOutputStream(baos);
+    	oos.writeObject(s);
+    	oos.close();
+    	return baos.toByteArray();
+    }
+    
+    
+    /***
+     * Given an array of bytes returns a general object, which will than need to be wrapped
+     * 
+     * @param b an array of bytes
+     * @return a general object that needs to be wrapped
+     * @throws IOException 
+     * @throws ClassNotFoundException
+     */
+    public static Object deserialize(byte[] b) throws IOException, ClassNotFoundException{
+    	   	ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(b));
+    	   	Object obj = ois.readObject();
+    	   	ois.close();
+    	   	return obj;
+    }
+    
+    
 }
