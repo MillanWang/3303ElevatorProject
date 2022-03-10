@@ -1,16 +1,19 @@
 package app.Scheduler;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import app.Logger;
 import app.MainProgramRunner;
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.*;
 import app.Scheduler.SchedulerThreads.DelayedRequest;
 import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
 import app.Scheduler.SchedulerThreads.FloorSubsystemPacketReceiver;
+import app.UDP.Util;
 
 /**
  * SYSC 3303, Final Project Iteration 2
@@ -71,7 +74,6 @@ public class Scheduler implements Runnable{
 			this.upwardsDestinations.add(new TreeSet<Integer>());
 			this.downwardsDestinations.add(new TreeSet<Integer>());
 		}
-		
 	}
 	
 	/**
@@ -316,14 +318,19 @@ public class Scheduler implements Runnable{
 
 	@Override
 	public void run() {
+		Config config = new Config("local.properties");
 		// Create message receiver threads for messages from floor subsystem and elevator subsystem
-		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver(2, this);
-		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver(2, this);
+		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver( Integer.parseInt(config.get("scheduler.floorReceivePort")), this);
+		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver( Integer.parseInt(config.get("scheduler.elevatorReceivePort")), this);
 		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
 		(new Thread(essReceiver, "ElevatorSubsystemPacketReceiver")).start();
 	}
 	
 	public static void main(String[] args) {
+
+		
+		
+		
 		Scheduler scheduler = new Scheduler(null, MainProgramRunner.FLOOR_COUNT, MainProgramRunner.INSTANTLY_SCHEDULE_REQUESTS);
 		(new Thread(scheduler, "Scheduler")).start();
 	}

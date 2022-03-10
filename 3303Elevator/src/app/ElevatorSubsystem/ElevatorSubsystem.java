@@ -99,7 +99,7 @@ public class ElevatorSubsystem implements Runnable{
 
 		InetSocketAddress schedulerAddr = null;
 		try {
-			schedulerAddr = new InetSocketAddress(config.get("scheduler.address"), Integer.parseInt(config.get("scheduler.port")));
+			schedulerAddr = new InetSocketAddress(config.get("scheduler.address"), Integer.parseInt(config.get("scheduler.elevatorReceivePort")));
 		}catch(Exception e) {
 			System.exit(1);
 		}
