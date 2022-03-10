@@ -65,6 +65,8 @@ public class Elevator{
 
 	/**
 	 * Delay thread while moving up or down
+	 * 
+	 * @param finalDest current final elevator destination floor
 	 * */
 	public void waitTransit(int finalDest) {
 

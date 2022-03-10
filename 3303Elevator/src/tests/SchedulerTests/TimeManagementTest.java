@@ -35,10 +35,12 @@ public class TimeManagementTest {
 		float t = tms.getElevatorLoadingTime();
 		assertEquals("Returns 0 properly", 0f, t, 0f);
 		
-		ArrayList<Float> times = tms.getElevatorTransitTime(1, 5);
-		for(int i = 0; i < times.size(); i++) {
-			assertEquals("Array of times is 0", 0f, times.get(i), 0f);
-		}
+		Float time = tms.getElevatorTransitTime(1, 3, 5);
+		assertEquals("Time is 0", 0f, time, 0f);
+		time = tms.getElevatorTransitTime(1, 5, 5);
+		assertEquals("Time is 0", 0f, time, 0f);
+		time = tms.getElevatorTransitTime(0, 5, 5);
+		assertEquals("Time is 0", 0f, time, 0f);
 	}
 	
 	/**
@@ -52,19 +54,19 @@ public class TimeManagementTest {
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within normal range", 7920.0f <= t && t <= 11140.0f);
 
-		ArrayList<Float> times = tms.getElevatorTransitTime(1, 5);
+		Float time = tms.getElevatorTransitTime(1, 3, 5);
 		//Output of movement at max velocity
-		for(int i = 1; i < times.size() - 1; i++) {
-			assertTrue("Array of times is within normal range at max velocity", 1900f <= times.get(i) && times.get(i) <= 2100f);
-		}
+		assertTrue("Time is within normal range at max velocity", 1900f <= time && time <= 2100f);
 		
 		//Movement at initial floor and last floor (acceleration and deceleration)
-		assertTrue("Times is within normal range from rest to max", 3800f <= times.get(0) && times.get(0) <= 4200f);
-		assertTrue("Times is within normal range from max to rest", 3800f <= times.get(times.size()-1) && times.get(times.size()-1) <= 4200f);
+		time = tms.getElevatorTransitTime(0, 3, 7);
+		assertTrue("Time is within normal range from rest to max", 3800f <= time && time <= 4200f);
+		time = tms.getElevatorTransitTime(1, 3, 3);
+		assertTrue("Time is within normal range from max to rest", 3800f <= time && time <= 4200f);
 		
 		//Testing movement output for only 1 floor travel
-		times = tms.getElevatorTransitTime(1, 2);
-		assertTrue("Times is within normal range for 1 floor travelled", 1900f <= times.get(0) && times.get(0) <= 2100f);
+		time = tms.getElevatorTransitTime(0, 1, 1);
+		assertTrue("Time is within normal range for 1 floor travelled", 1900f <= time && time <= 2100f);
 	}
 	
 	/**
@@ -78,19 +80,19 @@ public class TimeManagementTest {
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within range scaled up 5", 5*7920f <= t && t <= 5*11140f);
 
-		ArrayList<Float> times = tms.getElevatorTransitTime(1, 5);
+		Float time = tms.getElevatorTransitTime(1, 3, 5);
 		//Output of movement at max velocity
-		for(int i = 1; i < times.size() - 1; i++) {
-			assertTrue("Array of times is within normal range at max velocity", 5*1900f <= times.get(i) && times.get(i) <= 5*2100f);
-		}
+		assertTrue("Time is within normal range at max velocity", 5*1900f <= time && time <= 5*2100f);
 		
 		//Movement at initial floor and last floor (acceleration and deceleration)
-		assertTrue("Times is within normal range from rest to max", 5*3800f <= times.get(0) && times.get(0) <= 5*4200f);
-		assertTrue("Times is within normal range from max to rest", 5*3800f <= times.get(times.size()-1) && times.get(times.size()-1) <= 5*4200f);
+		time = tms.getElevatorTransitTime(0, 3, 7);
+		assertTrue("Time is within normal range from rest to max", 5*3800f <= time && time <= 5*4200f);
+		time = tms.getElevatorTransitTime(1, 3, 3);
+		assertTrue("Time is within normal range from max to rest", 5*3800f <= time && time <= 5*4200f);
 		
 		//Testing movement output for only 1 floor travel
-		times = tms.getElevatorTransitTime(1, 2);
-		assertTrue("Times is within normal range for 1 floor travelled", 5*1900f <= times.get(0) && times.get(0) <= 5*2100f);
+		time = tms.getElevatorTransitTime(0, 1, 1);
+		assertTrue("Time is within normal range for 1 floor travelled", 5*1900f <= time && time <= 5*2100f);
 	}
 	
 	/**
@@ -104,19 +106,19 @@ public class TimeManagementTest {
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within normal range", 7920.0f <= t && t <= 11140.0f);
 		
-		ArrayList<Float> times = tms.getElevatorTransitTime(1, 5);
+		Float time = tms.getElevatorTransitTime(1, 3, 5);
 		//Output of movement at max velocity
-		for(int i = 1; i < times.size() - 1; i++) {
-			assertTrue("Array of times is within normal range at max velocity", 1900f <= times.get(i) && times.get(i) <= 2100f);
-		}
+		assertTrue("Time is within normal range at max velocity", 1900f <= time && time <= 2100f);
 		
 		//Movement at initial floor and last floor (acceleration and deceleration)
-		assertTrue("Times is within normal range from rest to max", 3800f <= times.get(0) && times.get(0) <= 4200f);
-		assertTrue("Times is within normal range from max to rest", 3800f <= times.get(times.size()-1) && times.get(times.size()-1) <= 4200f);
+		time = tms.getElevatorTransitTime(0, 3, 7);
+		assertTrue("Time is within normal range from rest to max", 3800f <= time && time <= 4200f);
+		time = tms.getElevatorTransitTime(1, 3, 3);
+		assertTrue("Time is within normal range from max to rest", 3800f <= time && time <= 4200f);
 		
 		//Testing movement output for only 1 floor travel
-		times = tms.getElevatorTransitTime(1, 2);
-		assertTrue("Times is within normal range for 1 floor travelled", 1900f <= times.get(0) && times.get(0) <= 2100f);
+		time = tms.getElevatorTransitTime(0, 1, 1);
+		assertTrue("Time is within normal range for 1 floor travelled", 1900f <= time && time <= 2100f);
 	}
 	
 	/**
@@ -130,18 +132,18 @@ public class TimeManagementTest {
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within normal range", 0.5 * 7920.0f <= t && t <= 0.5 * 11140.0f);
 		
-		ArrayList<Float> times = tms.getElevatorTransitTime(1, 5);
+		Float time = tms.getElevatorTransitTime(1, 3, 5);
 		//Output of movement at max velocity
-		for(int i = 1; i < times.size() - 1; i++) {
-			assertTrue("Array of times is within normal range at max velocity", 0.5*1900f <= times.get(i) && times.get(i) <= 0.5*2100f);
-		}
+		assertTrue("Time is within normal range at max velocity", 0.5*1900f <= time && time <= 0.5*2100f);
 		
 		//Movement at initial floor and last floor (acceleration and deceleration)
-		assertTrue("Times is within normal range from rest to max", 0.5*3800f <= times.get(0) && times.get(0) <= 0.5*4200f);
-		assertTrue("Times is within normal range from max to rest", 0.5*3800f <= times.get(times.size()-1) && times.get(times.size()-1) <= 0.5*4200f);
+		time = tms.getElevatorTransitTime(0, 3, 7);
+		assertTrue("Time is within normal range from rest to max", 0.5*3800f <= time && time <= 0.5*4200f);
+		time = tms.getElevatorTransitTime(1, 3, 3);
+		assertTrue("Time is within normal range from max to rest", 0.5*3800f <= time && time <= 0.5*4200f);
 		
 		//Testing movement output for only 1 floor travel
-		times = tms.getElevatorTransitTime(1, 2);
-		assertTrue("Times is within normal range for 1 floor travelled", 0.5*1900f <= times.get(0) && times.get(0) <= 0.5*2100f);
+		time = tms.getElevatorTransitTime(0, 1, 1);
+		assertTrue("Time is within normal range for 1 floor travelled", 0.5*1900f <= time && time <= 0.5*2100f);
 		}
 	}
