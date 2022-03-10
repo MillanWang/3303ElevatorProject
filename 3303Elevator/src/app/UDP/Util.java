@@ -29,7 +29,7 @@ public class Util {
             System.exit(1);
         }
 
-        int bufferSize = Integer.parseInt(config.get("udp.buffer.size"));
+        int bufferSize = config.getInt("udp.buffer.size");
         //Create a packet to hold the reply packet
         byte[] data = new byte[bufferSize];
         DatagramPacket receivedPacket = new DatagramPacket(data, data.length);

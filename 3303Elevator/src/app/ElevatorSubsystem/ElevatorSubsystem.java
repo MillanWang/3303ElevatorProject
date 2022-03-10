@@ -92,14 +92,14 @@ public class ElevatorSubsystem implements Runnable{
 
 	public static void main(String[] args){
 		Config config = new Config("local.properties");
-		int numFloors = Integer.parseInt(config.get("floor.total.number"));
-		int numElevators = Integer.parseInt(config.get("elevator.total.number"));
-		int multiplier = Integer.parseInt(config.get("time.multiplier"));
+		int numFloors = config.getInt("floor.total.number");
+		int numElevators = config.getInt("elevator.total.number");
+		int multiplier = config.getInt("time.multiplier");
 
 
 		InetSocketAddress schedulerAddr = null;
 		try {
-			schedulerAddr = new InetSocketAddress(config.get("scheduler.address"), Integer.parseInt(config.get("scheduler.elevatorReceivePort")));
+			schedulerAddr = new InetSocketAddress(config.getString("scheduler.address"), config.getInt("scheduler.elevatorReceivePort"));
 		}catch(Exception e) {
 			System.exit(1);
 		}
