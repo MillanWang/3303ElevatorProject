@@ -20,7 +20,7 @@ public class ElevatorTests {
 	@Test
 	public void testElevator() {
 		Logger logger = null;
-		Elevator elevator = new Elevator(7,logger, tms);
+		Elevator elevator = new Elevator(0, 7,logger, tms);
 		assertSame(ElevatorStateMachine.Idle,elevator.getState());
 	}
 
@@ -28,21 +28,21 @@ public class ElevatorTests {
 	@Test
 	public void testGetFloor() {
 		Logger logger = null;
-		Elevator elevator = new Elevator(7,logger, tms);
+		Elevator elevator = new Elevator(0, 7,logger, tms);
 		assertSame(1,elevator.getFloor());
 	}
 
 	@Test
 	public void testGetState() {
 		Logger logger = null;
-		Elevator elevator = new Elevator(7,logger, tms);
+		Elevator elevator = new Elevator(0, 7,logger, tms);
 		assertSame(ElevatorStateMachine.Idle,elevator.getState());
 	}
 	
 	@Test
 	public void testnextState() {
 		Logger logger = null;
-		Elevator elevator = new Elevator(7,logger, tms);
+		Elevator elevator = new Elevator(0, 7,logger, tms);
 		elevator.nextState();
 		assertSame(ElevatorStateMachine.Idle,elevator.getState());
 		elevator.setDirection(Direction.UP);
@@ -65,7 +65,7 @@ public class ElevatorTests {
 	@Test
 	public void testIsMoving() {
 		Logger logger = null;
-		Elevator elevator = new Elevator(7,logger, tms);
+		Elevator elevator = new Elevator(0, 7,logger, tms);
 		assertSame(false, elevator.isMoving());
 		elevator.setDirection(Direction.UP);
 		elevator.nextState();
@@ -86,7 +86,7 @@ public class ElevatorTests {
 	@Test
 	public void testIsStationary() {
 		Logger logger = null;
-		Elevator elevator = new Elevator(7,logger, tms);
+		Elevator elevator = new Elevator(0, 7,logger, tms);
 		assertSame(true, elevator.isStationary());
 		elevator.setDirection(Direction.UP);
 		elevator.nextState();
@@ -103,14 +103,14 @@ public class ElevatorTests {
 	@Test
 	public void testGetDirection() {
 		Logger logger = null;
-		Elevator e = new Elevator(7,logger, tms);
+		Elevator e = new Elevator(0,7,logger, tms);
 		assertSame(Direction.AWAITING_NEXT_REQUEST, e.getDirection());
 	}
 	
 	@Test
 	public void testSetDirection() {
 		Logger logger = null;
-		Elevator e = new Elevator(7,logger, tms);
+		Elevator e = new Elevator(0,7,logger, tms);
 		e.setDirection(Direction.DOWN);
 		assertSame(Direction.AWAITING_NEXT_REQUEST, e.getDirection());
 		e.setDirection(Direction.UP);
