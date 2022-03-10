@@ -46,31 +46,13 @@ public class TimeManagementSystem {
 	}
 	
 	/**
-	 * Function to generate random array of times within predetermined range, one for each level of movement.
-	 * @param currentFloor current user floor
-	 * @param destinationFloor final destination floor for user
+	 * Function to generate random times within predetermined range, one for each level of movement.
+	 * @param floorsMoved floors moved without stopping
+	 * @param nextFloor next floor that elevator will visit
+	 * @param finalDest final destination floor for user
 	 * @return ArrayList of float time values
 	 */
 	public Float getElevatorTransitTime(int floorsMoved, int nextFloor, int finalDest) {
-		/*
-		//Create array of times for travel between floors
-		Random r = new Random();
-		ArrayList<Float> times = new ArrayList<>();
-		
-		//If only traveling one floor
-		if(Math.abs(destinationFloor - currentFloor) == 1) { //If movement is only one floor, return value that accounts for accel and decel in same time
-			times.add(timeMultiplier * (((3.8f + r.nextFloat() * 0.4f)/2) * 1000));
-		}
-		else { //If traveling more than one floor, generate times for take off + movement at max velocity + coming to stop
-			times.add(timeMultiplier * ((3.8f + r.nextFloat() * 0.4f) * 1000)); //Taking off from rest
-			//Generate array of times from floor to floor at maximum velocity
-			for(int i = 1; i < Math.abs(destinationFloor - currentFloor - 1); i++) {
-				times.add(timeMultiplier * ((1.9f + r.nextFloat() * 0.2f) * 1000)); //Add each time
-			}
-			times.add(timeMultiplier * ((3.8f + r.nextFloat() * 0.4f) * 1000)); //Coming to rest from max velocity
-		}
-		*/
-		
 		Random r = new Random();
 		Float time;
 		if(floorsMoved > 0) { //If moving at max velocity
