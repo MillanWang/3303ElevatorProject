@@ -9,7 +9,7 @@ package app.FloorSubsystem;
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit; 
-public class ScheduledElevatorRequest implements Serializable {
+public class ScheduledElevatorRequest {
 	
 	private LocalTime time; //time of request
 	private long millisecondDelay; 
