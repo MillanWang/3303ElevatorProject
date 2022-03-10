@@ -25,7 +25,7 @@ public class FloorSubsystem extends Thread{
 	private Direction elevatorStatus; 
 	private String inputFileLocation;
 	private Logger currentLogger; 
-	
+	private Scanner sc;
 	private static int floorCount;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
 	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
@@ -37,7 +37,7 @@ public class FloorSubsystem extends Thread{
 	 * @param inputFile: the file path to be accessed 
 	 */
 	public FloorSubsystem( Logger log, int floorCount) { //Scheduler scheduler,  removed from constructor
-		Scanner sc = new Scanner(System.in);
+		sc = new Scanner(System.in);
 		
 		//this.scheduler = scheduler; 
 		this.requests = new ArrayList<ScheduledElevatorRequest>();
@@ -46,7 +46,7 @@ public class FloorSubsystem extends Thread{
 		this.currentLogger = log;
 		this.floorCount = floorCount;
 		
-	    runCommandLineUI(sc); //, scheduler from runCommandLineUI
+	    
 		
 		
 	}
@@ -136,7 +136,7 @@ public class FloorSubsystem extends Thread{
 			//this.scheduler.floorSystemScheduleRequest(request);
 			System.out.println("Should be doing this.scheduler.floorSystemScheduleRequest(request");
 		}
-			
+		runCommandLineUI(sc); //, scheduler from runCommandLineUI	
 	}
 	
 	/**
