@@ -17,7 +17,7 @@ public class Elevator{
 	private final int id;
 
 	private ElevatorDoor door;
-	private int currentFloor;
+	private int currentFloor, floorsMoved;
 	private ElevatorStateMachine state;
 	private TimeManagementSystem tms;
 	private Logger logger;
@@ -30,6 +30,7 @@ public class Elevator{
 	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
+		this.floorsMoved = 0;
 		this.state = ElevatorStateMachine.Idle;
 		this.tms = tms;
 		this.door = new ElevatorDoor(this.tms);
@@ -65,7 +66,7 @@ public class Elevator{
 	/**
 	 * Delay thread while moving up or down
 	 * */
-	public void waitTransit() {
+	public void waitTransit(int finalDest) {
 
 		int dest;
 		if(state.getDirection() == Direction.UP) {
@@ -76,9 +77,10 @@ public class Elevator{
 			return;
 		}
 
-		ArrayList<Float> waitTime = tms.getElevatorTransitTime(currentFloor, dest);
+		Float waitTime = tms.getElevatorTransitTime(floorsMoved, dest, finalDest);
 		try {
-			Thread.sleep(waitTime.get(0).intValue());
+			Thread.sleep(waitTime.intValue());
+			floorsMoved += 1;
 		}catch(InterruptedException e) {
 			System.out.println("[ERROR]#Elevator#waitTransite() issue waiting");
 		}
@@ -209,6 +211,7 @@ public class Elevator{
 		if(this.isStationary()) {
 			//int destFloor = floorsToVisit.first();
 			int destFloor = floorsToVisit.get(0);
+			floorsMoved = 0;
 
 			if(destFloor > this.getFloor()) {
 				this.setDirection(Direction.UP);
@@ -220,7 +223,7 @@ public class Elevator{
 				//There is an issue
 			}
 
-			this.waitTransit();
+			this.waitTransit(destFloor);
 			this.nextState();
 			checkFloor(destFloor);
 		// check if the elevator is moving up or down
@@ -235,7 +238,7 @@ public class Elevator{
 				this.setDirection(Direction.DOWN);
 			}
 
-			this.waitTransit();
+			this.waitTransit(destFloor);
 			this.nextState();
 			checkFloor(destFloor);
 		}

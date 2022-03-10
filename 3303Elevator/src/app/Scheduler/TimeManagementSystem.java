@@ -51,7 +51,8 @@ public class TimeManagementSystem {
 	 * @param destinationFloor final destination floor for user
 	 * @return ArrayList of float time values
 	 */
-	public ArrayList<Float> getElevatorTransitTime(int currentFloor, int destinationFloor) {
+	public Float getElevatorTransitTime(int floorsMoved, int nextFloor, int finalDest) {
+		/*
 		//Create array of times for travel between floors
 		Random r = new Random();
 		ArrayList<Float> times = new ArrayList<>();
@@ -68,8 +69,28 @@ public class TimeManagementSystem {
 			}
 			times.add(timeMultiplier * ((3.8f + r.nextFloat() * 0.4f) * 1000)); //Coming to rest from max velocity
 		}
+		*/
 		
-		logger.logTimeManagementSystemEvent("Generated elevator movement times array of " + times.toString() + " (milliseconds)."); //Logging generated times to system
-		return times;
+		Random r = new Random();
+		Float time;
+		if(floorsMoved > 0) { //If moving at max velocity
+			if(nextFloor != finalDest) { //Not reaching final destination at next floor
+				time = timeMultiplier * ((1.9f + r.nextFloat() * 0.2f) * 1000);
+			}
+			else { //Reaching final destination at next floor
+				time = timeMultiplier * ((3.8f + r.nextFloat() * 0.4f) * 1000);
+			}
+		}
+		else { //Taking off from 0
+			if(nextFloor != finalDest) { //Taking off for more than one floor
+				time = timeMultiplier * ((3.8f + r.nextFloat() * 0.4f) * 1000);
+			}
+			else { //Traveling only one floor
+				time = timeMultiplier * (((3.8f + r.nextFloat() * 0.4f)/2) * 1000);
+			}
+		}
+		
+		logger.logTimeManagementSystemEvent("Generated elevator movement time of " + time.toString() + " (milliseconds)."); //Logging generated times to system
+		return time;
 	}
 }
