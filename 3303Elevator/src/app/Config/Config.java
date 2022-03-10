@@ -54,6 +54,12 @@ public class Config {
 	 * @return the value for that key
 	 */
 	public String get(String key) {
+		
+		if(prop.getProperty(key, null)==null) {
+			System.out.print("[ERROR]Config#get(String key) failed to load config value for "+ key);
+			System.exit(1);
+		}
+		
 		return prop.getProperty(key);
 	}
 		

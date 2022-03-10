@@ -5,7 +5,11 @@ import java.net.*;
 import java.net.InetAddress;
 import java.net.SocketAddress;
 
+import app.Config.Config;
+
 public class Util {
+	
+	private static Config config = new Config("local.properties");
 
 	/**
      * Sends the given packet via a dynamically made DatagramSocket and
@@ -25,8 +29,9 @@ public class Util {
             System.exit(1);
         }
 
+        int bufferSize = Integer.parseInt(config.get("udp.buffer.size"));
         //Create a packet to hold the reply packet
-        byte[] data = new byte[512];
+        byte[] data = new byte[bufferSize];
         DatagramPacket receivedPacket = new DatagramPacket(data, data.length);
 
         //Receive reply response on same socket before closing
