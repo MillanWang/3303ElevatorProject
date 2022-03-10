@@ -3,9 +3,12 @@ package app.Scheduler.SchedulerThreads;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.LinkedList;
 
+import app.Scheduler.ElevatorSpecificFloorsToVisit;
 import app.Scheduler.Scheduler;
 import app.UDP.PacketReceiver;
+import app.UDP.Util;
 
 /**
  * Class for receiving packets from elevator subsystem and then replying with responses
@@ -36,18 +39,20 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
         //Deserialize packet contents to become input for scheduler's next floors to visit
-        Object elevatorSubsystemComms = new String(requestPacket.getData()); //TODO: Plan out a comms object and then Deserialize 
+        try {
+			Object elevatorSubsystemComms = Util.deserialize(requestPacket.getData()); //TODO : GET THE PROPER CLASS FOR THIS DESERIALIZATION RESULT
+		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
         
-        //Get the next toVisitList from scheduler
-        Object schedulerUpdate = this.scheduler.getNextFloorsToVisit(1, true);
+        //Get the next toVisitList from scheduler   TODO:SETUP SCHEDULER TO PROPERLY RETURN THE TO VISIT LIST
+        Object eventuallyReplaceWithProperSchedulerImplementation = this.scheduler.getNextFloorsToVisit(1, true);
+        LinkedList<ElevatorSpecificFloorsToVisit> allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificFloorsToVisit>();
         
         //Create byte array to build reply packet contents more easily
         ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
         
         //Write serialized response object to packet
         try {
-        	//TODO: Replace toString with a serialization process
-			packetMessageOutputStream.write(schedulerUpdate.toString().getBytes());
+			packetMessageOutputStream.write(Util.serialize(allElevatorsAllFloorsToVisit));
 		} catch (IOException e) {e.printStackTrace();}
         
 
