@@ -320,8 +320,8 @@ public class Scheduler implements Runnable{
 	public void run() {
 		Config config = new Config("local.properties");
 		// Create message receiver threads for messages from floor subsystem and elevator subsystem
-		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver( Integer.parseInt(config.get("scheduler.floorReceivePort")), this);
-		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver( Integer.parseInt(config.get("scheduler.elevatorReceivePort")), this);
+		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver( config.getInt("scheduler.floorReceivePort"), this);
+		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver( config.getInt("scheduler.elevatorReceivePort"), this);
 		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
 		(new Thread(essReceiver, "ElevatorSubsystemPacketReceiver")).start();
 	}

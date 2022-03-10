@@ -9,6 +9,6 @@ public class ConfigTests {
 	@Test
 	public void test() {
 		Config config = new Config("local.properties");
-		assertSame(config.get("scheduler.port").equals("3000"), true);		
+		assertSame(config.getInt("scheduler.port"), 3000);		
 	}
 }
