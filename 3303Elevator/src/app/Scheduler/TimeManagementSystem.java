@@ -13,17 +13,23 @@ package app.Scheduler;
  * 
  */
 import java.util.Random;
+
+import app.Logger;
+
 import java.util.ArrayList;
 public class TimeManagementSystem {
-	public float timeMultiplier; //Used to scale time for testing purposes
-		
+	private float timeMultiplier; //Used to scale time for testing purposes
+	private Logger logger;
+	
 	/**
 	* Constructor for TimeManagementSystem Class
 	* 
 	* @param multiplier time multiplier for testing purposes
+	* @param logger Logger object used to track class activity
 	*/
-	public TimeManagementSystem(float multiplier){
+	public TimeManagementSystem(float multiplier, Logger logger){
 		this.timeMultiplier = Math.abs(multiplier);
+		this.logger = logger;
 	}
 	
 	/**
@@ -34,7 +40,9 @@ public class TimeManagementSystem {
 	 */
 	public float getElevatorLoadingTime() {
 		Random r = new Random();
-		return timeMultiplier * ((7.92f + r.nextFloat() * 3.22f) * 1000);
+		float t = timeMultiplier * ((7.92f + r.nextFloat() * 3.22f) * 1000); //Generating time
+		logger.logTimeManagementSystemEvent("Generated an elevator loading time of " + t + " milliseconds."); //Logging time to system
+		return t;
 	}
 	
 	/**
@@ -48,10 +56,20 @@ public class TimeManagementSystem {
 		Random r = new Random();
 		ArrayList<Float> times = new ArrayList<>();
 		
-		//Generate array of times from floor to floor
-		for(int i = 0; i < destinationFloor - currentFloor; i++) {
-			times.add(timeMultiplier * ((2.77f + r.nextFloat() * 1.07f) * 1000)); //Add each time
+		//If only traveling one floor
+		if(Math.abs(destinationFloor - currentFloor) == 1) { //If movement is only one floor, return value that accounts for accel and decel in same time
+			times.add(timeMultiplier * (((3.8f + r.nextFloat() * 0.4f)/2) * 1000));
 		}
+		else { //If traveling more than one floor, generate times for take off + movement at max velocity + coming to stop
+			times.add(timeMultiplier * ((3.8f + r.nextFloat() * 0.4f) * 1000)); //Taking off from rest
+			//Generate array of times from floor to floor at maximum velocity
+			for(int i = 1; i < Math.abs(destinationFloor - currentFloor - 1); i++) {
+				times.add(timeMultiplier * ((1.9f + r.nextFloat() * 0.2f) * 1000)); //Add each time
+			}
+			times.add(timeMultiplier * ((3.8f + r.nextFloat() * 0.4f) * 1000)); //Coming to rest from max velocity
+		}
+		
+		logger.logTimeManagementSystemEvent("Generated elevator movement times array of " + times.toString() + " (milliseconds)."); //Logging generated times to system
 		return times;
 	}
 }

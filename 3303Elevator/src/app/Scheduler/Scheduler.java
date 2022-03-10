@@ -1,16 +1,19 @@
 package app.Scheduler;
 
-import java.time.LocalTime;
-import java.time.temporal.*;
 import java.util.LinkedList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import app.Logger;
+import app.MainProgramRunner;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.*;
+import app.Scheduler.SchedulerThreads.DelayedRequest;
+import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
+import app.Scheduler.SchedulerThreads.FloorSubsystemPacketReceiver;
 
 /**
- * SYSC 3303, Final Project Iteration 1&0
+ * SYSC 3303, Final Project Iteration 2
  * Scheduler.java
  * 
  * Scheduler class coordinating requests from the FloorSubsystem into directions for the ElevatorSubsytem 
@@ -18,18 +21,24 @@ import app.FloorSubsystem.*;
  * @author Millan Wang
  *
  */
-public class Scheduler {
+public class Scheduler implements Runnable{
 	
 	private TreeSet<Integer> upwardsToVisitSet;
 	private TreeSet<Integer> downwardsToVisitSet;
 	private LinkedList<Integer[]> unscheduledRequests;
+	
+	private LinkedList<TreeSet<Integer>> upwardsDestinations;
+	private LinkedList<TreeSet<Integer>> downwardsDestinations;
 	
 	public static final int ELEVATOR_COUNT = 1;
 
 	private boolean skipDelaysOnFloorInputs;
 	private int highestFloorNumber;
 	private int elevatorCurrentFloor; //Eventually expand to be an array for all elevators
+	private Direction currentElevatorDirection; //Eventually expand to be an array for all elevators
 	private FloorSubsystem floorSubsys;
+	
+	private Logger logger;
 	
 
 	/**
@@ -39,17 +48,30 @@ public class Scheduler {
 	 * @param skipDelaysOnFloorInputs boolean indicating if all incoming timeSpecified requests should be ran without delay
 	 * @param floorSubsys Reference to the floor subsystem dependency
 	 */
-	public Scheduler(int highestFloorNumber, boolean skipDelaysOnFloorInputs) {
+	public Scheduler(Logger logger, int highestFloorNumber, boolean skipDelaysOnFloorInputs) {
+		this.logger = logger;
+		
 		this.highestFloorNumber = highestFloorNumber;
 		this.skipDelaysOnFloorInputs= skipDelaysOnFloorInputs; 
 		this.elevatorCurrentFloor = 1;
+		this.currentElevatorDirection = Direction.AWAITING_NEXT_REQUEST;
 		
 		//Sorted set of destinations to visit in each direction
 		this.upwardsToVisitSet = new TreeSet<Integer>();
 		this.downwardsToVisitSet = new TreeSet<Integer>();
 		
 		//List for requests that cannot be immediately scheduled
-		this.unscheduledRequests= new LinkedList<Integer[]>(); 
+		this.unscheduledRequests= new LinkedList<Integer[]>();
+		
+		//Directional destinations per floor
+		this.upwardsDestinations= new LinkedList<TreeSet<Integer>>();
+		this.downwardsDestinations = new LinkedList<TreeSet<Integer>>();
+		//Populate them with TreeSets
+		for (int i = 0; i<highestFloorNumber ; i++) {
+			this.upwardsDestinations.add(new TreeSet<Integer>());
+			this.downwardsDestinations.add(new TreeSet<Integer>());
+		}
+		
 	}
 	
 	/**
@@ -69,44 +91,23 @@ public class Scheduler {
 		Integer startFloor = floorSystemRequest.getStartFloor();
 		Integer destinationFloor = floorSystemRequest.getDestinationFloor();
 		
-		if (startFloor > highestFloorNumber ||destinationFloor > highestFloorNumber) {
-			System.out.println("Non existent floor received");
+		if (startFloor > highestFloorNumber ||destinationFloor > highestFloorNumber || startFloor <= 0 || destinationFloor <= 0) {
+			System.err.println("Non existent floor received");
 			return;
 		}
-		
-		long milliSecondDelay = getMillisecondDelayUntilRequest(floorSystemRequest.getTime());
-		
-		if (milliSecondDelay==0) {
+
+		if (skipDelaysOnFloorInputs || floorSystemRequest.getMillisecondDelay()==0) {
 			//No delay means instantly add request to queue
 			this.addElevatorRequest(startFloor, destinationFloor);
 		} else {
 			//Create a thread with a delay that eventually calls addsElevatorRequest
-			(new Thread(new DelayedRequest(this,startFloor, destinationFloor, milliSecondDelay), "RequestOccuringAt_"+floorSystemRequest.getTime().toString())).start();
+			(new Thread(new DelayedRequest(this,startFloor, destinationFloor, floorSystemRequest.getMillisecondDelay()), "RequestOccuringAt_"+floorSystemRequest.getTime().toString())).start();
 		}
-	}
-	
-	/**
-	 * Calculates the time in milliseconds to delay between now and the given the LocalTime execution time
-	 * @param executionTime LocalTime when the wait should end
-	 * @return time in milliseconds to wait before reaching the given LocalTime
-	 */
-	private long getMillisecondDelayUntilRequest(LocalTime executionTime) {
-		if ( executionTime == null || skipDelaysOnFloorInputs ) {
-			return 0;
-		} else {
-			long milliseconds = LocalTime.now().until(executionTime, ChronoUnit.MILLIS );
-			
-			//if the scheduled time is before now, milliseconds will be negative. Add it to ms in a day to get time until it occurs again tomorrow
-			if (milliseconds < 0) {
-				milliseconds = 24*60*60*1000 + milliseconds;
-			}
-			return milliseconds;
-		}
-		
 	}
 	
 	/**
 	 * Adds an elevator request to the scheduling system
+	 * ALGORITHM USED IN ITERATION 1 
 	 * 
 	 * @param startFloor Starting floor of the request
 	 * @param destinationFloor destination floor of the request
@@ -162,6 +163,37 @@ public class Scheduler {
 	}
 	
 	/**
+	 * Adds an elevator request to the scheduling system
+	 * ATTEMPTING TO CHANGE ALGORITHM FOR ITERATION 2
+	 * 
+	 * WORK IN PROGRESS - NOT PERFECT YET
+	 * 
+	 * @param startFloor Starting floor of the request
+	 * @param destinationFloor destination floor of the request
+	 */
+	public synchronized void addElevatorRequest2(Integer startFloor, Integer destinationFloor) {
+		boolean isUpwards = startFloor < destinationFloor;
+		
+		//Add elevator request to corresponding directionalToVisitSet if it isn't already queued
+		if (isUpwards) {
+			
+			//Destination will only be known once we arrive at the start floor
+			this.upwardsDestinations.get(startFloor-1).add(destinationFloor);
+			
+			
+		} else if (!isUpwards ) {
+			
+			//Destination will only be known once we arrive at the start floor
+			this.downwardsDestinations.get(startFloor-1).add(destinationFloor);
+		
+			
+		}
+		
+		notifyAll();
+	}
+	
+	
+	/**
 	 * Attempts to schedule all of the requests that were previously unscheduled. 
 	 * Occurs every time the elevator switches directions
 	 */
@@ -174,7 +206,9 @@ public class Scheduler {
 	
 	
 	/**
-	 * Returns a treeset of the floors to be visited by the current elevator given it's current direction and location
+	 * Returns a TreeSet of the floors to be visited by the current elevator given it's current direction and location
+	 * 
+	 * WORK IN PROGRESS - NOT PERFECT YET
 	 *
 	 * @param currentFloorNumber The elevators current floor number
 	 * @param currentElevatorDirectionIsUpwards if the elevator is currently going upwards
@@ -184,6 +218,8 @@ public class Scheduler {
 		//wait loop until there is a destination to visit - Waiting here means elevator is parked
 		while (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
 			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Direction.AWAITING_NEXT_REQUEST);
+			
+			logger.logSchedulerEvent("Elevator is waiting for Scheduler's next request");
 
 			try {wait();} catch (InterruptedException e) {}
 		}
@@ -206,6 +242,9 @@ public class Scheduler {
 			floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
 			nextDirectionUp = true;
 			//Change direction if no more upwards floors to visit. Try scheduling the unscheduled
+			
+			logger.logSchedulerEvent("Elevator has no more upwards floors to visit. Attempting to change directions");
+			
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();
 				floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
@@ -218,6 +257,8 @@ public class Scheduler {
 			floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
 			nextDirectionUp = false; 
 			//Change direction if no more downwards floors to visit. Try scheduling the unscheduled
+			logger.logSchedulerEvent("Elevator has no more downwards floors to visit. Attempting to change directions");
+			
 			if (floorsToVisit.isEmpty()) {
 				attemptToScheduleUnscheduledRequests();
 				if (floorsToVisit.isEmpty()) {
@@ -270,5 +311,20 @@ public class Scheduler {
 		
 		return this.downwardsToVisitSet.headSet(currentFloorNumber, false);
 	}
+	
 
+
+	@Override
+	public void run() {
+		// Create message receiver threads for messages from floor subsystem and elevator subsystem
+		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver(2, this);
+		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver(2, this);
+		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
+		(new Thread(essReceiver, "ElevatorSubsystemPacketReceiver")).start();
+	}
+	
+	public static void main(String[] args) {
+		Scheduler scheduler = new Scheduler(null, MainProgramRunner.FLOOR_COUNT, MainProgramRunner.INSTANTLY_SCHEDULE_REQUESTS);
+		(new Thread(scheduler, "Scheduler")).start();
+	}
 }

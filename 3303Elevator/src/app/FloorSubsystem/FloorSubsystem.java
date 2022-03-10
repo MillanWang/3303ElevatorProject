@@ -127,6 +127,10 @@ public class FloorSubsystem extends Thread{
 	 * Runs the floorSubsystem thread
 	 */
 	public synchronized void run() {
+		//Don't schedule anything with blank input file
+		if (this.inputFileLocation.equals("")) return;
+		
+		
 		addInputRequests(this.inputFileLocation); 
 		for (ScheduledElevatorRequest request: this.requests) {
 			//this.scheduler.floorSystemScheduleRequest(request);

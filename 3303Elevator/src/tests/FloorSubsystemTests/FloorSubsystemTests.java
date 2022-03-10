@@ -20,7 +20,7 @@ import app.Scheduler.Scheduler;
 
 public class FloorSubsystemTests {
 	
-	Scheduler scheduler = new Scheduler(5, true); 
+	Scheduler scheduler = new Scheduler(new Logger(true,true,true,true), 5, true); 
 	Logger log = new Logger(true, true, true, true);
 	FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, log);
 	ScheduledElevatorRequest testInput; 

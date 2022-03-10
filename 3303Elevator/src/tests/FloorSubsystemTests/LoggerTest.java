@@ -42,36 +42,9 @@ public class LoggerTest {
 	/*
 	 * tests the elevator log message when elevator is moving up 
 	 */
-	public void elevatorUpLoggerTest() {
-		log.logElevatorEvents(Direction.UP, 4);
-		assertTrue(outputStreamCaptor.toString().trim().contains(" Elevator is moving up to floor number 4"));
-	}
-	
-	@Test
-	/*
-	 * tests the elevator log message when elevator is moving down
-	 */
-	public void elevatorDownLoggerTest() {
-		log.logElevatorEvents(Direction.DOWN, 2);
-		assertTrue(outputStreamCaptor.toString().trim().contains(" Elevator is moving down to floor number 2"));
-	}
-	
-	@Test
-	/*
-	 * tests the elevator log message when elevator is parked
-	 */
-	public void elevatorParkedLoggerTest() {
-		log.logElevatorEvents(Direction.AWAITING_NEXT_REQUEST, 2);
-		assertTrue(outputStreamCaptor.toString().trim().contains("Elevator is parked at floor number 2"));
-	}
-	
-	@Test
-	/*
-	 * tests the elevator log message when elevator is parked
-	 */
-	public void elevatorStoppedLoggerTest() {
-		log.logElevatorEvents(Direction.STOPPED_AT_FLOOR, 2);
-		assertTrue(outputStreamCaptor.toString().trim().contains("Elevator is stopped at floor number 2"));
+	public void elevatorLoggerTest() {
+		log.logElevatorEvents(" test");
+		assertTrue(outputStreamCaptor.toString().trim().contains(" test"));
 	}
 	
 	@Test

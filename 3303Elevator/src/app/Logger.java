@@ -42,19 +42,10 @@ public class Logger {
 	 * @param movement: movement enum specifying the movement state of the elevator 
 	 * @param floorNumber: floor number to which the elevator is moving to or is parked at 
 	 */
-	public void logElevatorEvents(Direction movement , int floorNumber  ) {
+	public void logElevatorEvents(String message) {
 		if(printElevatorEvents == true) {
-			if(movement == Direction.UP) {
-				System.out.println(dateTime.now()+ " Elevator is moving up to floor number " + floorNumber);
-			} else if(movement == Direction.DOWN) {
-				System.out.println(dateTime.now()+ " Elevator is moving down to floor number " + floorNumber);
-			} else if(movement == Direction.STOPPED_AT_FLOOR) {
-				System.out.println(dateTime.now()+ " Elevator is stopped at floor number " + floorNumber);
-			} else if(movement == Direction.AWAITING_NEXT_REQUEST) {
-				System.out.println(dateTime.now()+ " Elevator is parked at floor number " + floorNumber);
-			}
+			System.out.println(dateTime.now() + message);
 		}
-		
 	}
 	
 	/**
@@ -70,25 +61,25 @@ public class Logger {
 		
 	}
 	
-	/*
+	/**
 	 * logSchedulerEvent is used to print scheduler events logged 
 	 * 
-	 * @param temp string to be printed from the scheduler (Temp)
+	 * @param schedulerLogString string to be printed from the scheduler (Temp)
 	 */
-	public void logSchedulerEvent(String temp) {
+	public void logSchedulerEvent(String schedulerLogString) {
 		if(printSchedulerEvents == true) {
-			System.out.println(dateTime.now()+ temp);
+			System.out.println(dateTime.now()+ " " + schedulerLogString);
 		}
 	}
 	
-	/*
+	/**
 	 * logTimeManagementEvent is used to print the Time Management System events logged
 	 * 
 	 * @param temp string to be printed from the Time Management System (Temp)
 	 */
-	public void logTimeManagementSystemEvent(String temp) {
+	public void logTimeManagementSystemEvent(String timeManagementLogString) {
 		if(printTimeManagementSystemEvent == true) {
-			System.out.println(dateTime.now()+ temp);
+			System.out.println(dateTime.now() + " " + timeManagementLogString);
 		}
 	}
 	
