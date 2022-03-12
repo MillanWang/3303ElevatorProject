@@ -1,7 +1,13 @@
 package app.Scheduler;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -9,6 +15,8 @@ import app.Logger;
 import app.MainProgramRunner;
 import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
+import app.ElevatorSubsystem.Elevator.ElevatorInfo;
+import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.FloorSubsystem.*;
 import app.Scheduler.SchedulerThreads.DelayedRequest;
 import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
@@ -26,20 +34,22 @@ import app.UDP.Util;
  */
 public class Scheduler implements Runnable{
 	
-	private TreeSet<Integer> upwardsToVisitSet;
-	private TreeSet<Integer> downwardsToVisitSet;
-	private LinkedList<Integer[]> unscheduledRequests;
+	private LinkedList<ElevatorSpecificFloorsToVisit> allElevatorsAllFloorsToVisit;
+	private LinkedList<TreeSet<Integer>> upwardsDestinationsPerFloor;
+	private LinkedList<TreeSet<Integer>> downwardsDestinationsPerFloor;
 	
-	private LinkedList<TreeSet<Integer>> upwardsDestinations;
-	private LinkedList<TreeSet<Integer>> downwardsDestinations;
-	
-	public static final int ELEVATOR_COUNT = 1;
+	private int numberOfElevators;
+	private LinkedList<ElevatorInfo> allElevatorInfo;
 
 	private boolean skipDelaysOnFloorInputs;
 	private int highestFloorNumber;
-	private int elevatorCurrentFloor; //Eventually expand to be an array for all elevators
-	private Direction currentElevatorDirection; //Eventually expand to be an array for all elevators
-	private FloorSubsystem floorSubsys;
+	
+	
+	private int elevatorSubsystemReceivePort;
+	private int floorSubsystemReceivePort;
+	private InetAddress floorInetAddress;
+	private int floorSubsystemSendPort;
+
 	
 	private Logger logger;
 	
@@ -51,161 +61,206 @@ public class Scheduler implements Runnable{
 	 * @param skipDelaysOnFloorInputs boolean indicating if all incoming timeSpecified requests should be ran without delay
 	 * @param floorSubsys Reference to the floor subsystem dependency
 	 */
-	public Scheduler(Logger logger, int highestFloorNumber, boolean skipDelaysOnFloorInputs) {
+	public Scheduler(Logger logger, boolean skipDelaysOnFloorInputs) {
+		Config config = new Config("local.properties");
+		this.numberOfElevators= config.getInt("elevator.total.number"); ; 
+		this.highestFloorNumber= config.getInt("floor.highestFloorNumber"); ; 
+		this.elevatorSubsystemReceivePort = config.getInt("scheduler.floorReceivePort");
+		this.floorSubsystemReceivePort = config.getInt("scheduler.elevatorReceivePort");
+		
+		//TODO : GEt the proper inet address and port from the updated properties config
+		this.floorInetAddress = null;
+		this.floorSubsystemSendPort = config.getInt("scheduler.elevatorReceivePort");
+		
+		
 		this.logger = logger;
 		
-		this.highestFloorNumber = highestFloorNumber;
 		this.skipDelaysOnFloorInputs= skipDelaysOnFloorInputs; 
-		this.elevatorCurrentFloor = 1;
-		this.currentElevatorDirection = Direction.AWAITING_NEXT_REQUEST;
-		
-		//Sorted set of destinations to visit in each direction
-		this.upwardsToVisitSet = new TreeSet<Integer>();
-		this.downwardsToVisitSet = new TreeSet<Integer>();
-		
-		//List for requests that cannot be immediately scheduled
-		this.unscheduledRequests= new LinkedList<Integer[]>();
 		
 		//Directional destinations per floor
-		this.upwardsDestinations= new LinkedList<TreeSet<Integer>>();
-		this.downwardsDestinations = new LinkedList<TreeSet<Integer>>();
+		this.upwardsDestinationsPerFloor= new LinkedList<TreeSet<Integer>>();
+		this.downwardsDestinationsPerFloor = new LinkedList<TreeSet<Integer>>();
 		//Populate them with TreeSets
 		for (int i = 0; i<highestFloorNumber ; i++) {
-			this.upwardsDestinations.add(new TreeSet<Integer>());
-			this.downwardsDestinations.add(new TreeSet<Integer>());
+			this.upwardsDestinationsPerFloor.add(new TreeSet<Integer>());
+			this.downwardsDestinationsPerFloor.add(new TreeSet<Integer>());
 		}
+		
+		this.allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificFloorsToVisit>();
 	}
 	
-	/**
-	 * Sets the floorSubsys field to the FloorSubsystem
-	 * @param floorSubsys
-	 */
-	public void setFloorSubsys(FloorSubsystem floorSubsys) {
-		this.floorSubsys = floorSubsys;
-	}
 	
 	/**
 	 * Schedules an incoming floorSystemRequest to corresponding directional floor queue
-	 * @param requestEvent
+	 * @param floorSystemRequests List of ScheduledElevatorRequest
 	 */
-	public synchronized void floorSystemScheduleRequest(ScheduledElevatorRequest floorSystemRequest) {
-		//Assuming sanitized inputs
-		Integer startFloor = floorSystemRequest.getStartFloor();
-		Integer destinationFloor = floorSystemRequest.getDestinationFloor();
+	public synchronized void floorSystemScheduleRequest(List<ScheduledElevatorRequest> floorSystemRequests) {
+		//Wait loop until elevator info is known
+		while (this.allElevatorInfo==null) {
+			try {wait();} catch (InterruptedException e) {}
+		}
 		
-		if (startFloor > highestFloorNumber ||destinationFloor > highestFloorNumber || startFloor <= 0 || destinationFloor <= 0) {
-			System.err.println("Non existent floor received");
-			return;
-		}
+		for (ScheduledElevatorRequest ser : floorSystemRequests) {
+			
+			//Assuming sanitized inputs
+			Integer startFloor = ser.getStartFloor();
+			Integer destinationFloor = ser.getDestinationFloor();
+			
+			if (startFloor > highestFloorNumber ||destinationFloor > highestFloorNumber || startFloor <= 0 || destinationFloor <= 0) {
+				System.err.println("Non existent floor received");
+				return;
+			}
 
-		if (skipDelaysOnFloorInputs || floorSystemRequest.getMillisecondDelay()==0) {
-			//No delay means instantly add request to queue
-			this.addElevatorRequest(startFloor, destinationFloor);
-		} else {
-			//Create a thread with a delay that eventually calls addsElevatorRequest
-			(new Thread(new DelayedRequest(this,startFloor, destinationFloor, floorSystemRequest.getMillisecondDelay()), "RequestOccuringAt_"+floorSystemRequest.getTime().toString())).start();
+			if (skipDelaysOnFloorInputs || ser.getMillisecondDelay()==0) {
+				//No delay means instantly add request to queue
+				this.addElevatorRequest(startFloor, destinationFloor);
+			} else {
+				//Create a thread with a delay that eventually calls addsElevatorRequest
+				(new Thread(new DelayedRequest(this,startFloor, destinationFloor, ser.getMillisecondDelay()), "RequestOccuringAt_"+ser.getTime().toString())).start();
+			}
+			
 		}
+		notifyAll();
 	}
 	
+
+	
 	/**
-	 * Adds an elevator request to the scheduling system
-	 * ALGORITHM USED IN ITERATION 1 
+	 * Adds an elevator request to the scheduling system so that an elevator have instructions on where to go
 	 * 
 	 * @param startFloor Starting floor of the request
 	 * @param destinationFloor destination floor of the request
 	 */
 	public synchronized void addElevatorRequest(Integer startFloor, Integer destinationFloor) {
 
-		boolean didUnparking = false;
-		
-		//If we are currently parked, add the startFloor to the corresponding directional toVisitSet
-		if (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
-			
-			//Need to go down if startFloor is below current
-			if (elevatorCurrentFloor > startFloor) {
-				this.downwardsToVisitSet.add(startFloor);
-				didUnparking = true;
-				
-			} //Need to go up if startFloor is above current
-			else if (elevatorCurrentFloor < startFloor) {	
-				this.upwardsToVisitSet.add(startFloor);
-				didUnparking = true;
-			} 
-			//Already at start floor otherwise. No need to move elevator
-			//After un-parking and adding startFloor as a destination, try to schedule the request
-		} 
-		
-		
-		boolean isUpwards = startFloor < destinationFloor;
-		
-		//Add elevator request to corresponding directionalToVisitSet if it isn't already queued
-		if (isUpwards) { 
-			
-			//Add to visit set iff the start floor is above or equal to current. Otherwise add to unscheduledRequests
-			if (startFloor >= elevatorCurrentFloor || didUnparking) {
-				this.upwardsToVisitSet.add(startFloor);
-				this.upwardsToVisitSet.add(destinationFloor);
-			} else {
-				this.unscheduledRequests.add(new Integer[]{startFloor,destinationFloor});
-			}
-			
-			
-		} else if (!isUpwards ) {
-			//Add to visit set iff the start floor is below or equal to current. Otherwise add to unscheduledRequests
-			if (startFloor <= elevatorCurrentFloor || didUnparking) {
-				this.downwardsToVisitSet.add(startFloor);
-				this.downwardsToVisitSet.add(destinationFloor);
-			} else {
-				this.unscheduledRequests.add(new Integer[]{startFloor,destinationFloor});
-			}
-			
-		}
-		
-		notifyAll();
-	}
-	
-	/**
-	 * Adds an elevator request to the scheduling system
-	 * ATTEMPTING TO CHANGE ALGORITHM FOR ITERATION 2
-	 * 
-	 * WORK IN PROGRESS - NOT PERFECT YET
-	 * 
-	 * @param startFloor Starting floor of the request
-	 * @param destinationFloor destination floor of the request
-	 */
-	public synchronized void addElevatorRequest2(Integer startFloor, Integer destinationFloor) {
 		boolean isUpwards = startFloor < destinationFloor;
 		
 		//Add elevator request to corresponding directionalToVisitSet if it isn't already queued
 		if (isUpwards) {
-			
 			//Destination will only be known once we arrive at the start floor
-			this.upwardsDestinations.get(startFloor-1).add(destinationFloor);
+			this.upwardsDestinationsPerFloor.get(startFloor-1).add(destinationFloor);
+			//Find the best elevator to handle this request, then put the start floor on it's up list
+			this.getElevatorSpecificFloorsToVisit(getBestElevatorId(startFloor,isUpwards)).addUpwardsFloorToVisit(startFloor);
+			
 			
 			
 		} else if (!isUpwards ) {
-			
 			//Destination will only be known once we arrive at the start floor
-			this.downwardsDestinations.get(startFloor-1).add(destinationFloor);
-		
-			
+			this.downwardsDestinationsPerFloor.get(startFloor-1).add(destinationFloor);
+			//Find the best elevator to handle this request, then put the start floor on it's down list
+			this.getElevatorSpecificFloorsToVisit(getBestElevatorId(startFloor,isUpwards)).addDownwardsFloorToVisit(startFloor);
 		}
-		
 		notifyAll();
 	}
 	
-	
 	/**
-	 * Attempts to schedule all of the requests that were previously unscheduled. 
-	 * Occurs every time the elevator switches directions
+	 * Returns the ID of the best elevator to handle this request
+	 * @param startFloor The starting floor of the request
+	 * @param isUpwards if the request is upwards
+	 * @return The ID of the most suitable elevator for this request
 	 */
-	private void attemptToScheduleUnscheduledRequests() {
-		for (int i = 0; i < this.unscheduledRequests.size(); i++) {
-			Integer[] ir = this.unscheduledRequests.pop();
-			this.addElevatorRequest(ir[0], ir[1]);
+	private synchronized int getBestElevatorId(int startFloor, boolean isUpwards) {
+		if (isUpwards) {
+			//Upwards. First check if there are any upwards or parked elevators under us
+			if (this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.MoveUp)!=-1) {
+				return this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.MoveUp);
+			} else if (this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.Idle)!=-1) {
+				return this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.Idle);
+			} else {
+				//No upwards or parked elevators below start floor. Randomly select one
+				Collections.shuffle(this.allElevatorInfo);
+				return this.allElevatorInfo.get(0).getId();
+			}
+		} else {
+			//Downwards. First check if there are any downwards or packed elevators above us
+			if (this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.MoveDown)!=-1) {
+				return this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.MoveDown);
+			} else if (this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.Idle)!=-1) {
+				return this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.Idle);
+			} else {
+				//No downwards or parked elevators above start floor. Randomly select one
+				Collections.shuffle(this.allElevatorInfo);
+				return this.allElevatorInfo.get(0).getId();
+			}
 		}
 	}
 	
+	/**
+	 * Finds the closest elevator below the start floor with the given state
+	 * @param floor The start floor
+	 * @param eState the state to look for
+	 * @return The ID of the closest elevator below the start floor with the given state. -1 if there is none
+	 */
+	private synchronized int findClosestElevatorBelowWithState(int floor, ElevatorStateMachine eState) {
+		LinkedList<Integer[]> belowElevators = new LinkedList<Integer[]>();
+		//Identify elevators below
+		for (ElevatorInfo eInfo : this.allElevatorInfo) {
+			if (eInfo.getFloor()<=floor && eInfo.getState().equals(eState)) { //TODO CHANGE TO DIRECTION UP INSTEAD OF STATE
+				belowElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
+			}
+		}
+		
+		//None found
+		if (belowElevators.isEmpty()) return -1;
+		
+		//Identify the closest one. Largest in this case
+		int[] currentMax = new int[] {belowElevators.get(0)[0], belowElevators.get(0)[1]};
+		for (Integer[] arr : belowElevators) {
+			if (arr[1]>currentMax[1]) {
+				currentMax[0] = arr[0];
+				currentMax[1] = arr[1];
+			}
+		}
+		
+		return currentMax[0];
+	}
+	
+	/**
+	 * Finds the closest elevator above the start floor with the given state
+	 * @param floor The start floor
+	 * @param eState the state to look for
+	 * @return The ID of the closest elevator above the start floor with the given state. -1 if there is none
+	 */
+	private synchronized int findClosestElevatorAboveWithState(int floor, ElevatorStateMachine eState) {
+		LinkedList<Integer[]> aboveElevators = new LinkedList<Integer[]>();
+		//Identify above elevators 
+		for (ElevatorInfo eInfo : this.allElevatorInfo) {
+			if (eInfo.getFloor()>=floor && eInfo.getState().equals(eState)) { //TODO CHANGE TO DIRECTION UP INSTEAD OF STATE
+				aboveElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
+			}
+		}
+		
+		//None found
+		if (aboveElevators.isEmpty()) return -1;
+		
+		//Identify the closest one. Smallest in this case
+		int[] currentMin = new int[] {aboveElevators.get(0)[0], aboveElevators.get(0)[1]};
+		for (Integer[] arr : aboveElevators) {
+			if (arr[1]<currentMin[1]) {
+				currentMin[0] = arr[0];
+				currentMin[1] = arr[1];
+			}
+		}
+		
+		return currentMin[0];
+	}
+	
+	/**
+	 * Sets the allElevatorInfo 
+	 * @param allElevatorInfo the new allElevatorInfo list
+	 */
+	public synchronized void setAllElevatorInfo(LinkedList<ElevatorInfo> allElevatorInfo) {
+		//On first request, populate the list of ElevatorSpecific floors to visit
+		if (this.allElevatorsAllFloorsToVisit.isEmpty()) {
+			for (ElevatorInfo e : allElevatorInfo) {
+				this.allElevatorsAllFloorsToVisit.add(new ElevatorSpecificFloorsToVisit(e.getId()));
+			}
+		}
+		
+		this.allElevatorInfo = allElevatorInfo;
+		this.sendUpdateToFloorSubsystem();
+		notifyAll();
+	}
 	
 	/**
 	 * Returns a TreeSet of the floors to be visited by the current elevator given it's current direction and location
@@ -216,122 +271,113 @@ public class Scheduler implements Runnable{
 	 * @param currentElevatorDirectionIsUpwards if the elevator is currently going upwards
 	 * @return TreeSet of the remaining floors to visit in this direction
 	 */
-	public synchronized SortedSet<Integer> getNextFloorsToVisit(Integer currentFloorNumber, boolean currentElevatorDirection) {
-		//wait loop until there is a destination to visit - Waiting here means elevator is parked
-		while (this.upwardsToVisitSet.isEmpty() && this.downwardsToVisitSet.isEmpty() ) {
-			this.floorSubsys.updateElevatorPosition(currentFloorNumber, Direction.AWAITING_NEXT_REQUEST);
-			
+	public synchronized HashMap<Integer,Integer> getNextFloorsToVisit() {
+		
+		//wait loop until there is a destination to visit - Waiting here means all elevators are parked
+		while (!areThereUnvisitedFloors()) {
 			logger.logSchedulerEvent("Elevator is waiting for Scheduler's next request");
-
 			try {wait();} catch (InterruptedException e) {}
 		}
-
-		this.elevatorCurrentFloor = currentFloorNumber;
 		
-		
-		//just visited currentFloorNumber. pop it out of the corresponding directional to visit set
-		//Inconsequential attempting to remove non existing element
-		if (currentElevatorDirection) {
-			upwardsToVisitSet.remove(currentFloorNumber);
-		} else {
-			downwardsToVisitSet.remove(currentFloorNumber);
-		}
-
-		SortedSet<Integer> floorsToVisit;
-		boolean nextDirectionUp = currentElevatorDirection;
-		
-		if (currentElevatorDirection) {
-			floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
-			nextDirectionUp = true;
-			//Change direction if no more upwards floors to visit. Try scheduling the unscheduled
+		//Given the updated elevator infos, update all the ElevatorSpecificFloorsToVisit objects
+		for (ElevatorInfo eInfo : this.allElevatorInfo) {
 			
-			logger.logSchedulerEvent("Elevator has no more upwards floors to visit. Attempting to change directions");
-			
-			if (floorsToVisit.isEmpty()) {
-				attemptToScheduleUnscheduledRequests();
-				floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
-				if (floorsToVisit.isEmpty()) {
-					floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
-					nextDirectionUp = false; 
+			//Check if elevator is in an arrived at floor state
+			if (eInfo.getState().equals(ElevatorStateMachine.Stopping)||
+				eInfo.getState().equals(ElevatorStateMachine.DoorClosing)||
+				eInfo.getState().equals(ElevatorStateMachine.DoorOpening)||
+				eInfo.getState().equals(ElevatorStateMachine.OpenDoor)) {
+
+				if ("".equals("REPLACE THIS WITH A CHECK FOR THE LAST DIRECTION OF THE ELEVATOR")) {
+					//Previous elevator direction upwards
+					this.getElevatorSpecificFloorsToVisit(eInfo.getId()).upwardsFloorIsVisited(eInfo.getFloor());
+					//Add upwards destinations of this floor to the current elevator
+					for (Integer i : this.upwardsDestinationsPerFloor.get(eInfo.getFloor()-1)) {
+						this.getElevatorSpecificFloorsToVisit(eInfo.getId()).addUpwardsFloorToVisit(i);	
+					}
+					this.upwardsDestinationsPerFloor.get(eInfo.getFloor()-1).clear();
+
+					
+				} else {
+					//Previous elevator direction downwards
+					this.getElevatorSpecificFloorsToVisit(eInfo.getId()).downwardsFloorIsVisited(eInfo.getFloor());
+					//Add the downwards destinations of this floor to the current elevator
+					for (Integer i : this.downwardsDestinationsPerFloor.get(eInfo.getFloor()-1)) {
+						this.getElevatorSpecificFloorsToVisit(eInfo.getId()).addDownwardsFloorToVisit(i);	
+					}
+					this.downwardsDestinationsPerFloor.get(eInfo.getFloor()-1).clear();
 				}
-			} 
-		} else {
-			floorsToVisit = getRemainingStopsGoingDownward(currentFloorNumber);
-			nextDirectionUp = false; 
-			//Change direction if no more downwards floors to visit. Try scheduling the unscheduled
-			logger.logSchedulerEvent("Elevator has no more downwards floors to visit. Attempting to change directions");
-			
-			if (floorsToVisit.isEmpty()) {
-				attemptToScheduleUnscheduledRequests();
-				if (floorsToVisit.isEmpty()) {
-					floorsToVisit = getStopsGoingUpwards(currentFloorNumber);
-					nextDirectionUp = true; 
-				}
-			} 
-		}
-		
-		
-		
-		//When at the bottom floor, cannot have any more downwards floors to visit
-		if (currentFloorNumber == 1 ) {
-			this.downwardsToVisitSet.clear();
+			}
+		}// end of for (ElevatorInfo eInfo : this.allElevatorInfo)
+
+		//Create elevatorID:NextFloorToVisit hashMap
+		HashMap<Integer,Integer> elevatorID_NextFloorToVisit = new HashMap<Integer,Integer>();
+		for (ElevatorInfo eInfo : this.allElevatorInfo) {
+			elevatorID_NextFloorToVisit.put(eInfo.getId(), this.getElevatorSpecificFloorsToVisit(eInfo.getId()).getNextFloorToVisit(eInfo.getFloor(), Direction.DOWN/*TODO: UPDATE THIS WITH THE EINFO DIRECTION FIELDDDD*/));
 		}
 
-		//When at the top floor, cannot have any more downwards floors to visit
-		if (currentFloorNumber == this.highestFloorNumber) {
-			this.upwardsToVisitSet.clear();
-		}
-		
 
-		this.floorSubsys.updateElevatorPosition(currentFloorNumber,nextDirectionUp? Direction.UP : Direction.DOWN);
-		return floorsToVisit;
-	}
-	
-	
-	/**
-	 * Returns a TreeSet of the above floors that need to be visited by the current upwards moving elevator
-	 * 
-	 * @param currentFloor the current floor that the elevator is at
-	 * @return List of floors that the current elevator needs to visit
-	 */
-	private synchronized SortedSet<Integer> getStopsGoingUpwards(Integer currentFloorNumber) {
-		
-		this.upwardsToVisitSet =new TreeSet<Integer>( this.upwardsToVisitSet.tailSet(currentFloorNumber, false));
-		
-		return this.upwardsToVisitSet.tailSet(currentFloorNumber, false);
+		return elevatorID_NextFloorToVisit;
 	}
 	
 	/**
-	 * Returns a TreeSet of the below floors that need to be visited by the current downwards moving elevator
-	 * 
-	 * @param currentFloor the current floor that the elevator is at
-	 * @return List of floors that the current elevator needs to visit
+	 * Checks if there are active requests running right now
+	 * @return
 	 */
-	private synchronized SortedSet<Integer> getRemainingStopsGoingDownward(Integer currentFloorNumber) {
-		
-		this.downwardsToVisitSet = new TreeSet<Integer>( this.downwardsToVisitSet.headSet(currentFloorNumber, false));
-		
-		return this.downwardsToVisitSet.headSet(currentFloorNumber, false);
+	private synchronized boolean areThereUnvisitedFloors() {
+		for (ElevatorSpecificFloorsToVisit esftv : this.allElevatorsAllFloorsToVisit) {
+			if (esftv.getActiveRequestCount()>0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns the ElevatorSpecificFloorsToVisit given the elevatorID
+	 * @param elevatorID the ID of the elevator
+	 * @return the ElevatorSpecificFloorsToVisit object corresponding to that ID
+	 */
+	private synchronized ElevatorSpecificFloorsToVisit getElevatorSpecificFloorsToVisit(int elevatorID) {
+		for (ElevatorSpecificFloorsToVisit esftv : this.allElevatorsAllFloorsToVisit) {
+			if (esftv.getElevatorID()==elevatorID) {
+				return esftv;
+			}
+		}
+		//Should never get here. Elevator ID should always be valid
+		return null;
+	}
+	
+
+	
+	/**
+	 * Sends all elevator's info to the floor subsystem via UDP packet
+	 * 
+	 * @param listOfElevatorInfo
+	 */
+	private synchronized void sendUpdateToFloorSubsystem() {
+		byte[] serializedListOfElevatorInfo = null;
+		try {
+			serializedListOfElevatorInfo = Util.serialize(this.allElevatorInfo);
+		} catch (IOException e) {}
+		DatagramPacket packetToSend = new DatagramPacket(serializedListOfElevatorInfo, serializedListOfElevatorInfo.length, this.floorInetAddress, this.floorSubsystemSendPort);
+		Util.sendRequest_ReturnReply(packetToSend);
 	}
 	
 
 
 	@Override
 	public void run() {
-		Config config = new Config("local.properties");
+
 		// Create message receiver threads for messages from floor subsystem and elevator subsystem
-		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver( config.getInt("scheduler.floorReceivePort"), this);
-		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver( config.getInt("scheduler.elevatorReceivePort"), this);
+		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver( this.floorSubsystemReceivePort, this);
+		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver(this.elevatorSubsystemReceivePort, this);
 		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
 		(new Thread(essReceiver, "ElevatorSubsystemPacketReceiver")).start();
 	}
 	
 	public static void main(String[] args) {
-
-		
-		
-		
-		Scheduler scheduler = new Scheduler(null, MainProgramRunner.FLOOR_COUNT, MainProgramRunner.INSTANTLY_SCHEDULE_REQUESTS);
+		Scheduler scheduler = new Scheduler(null, MainProgramRunner.INSTANTLY_SCHEDULE_REQUESTS);
 		(new Thread(scheduler, "Scheduler")).start();
 	}
 }
