@@ -9,6 +9,7 @@ package app;
 
 import java.time.LocalTime;
 
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 
@@ -29,11 +30,11 @@ public class Logger {
 	 * @param printTimeManagementSystemEvent: true if the logger is to print Time management system events else false 
 	 * 
 	 */
-	public Logger(boolean printElevatorEvents , boolean printSchedulerEvents, boolean printFloorEvents,  boolean printTimeManagementSystemEvent) {
-		this.printElevatorEvents = printElevatorEvents;
-		this.printSchedulerEvents = printSchedulerEvents; 
-		this.printFloorEvents = printFloorEvents; 
-		this.printTimeManagementSystemEvent = printTimeManagementSystemEvent; 
+	public Logger(Config c) {
+		this.printElevatorEvents = c.getBoolean("elevator.log");
+		this.printSchedulerEvents = c.getBoolean("scheduler.log"); 
+		this.printFloorEvents = c.getBoolean("floor.log"); 
+		this.printTimeManagementSystemEvent = c.getBoolean("time.log"); 
 	}
 	
 	/**
@@ -44,7 +45,7 @@ public class Logger {
 	 */
 	public void logElevatorEvents(String message) {
 		if(printElevatorEvents == true) {
-			System.out.println(dateTime.now() + message);
+			System.out.println("[" + dateTime.now() + "]" + message);
 		}
 	}
 	
