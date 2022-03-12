@@ -175,8 +175,8 @@ public class Elevator implements Runnable {
 	 * Checks the destination floor and updates the elevators state
 	 * @param destinationFloor
 	 */
-	private void checkFloor(int destinationFloor) {
-		this.log("at floor " + this.getFloor());
+	private boolean checkFloor(int destinationFloor) {
+		this.log("at floor " + this.currentFloor);
 		if(this.getFloor() == destinationFloor){ //or max floor
 			this.nextState();// stopping or opening door
 
@@ -192,7 +192,9 @@ public class Elevator implements Runnable {
 			this.nextState();//door closing
 			this.nextState();
 			this.log("doors finished closing");
+			return true;
 		}
+		return false;
 	}
 	
 	public void stop() {
@@ -202,8 +204,29 @@ public class Elevator implements Runnable {
 	public void run() {
 		
 		this.log("is online");
-		
+		this.buf.addStatus(this.getInfo())
+		;
 		while(!exit) {
+			
+			int nextFloor = buf.getNextFloor(this.id);
+			
+			while(!this.checkFloor(nextFloor)) {
+				
+				if(nextFloor > this.currentFloor) {
+					this.setDirection(Direction.UP);
+				}else if(nextFloor < this.currentFloor){
+					this.setDirection(Direction.DOWN);
+				}else {
+					//There is an issue
+				}
+				
+				this.waitTransit(nextFloor);
+				this.nextState();			
+			}
+
+			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
+			this.buf.addStatus(this.getInfo());
+			
 			/*
 			// boolean movingUp = elevator.getState() == ElevatorStateMachine.MoveUp;
 			// I think we should pass the elevator state to the scheduler

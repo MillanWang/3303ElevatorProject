@@ -1,12 +1,14 @@
 package app.ElevatorSubsystem.Elevator;
 
+import java.io.Serializable;
+
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 
 /***
  * Used to transfer information from elevator to scheduler
  * @author benki
  */
-public class ElevatorInfo {
+public class ElevatorInfo implements Serializable{
 
 	private int id;
 	private int floor;
