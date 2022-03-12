@@ -3,8 +3,11 @@ package app.Scheduler.SchedulerThreads;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
+import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.Scheduler.ElevatorSpecificFloorsToVisit;
 import app.Scheduler.Scheduler;
 import app.UDP.PacketReceiver;
@@ -38,14 +41,15 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
 	 */
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
-        //Deserialize packet contents to become input for scheduler's next floors to visit
+        //De-serialize packet contents to become input for scheduler's next floors to visit
+		LinkedList<ElevatorInfo> elevatorSubsystemComms = null;
         try {
-			Object elevatorSubsystemComms = Util.deserialize(requestPacket.getData()); //TODO : GET THE PROPER CLASS FOR THIS DESERIALIZATION RESULT
+        	elevatorSubsystemComms = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
 		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
         
-        //Get the next toVisitList from scheduler   TODO:SETUP SCHEDULER TO PROPERLY RETURN THE TO VISIT LIST
-        Object eventuallyReplaceWithProperSchedulerImplementation = this.scheduler.getNextFloorsToVisit(1, true);
-        LinkedList<ElevatorSpecificFloorsToVisit> allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificFloorsToVisit>();
+        //Update the scheduler with the elevator info and then get the next toVisitList from scheduler
+        this.scheduler.setAllElevatorInfo(elevatorSubsystemComms);
+        HashMap<Integer,Integer> allElevatorsAllFloorsToVisit = this.scheduler.getNextFloorsToVisit();
         
         //Create byte array to build reply packet contents more easily
         ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
