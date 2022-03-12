@@ -13,6 +13,7 @@ import java.time.LocalTime;
 import org.junit.Test;
 
 import app.Logger;
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.FloorSubsystem;
 import app.FloorSubsystem.ScheduledElevatorRequest;
@@ -20,8 +21,8 @@ import app.Scheduler.Scheduler;
 
 public class FloorSubsystemTests {
 	
-	Scheduler scheduler = new Scheduler(new Logger(true,true,true,true), 5, true); 
-	Logger log = new Logger(true, true, true, true);
+	Logger log = new Logger(new Config("test.properties"));
+	Scheduler scheduler = new Scheduler(log, 5, true); 
 	FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, log);
 	ScheduledElevatorRequest testInput; 
 	@Test

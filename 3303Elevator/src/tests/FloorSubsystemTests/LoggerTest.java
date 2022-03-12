@@ -15,6 +15,7 @@ import java.time.LocalTime;
 import org.junit.Test;
 
 import app.Logger;
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 public class LoggerTest {
 
-	private Logger log = new Logger(true, true, true, true) ;
+	private Logger log = new Logger(new Config("test.properties")) ;
 	private final PrintStream standardOut = System.out;
 	private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 	private LocalTime time; 
