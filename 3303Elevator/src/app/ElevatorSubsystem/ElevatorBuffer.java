@@ -1,6 +1,7 @@
 package app.ElevatorSubsystem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -10,22 +11,20 @@ import app.Scheduler.ElevatorSpecificFloorsToVisit;
 public class ElevatorBuffer {
 	
 	private int numOfElevators;
-	private ArrayList<ElevatorSpecificFloorsToVisit> eReq;
+	private HashMap<Integer, Integer> eReq;
 	private ArrayList<ElevatorInfo> eStatus; 
-	private boolean writeReq, writeStatus;
+	private boolean readNextFloor, readStatus;
 	
 	public ElevatorBuffer(int numOfElevators) {
 		this.numOfElevators = numOfElevators;
-		this.eReq = new ArrayList<>();
 		this.eStatus = new ArrayList<>();
-	
-		this.writeReq = true;
-		this.writeStatus = true;
+		this.readNextFloor = false;
+		this.readStatus = false;
 	}
 	
-	public synchronized void addReq(ElevatorSpecificFloorsToVisit req) {
+	public synchronized void addReq(HashMap<Integer,Integer> map){
 		
-		while(this.writeReq) {
+		while(this.readNextFloor) {
 			try {
 				wait();
 			}catch(InterruptedException e) {
@@ -33,18 +32,14 @@ public class ElevatorBuffer {
 			}
 		}
 		
-		this.eReq.add(req);
-		
-		if(this.eReq.size() == this.numOfElevators) {
-			this.writeReq = false;
-		}
-		
+		this.eReq = map;
+		this.readNextFloor = true;
 		notifyAll();
 	}
 	
-	public synchronized TreeSet<Integer> getReq(int id) {
+	public synchronized int getNextFloor(int id) {
 		
-		while(!this.writeReq) {
+		while(!this.readNextFloor) {
 			try {
 				wait();
 			}catch(InterruptedException e) {
@@ -52,50 +47,50 @@ public class ElevatorBuffer {
 			}
 		}
 		
-		ElevatorSpecificFloorsToVisit tmp = null;
+		int nextFloor = -1;
 		
-		for(int i = 0; i < this.eReq.size(); i++) {
-			if(this.eReq.get(i).getElevatorID() == id) {
-				tmp = this.eReq.remove(i);
-			}
+		if(this.eReq.containsKey(id)) {
+			nextFloor = this.eReq.get(id);
+			this.eReq.remove(id);
 		}
 		
 		if(this.eReq.size() == 0) {
-			this.writeReq = true;
+			this.readNextFloor = false;
 		}
 		
 		notifyAll();
-		return tmp.getFloorsToVisit();
+		return nextFloor;
 	}
 	
 	public synchronized void addStatus(ElevatorInfo req) {
-		while(this.writeStatus) {
+		while(this.readStatus) {
 			try {
 				wait();
 			}catch(InterruptedException e) {
 				System.err.println(e);
 			}
 		}
-		
+
 		this.eStatus.add(req);
-		
+
 		if(this.eStatus.size() == this.numOfElevators) {
-			this.writeStatus = false;
+
+			this.readStatus = true;
 		}
 		
 		notifyAll();
 	}
 
 	public synchronized LinkedList<ElevatorInfo> getAllStatus() {
-		
-		while(!this.writeStatus) {
+
+		while(!this.readStatus) {
 			try {
 				wait();
 			}catch(InterruptedException e) {
 				System.err.println(e);
 			}
 		}
-		
+
 		LinkedList<ElevatorInfo> tmp = new LinkedList<>();
 		
 		for(int i = 0; i < this.eStatus.size(); i++) {
@@ -105,7 +100,7 @@ public class ElevatorBuffer {
 		this.eStatus.clear();
 		
 		if(this.eStatus.size() == 0) {
-			this.writeStatus = true;
+			this.readStatus = false;
 		}
 		
 		notifyAll();

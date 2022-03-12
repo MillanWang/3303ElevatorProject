@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.SortedSet;
 
@@ -38,7 +39,7 @@ public class ElevatorSubsystem implements Runnable{
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(Config config){
+	public ElevatorSubsystem(Config config){		
 
 		try {
 			this.schedulerAddr = new InetSocketAddress(config.getString("scheduler.address"), config.getInt("scheduler.elevatorReceivePort"));
@@ -48,7 +49,7 @@ public class ElevatorSubsystem implements Runnable{
 		
 		this.maxFloor = config.getInt("floor.total.number");
 		this.numElevators = config.getInt("elevator.total.number");
-		this.buf = new ElevatorBuffer(maxFloor);
+		this.buf = new ElevatorBuffer(numElevators);
 		this.elevators = new ArrayList<Elevator>();
 		this.logger = new Logger(config);
 		this.tms =  new TimeManagementSystem(config.getInt("time.multiplier"), this.logger);;
@@ -85,7 +86,6 @@ public class ElevatorSubsystem implements Runnable{
 			this.elevators.add(e);
 			Thread t = new Thread(e);
 			t.start();
-			e.stop();
 		}
 	}
 	
@@ -93,16 +93,20 @@ public class ElevatorSubsystem implements Runnable{
 	/**
 	 * Continuously retrieves directions from the scheduler to operate the elevators
 	 */
+	@SuppressWarnings("unchecked")
 	public void run(){
 		this.createElevators();
 		while(true) {
 			DatagramPacket sendPacket = this.buildSchedulerPacket();
+			this.log("sending status to scheduler");
 			DatagramPacket recievedPacket = Util.sendRequest_ReturnReply(sendPacket);
-			LinkedList<ElevatorSpecificFloorsToVisit> info = null;
+			this.log("receieved packet from scheduler");
+			
+			HashMap<Integer, Integer> info = null;
 			
 			try {
 					Object obj = Util.deserialize(recievedPacket.getData());
-					info = (LinkedList<ElevatorSpecificFloorsToVisit>) obj;
+					info = (HashMap<Integer, Integer>) obj;
 			}catch(IOException e) {
 				e.printStackTrace();
 			}catch (ClassNotFoundException e) {
@@ -110,9 +114,7 @@ public class ElevatorSubsystem implements Runnable{
 			}
 			
 			if(info != null) {
-				for(int i = 0; i < info.size(); i++) {
-					this.buf.addReq(info.get(i));
-				}
+				this.buf.addReq(info);
 			}
 		}
 	}
