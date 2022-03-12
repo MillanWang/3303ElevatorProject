@@ -27,38 +27,35 @@ import app.UDP.Util;
  * */
 public class ElevatorSubsystem implements Runnable{
 
-	private String name;
+	private int maxFloor, numElevators;
 	private ArrayList<Elevator> elevators;
 	private InetSocketAddress schedulerAddr;
-	private int maxFloor;
 	private Logger logger;
 	private TimeManagementSystem tms;
-
+	private ElevatorBuffer buf;
 	/**
 	 * Constructor used to create elevator subsystem
 	 *
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
-	public ElevatorSubsystem(InetSocketAddress schedulerAddr, int numElevators, int maxFloor, Logger logger, TimeManagementSystem tms){
-		this.name = Thread.currentThread().getName();
-		this.maxFloor = maxFloor;
+	public ElevatorSubsystem(Config config){
 
-		elevators = new ArrayList<Elevator>();
-		for(int i = 0; i < numElevators; i++) {
-			elevators.add(new Elevator(i+1,maxFloor,logger, tms));
+		try {
+			this.schedulerAddr = new InetSocketAddress(config.getString("scheduler.address"), config.getInt("scheduler.elevatorReceivePort"));
+		}catch(Exception e) {
+			System.exit(1);
 		}
-
-		this.tms = tms;
-		this.schedulerAddr = schedulerAddr;
-		this.logger = logger;
+		
+		this.maxFloor = config.getInt("floor.total.number");
+		this.numElevators = config.getInt("elevator.total.number");
+		this.buf = new ElevatorBuffer(maxFloor);
+		this.elevators = new ArrayList<Elevator>();
+		this.logger = new Logger(config);
+		this.tms =  new TimeManagementSystem(config.getInt("time.multiplier"), this.logger);;
 	}
 	
-	public DatagramPacket buildSchedulerPacket(){
-		LinkedList<ElevatorInfo> list = new LinkedList<ElevatorInfo>();
-		
-		for(int i = 0; i < elevators.size(); i++) {
-			list.add(elevators.get(i+1).getInfo());
-		}
+	private DatagramPacket buildSchedulerPacket(){
+		LinkedList<ElevatorInfo> list = this.buf.getAllStatus();
 		
 		byte[] data = {};
 		
@@ -76,40 +73,54 @@ public class ElevatorSubsystem implements Runnable{
 				schedulerAddr.getPort()
 		);
 	}
+	
+	private void log(String msg) {
+		this.logger.logElevatorEvents("[Elevator Subsystem] "+msg);
+	}
 
+	private void createElevators() {
+		this.log("creating elevators");
+		for(int i = 0; i < this.numElevators; i++) {
+			Elevator e = new Elevator(i+1, this.maxFloor, this.logger, this.tms, this.buf);
+			this.elevators.add(e);
+			Thread t = new Thread(e);
+			t.start();
+			e.stop();
+		}
+	}
+	
+	
 	/**
 	 * Continuously retrieves directions from the scheduler to operate the elevators
 	 */
 	public void run(){
+		this.createElevators();
 		while(true) {
 			DatagramPacket sendPacket = this.buildSchedulerPacket();
 			DatagramPacket recievedPacket = Util.sendRequest_ReturnReply(sendPacket);
+			LinkedList<ElevatorSpecificFloorsToVisit> info = null;
 			
+			try {
+					Object obj = Util.deserialize(recievedPacket.getData());
+					info = (LinkedList<ElevatorSpecificFloorsToVisit>) obj;
+			}catch(IOException e) {
+				e.printStackTrace();
+			}catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 			
-			
+			if(info != null) {
+				for(int i = 0; i < info.size(); i++) {
+					this.buf.addReq(info.get(i));
+				}
+			}
 		}
 	}
 
 	public static void main(String[] args){
 		Config config = new Config("local.properties");
-		int numFloors = config.getInt("floor.total.number");
-		int numElevators = config.getInt("elevator.total.number");
-		int multiplier = config.getInt("time.multiplier");
-
-
-		InetSocketAddress schedulerAddr = null;
-		try {
-			schedulerAddr = new InetSocketAddress(config.getString("scheduler.address"), config.getInt("scheduler.elevatorReceivePort"));
-		}catch(Exception e) {
-			System.exit(1);
-		}
-
-		Logger logger = new Logger(true, false, false, false);
-		TimeManagementSystem tms = new TimeManagementSystem(multiplier, logger);
-
-		ElevatorSubsystem e = new ElevatorSubsystem(schedulerAddr,numElevators,numFloors,logger, tms);
-		//Thread elevatorSubThread = new Thread(e, "ElevatorSubsystemThread");
-		//elevatorSubThread.start();
+		ElevatorSubsystem e = new ElevatorSubsystem(config);
+		(new Thread(e)).start();
 	}
 
 }

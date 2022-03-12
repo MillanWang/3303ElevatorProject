@@ -2,9 +2,11 @@ package app.ElevatorSubsystem.Elevator;
 
 import app.Scheduler.TimeManagementSystem;
 import app.Logger;
+import app.ElevatorSubsystem.ElevatorBuffer;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.StateMachine.*;
 import java.util.ArrayList;
+import java.util.TreeSet;
 /**
  * SYSC 3303, Final Project
  * Elevator.java
@@ -12,30 +14,34 @@ import java.util.ArrayList;
  *
  * @author Ben Kittilsen
  * */
-public class Elevator{
+public class Elevator implements Runnable {
 
 	private final int id;
 
 	private ElevatorDoor door;
 	private int currentFloor, floorsMoved;
+	private boolean exit;
 	private ElevatorStateMachine state;
 	private TimeManagementSystem tms;
 	private Logger logger;
+	private ElevatorBuffer buf;
 
 	/**
 	 * Maximum number of floors
 	 */
 	private int maxFloorCount;
 
-	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms) {
+	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms, ElevatorBuffer buf) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
 		this.floorsMoved = 0;
+		this.exit = false;
 		this.state = ElevatorStateMachine.Idle;
 		this.tms = tms;
 		this.door = new ElevatorDoor(this.tms);
 		this.logger = logger;
 		this.id = id;
+		this.buf = buf;
 	}
 
 	public int getId() {
@@ -162,7 +168,7 @@ public class Elevator{
 	 * @param message
 	 */
 	public void log(String msg){
-		logger.logElevatorEvents("[Elevator "+ this.id + "]"+msg);
+		logger.logElevatorEvents("[Elevator "+ this.id + "] "+msg);
 	}
 
 	/**
@@ -188,63 +194,76 @@ public class Elevator{
 			this.log("doors finished closing");
 		}
 	}
-
-	public void move() {
-		// boolean movingUp = elevator.getState() == ElevatorStateMachine.MoveUp;
-		// I think we should pass the elevator state to the scheduler
-		// the three states that we need to consider are moving up (MoveUp), moving down (MoveDown),
-		// and finally the parked state which is now (nextProcessing, or Idle state) almost identical.
-
-		//log("" + elevator.getState());
-
-		//SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), true);//tmp for now
-		//log("" + floorsToVisit);
-		ArrayList<Integer> floorsToVisit = new ArrayList<Integer>();
-
-		if(floorsToVisit.size() == 0) {
-			if(!this.isStationary()) {
-				//error here
-			}
-			return;
-		}
-
-
-		// checking if the elevator is idle or next processing
-		if(this.isStationary()) {
-			//int destFloor = floorsToVisit.first();
-			int destFloor = floorsToVisit.get(0);
-			floorsMoved = 0;
-
-			if(destFloor > this.getFloor()) {
-				this.setDirection(Direction.UP);
-			}else if(destFloor < this.getFloor()) {
-				this.setDirection(Direction.DOWN);
-			}else if(destFloor == this.getFloor()) {
-				this.setDirection(Direction.AWAITING_NEXT_REQUEST);
-			}else {
-				//There is an issue
-			}
-
-			this.waitTransit(destFloor);
-			this.nextState();
-			checkFloor(destFloor);
-		// check if the elevator is moving up or down
-		}else if(this.isMoving()) {
-			// used to determine the movement we need to continue
-			//int destFloor = this.getState() == ElevatorStateMachine.MoveUp ? floorsToVisit.first() : floorsToVisit.last();
-			int destFloor = floorsToVisit.get(0);
-
-			if(destFloor > this.getFloor()) {
-				this.setDirection(Direction.UP);
-			}else if(destFloor < this.getFloor()) {
-				this.setDirection(Direction.DOWN);
-			}
-
-			this.waitTransit(destFloor);
-			this.nextState();
-			checkFloor(destFloor);
-		}
-		System.out.println("\n\n");
+	
+	public void stop() {
+		this.exit = true;
 	}
 
+	public void run() {
+		
+		this.log("is online");
+		
+		while(!exit) {
+			/*
+			// boolean movingUp = elevator.getState() == ElevatorStateMachine.MoveUp;
+			// I think we should pass the elevator state to the scheduler
+			// the three states that we need to consider are moving up (MoveUp), moving down (MoveDown),
+			// and finally the parked state which is now (nextProcessing, or Idle state) almost identical.
+	
+			//log("" + elevator.getState());
+	
+			//SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), true);//tmp for now
+			//log("" + floorsToVisit);
+			
+			TreeSet<Integer> floorsToVisit = buf.getReq(this.id);
+			// TODO SORT treeset
+			if(floorsToVisit.size() == 0) {
+				if(!this.isStationary()) {
+					//error here
+				}
+				return;
+			}
+	
+	
+			// checking if the elevator is idle or next processing
+			if(this.isStationary()) {
+				int destFloor = floorsToVisit.first();
+				//int destFloor = floorsToVisit.get(0);
+				floorsMoved = 0;
+	
+				if(destFloor > this.getFloor()) {
+					this.setDirection(Direction.UP);
+				}else if(destFloor < this.getFloor()) {
+					this.setDirection(Direction.DOWN);
+				}else if(destFloor == this.getFloor()) {
+					this.setDirection(Direction.AWAITING_NEXT_REQUEST);
+				}else {
+					//There is an issue
+				}
+	
+				this.waitTransit(destFloor);
+				this.nextState();
+				checkFloor(destFloor);
+			// check if the elevator is moving up or down
+			}else if(this.isMoving()) {
+				// used to determine the movement we need to continue
+				int destFloor = this.getState() == ElevatorStateMachine.MoveUp ? floorsToVisit.first() : floorsToVisit.last();
+				//int destFloor = floorsToVisit.get(0);
+	
+				if(destFloor > this.getFloor()) {
+					this.setDirection(Direction.UP);
+				}else if(destFloor < this.getFloor()) {
+					this.setDirection(Direction.DOWN);
+				}
+	
+				this.waitTransit(destFloor);
+				this.nextState();
+				checkFloor(destFloor);
+			}
+			
+			buf.addStatus(this.getInfo());
+			System.out.println("\n\n");*/
+		}
+		this.log("is offline");
+	}
 }
