@@ -1,27 +1,33 @@
 package app.ElevatorSubsystem;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.TreeSet;
-
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-import app.Scheduler.ElevatorSpecificFloorsToVisit;
 
+/***
+ * Used to transfer information between elevators and elevators subsystem
+ * 
+ * @author benki
+ */
 public class ElevatorBuffer {
 	
 	private int numOfElevators;
 	private HashMap<Integer, Integer> eReq;
-	private ArrayList<ElevatorInfo> eStatus; 
+	private LinkedList<ElevatorInfo> eStatus; 
 	private boolean readNextFloor, readStatus;
 	
 	public ElevatorBuffer(int numOfElevators) {
 		this.numOfElevators = numOfElevators;
-		this.eStatus = new ArrayList<>();
+		this.eStatus = new LinkedList<>();
 		this.readNextFloor = false;
 		this.readStatus = false;
 	}
 	
+	/***
+	 * From elevator system sets the hashmap of elevator id and destinations
+	 * 
+	 * @param map
+	 */
 	public synchronized void addReq(HashMap<Integer,Integer> map){
 		
 		while(this.readNextFloor) {
@@ -37,6 +43,12 @@ public class ElevatorBuffer {
 		notifyAll();
 	}
 	
+	/***
+	 * Given an elevator ID get's a destination
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public synchronized int getNextFloor(int id) {
 		
 		while(!this.readNextFloor) {
@@ -62,6 +74,11 @@ public class ElevatorBuffer {
 		return nextFloor;
 	}
 	
+	/***
+	 * Adds status for each elevator to pass to scheduler
+	 * 
+	 * @param req
+	 */
 	public synchronized void addStatus(ElevatorInfo req) {
 		while(this.readStatus) {
 			try {
@@ -81,6 +98,11 @@ public class ElevatorBuffer {
 		notifyAll();
 	}
 
+	/***
+	 * Gets the linked list of elevator status for scheduler
+	 * 
+	 * @return
+	 */
 	public synchronized LinkedList<ElevatorInfo> getAllStatus() {
 
 		while(!this.readStatus) {
@@ -91,12 +113,7 @@ public class ElevatorBuffer {
 			}
 		}
 
-		LinkedList<ElevatorInfo> tmp = new LinkedList<>();
-		
-		for(int i = 0; i < this.eStatus.size(); i++) {
-			tmp.add(this.eStatus.get(0));
-		}
-		
+		LinkedList<ElevatorInfo> tmp = this.eStatus;
 		this.eStatus.clear();
 		
 		if(this.eStatus.size() == 0) {
