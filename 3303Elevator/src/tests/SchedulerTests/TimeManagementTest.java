@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import app.Logger;
+import app.Config.Config;
 import app.Scheduler.TimeManagementSystem;
 import java.util.ArrayList;
 /**
@@ -23,7 +24,7 @@ import java.util.ArrayList;
  */
 public class TimeManagementTest {
 	TimeManagementSystem tms;
-	
+	Config c = new Config("local.properties");
 	/**
 	 * Tests that a multiplier of 0 will only return 0 values from the 2 time management functions
 	 *
@@ -31,7 +32,7 @@ public class TimeManagementTest {
 	@Test
 	public void testZero() {
 		//Testing that a 0 multiplier creates only 0s outputs
-		tms = new TimeManagementSystem(0, new Logger(false, false, false, true));
+		tms = new TimeManagementSystem(0, new Logger(c));
 		float t = tms.getElevatorLoadingTime();
 		assertEquals("Returns 0 properly", 0f, t, 0f);
 		
@@ -50,7 +51,7 @@ public class TimeManagementTest {
 	@Test
 	public void testOne(){
 		//Testing that a 1 multiplier creates only outputs within normal range
-		tms = new TimeManagementSystem(1, new Logger(false, false, false, true));
+		tms = new TimeManagementSystem(1, new Logger(c));
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within normal range", 7920.0f <= t && t <= 11140.0f);
 
@@ -76,7 +77,7 @@ public class TimeManagementTest {
 	@Test
 	public void testFive(){
 		//Testing that a 5 multiplier creates proper outputs
-		tms = new TimeManagementSystem(5, new Logger(false, false, false, true));
+		tms = new TimeManagementSystem(5, new Logger(c));
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within range scaled up 5", 5*7920f <= t && t <= 5*11140f);
 
@@ -102,7 +103,7 @@ public class TimeManagementTest {
 	@Test
 	public void testNegativeOne(){
 		//Testing that a 1 multiplier creates only outputs within normal range
-		tms = new TimeManagementSystem(-1, new Logger(false, false, false, true));
+		tms = new TimeManagementSystem(-1, new Logger(c));
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within normal range", 7920.0f <= t && t <= 11140.0f);
 		
@@ -128,7 +129,7 @@ public class TimeManagementTest {
 	@Test
 	public void testFrac(){
 		//Testing that a 1 multiplier creates only outputs within normal range
-		tms = new TimeManagementSystem(0.5f, new Logger(false, false, false, true));
+		tms = new TimeManagementSystem(0.5f, new Logger(c));
 		float t = tms.getElevatorLoadingTime();
 		assertTrue("Returns within normal range", 0.5 * 7920.0f <= t && t <= 0.5 * 11140.0f);
 		
