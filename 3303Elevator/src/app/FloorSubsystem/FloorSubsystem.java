@@ -7,20 +7,31 @@
 
 package app.FloorSubsystem;
 import java.io.File;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.LocalTime;
 import java.util.*;
 
 import javax.swing.JFileChooser;
 
+import FloorSubsystemThreads.SchedulerPacketReceiver;
 import app.Logger;
+import app.Config.Config;
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.ElevatorSubsystem.Direction.Direction;
+import app.ElevatorSubsystem.Elevator.ElevatorInfo;
+import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.Scheduler.Scheduler;
+import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
+import app.UDP.Util;
 public class FloorSubsystem extends Thread{
 
 	
 	//private Scheduler scheduler; 
-	private ArrayList<ScheduledElevatorRequest> requests; 
-	private ArrayList<ScheduledElevatorRequest> schedulerRequests; 
+	private static ArrayList<ScheduledElevatorRequest> requests; 
+	private LinkedList<ElevatorInfo> elevatorInfo; 
 	private Integer elevatorPosition; 
 	private Direction elevatorStatus; 
 	private String inputFileLocation;
@@ -36,34 +47,20 @@ public class FloorSubsystem extends Thread{
 	 * @param Scheduler 
 	 * @param inputFile: the file path to be accessed 
 	 */
-	public FloorSubsystem( Logger log, int floorCount) { //Scheduler scheduler,  removed from constructor
+	public FloorSubsystem( Logger log, Config conf) { //Scheduler scheduler,  removed from constructor
 		sc = new Scanner(System.in);
 		
 		//this.scheduler = scheduler; 
 		this.requests = new ArrayList<ScheduledElevatorRequest>();
-		this.schedulerRequests = new ArrayList<ScheduledElevatorRequest>();
+		this.elevatorInfo = new LinkedList<ElevatorInfo>();
 		this.inputFileLocation = this.askToChooseFileOrUseDefault(sc);//System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 		this.currentLogger = log;
-		this.floorCount = floorCount;
+		this.floorCount = conf.getInt("floor.highestFloorNumber");
 		
 	    
 		
 		
 	}
-	
-	
-	/**
-	 * Constructor initializes the floor subsystem with the serving scheduler 
-	 * @param Scheduler 
-	 * @param inputFile: the file path to be accessed 
-	 */
-	//public FloorSubsystem(Scheduler scheduler, String inputFile, Logger log) {
-		//this.scheduler = scheduler; 
-		//this.requests = new ArrayList<ScheduledElevatorRequest>();
-		//this.schedulerRequests = new ArrayList<ScheduledElevatorRequest>();
-		//this.inputFileLocation = inputFile;
-		//this.currentLogger = log;
-	//}
 	
 	/**
 	 * add_input_requests method adds all the inputs from the input.txt file
@@ -80,12 +77,20 @@ public class FloorSubsystem extends Thread{
 	 * add_schedule_requests methods receives requests from the scheduler and adds it to the schedulerRequests collection
 	 * @param request; Input type parameter that holds the request's details
 	 */
-	public void addScheduleRequests(ScheduledElevatorRequest request) {
-		this.schedulerRequests.add(request);
-		currentLogger.logFloorEvent(request);
-		//this.scheduler.scheduleRequest(request);
+	public void addElevatorInfo(LinkedList<ElevatorInfo> info) {
+		this.elevatorInfo = info;
+		logElevatorInfo();
 	}
-	
+	/**
+	 * prints out the status of all elevators 
+	 */
+	public void logElevatorInfo() {
+		String statement = "";
+		for(int i=0; i < this.elevatorInfo.size(); i++) {
+				statement = statement + "Elevator " + elevatorInfo.get(i).getId() + " at floor " + elevatorInfo.get(i).getFloor() + " Status: " + elevatorInfo.get(i).getState().toString()+ "\n";
+		}
+		System.out.println(statement);
+	}
 	/**
 	 * @return the requests added from the input.txt
 	 */
@@ -96,8 +101,8 @@ public class FloorSubsystem extends Thread{
 	/**
 	 * @return the requests received from the scheduler
 	 */
-	public ArrayList<ScheduledElevatorRequest> getSchedulerRequests(){
-		return this.schedulerRequests; 
+	public LinkedList<ElevatorInfo> getElevatorInfo(){
+		return this.elevatorInfo; 
 	}
 	
 	/**
@@ -123,19 +128,42 @@ public class FloorSubsystem extends Thread{
 	public Direction getElevatorStatus() {
 		return this.elevatorStatus;
 	}
+	 /**
+	  * sends to scheduler an arraylist of scheduledElevatorRequest using datagram packet after serialization 
+	  */
+	private void sendRequestToScheduler() {
+		Config config = new Config("local.properties");
+		byte[] data = null;
+		try {
+			data = Util.serialize(this.requests);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getByName(config.getString("scheduler.address")), config.getInt("scheduler.floorReceivePort"));
+			Util.sendRequest_ReturnReply(sendPacket);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.requests = new ArrayList<ScheduledElevatorRequest>();
+		
+	}
+	
 	/**
 	 * Runs the floorSubsystem thread
 	 */
 	public synchronized void run() {
+		Config config = new Config("local.properties");
 		//Don't schedule anything with blank input file
 		if (this.inputFileLocation.equals("")) return;
 		
 		
 		addInputRequests(this.inputFileLocation); 
-		for (ScheduledElevatorRequest request: this.requests) {
-			//this.scheduler.floorSystemScheduleRequest(request);
-			System.out.println("Should be doing this.scheduler.floorSystemScheduleRequest(request");
-		}
+		this.sendRequestToScheduler();
+		SchedulerPacketReceiver sReceiver = new SchedulerPacketReceiver( this, config.getInt("floor.schedulerReceeivePort"));
+		(new Thread(sReceiver, "SchedulerPacketReceiver")).start();
 		runCommandLineUI(sc); //, scheduler from runCommandLineUI	
 	}
 	
@@ -189,14 +217,56 @@ public class FloorSubsystem extends Thread{
         }
         return fileName;
     }
-    
-
+    /**
+     *prints guidlines to use the UI 
+     */
+    private static void printUIGuidelines() {
+    		 System.err.println("Invalid Input, please use the following guidelines to schedule an elevator request\n" +
+	 		  "1. Enter <Time in milliseconds> or <Timestamp 'hh:mm:ss' eg:22:51:00.00> followed by\n"+
+	 		  "2. Enter <CrrentFloor> as a positive non zero number\n"+
+	 		  "3. Enter <Direction> as 'Up' or 'Down'\n" + 
+	 		  "4. Enter <DestinationFloor> as a positive non zero number\n"+
+	 		  "5. Either use 'Up' or 'Down' for the directions\n"+
+	 		  "6. Remove all spaces and separate the arguments using a comma ','\n"+
+	 		  "Example: 1000,5,Down,2 for a request to go from floor 5 to 2 after 1000 milliseconds\n"+
+	 		 "Example: 22:51:00,5,Down,2 for a request to go from floor 5 to 2 at 22:51");
+    }
+    /**
+     * checks if the UI input is valid to initialize a ScheduledElevatorRequest
+     * @param isUp
+     * @param start
+     * @param destination
+     * @return
+     */
+    private static boolean newScheduledElevatorRequestCheck(boolean isUp, int start, int destination) {
+    	boolean canSchedule = true;
+    	if(start == destination) {
+    		System.err.println("Start floor and Destination floor cannot be the same");
+    		canSchedule = false;
+    	}
+    	else if(isUp) {
+    		//Elevator has to be moving from start < destination if the direction is up 
+    		if(start > destination) {
+    			 System.err.println("Please use the appropriate direction to go from floor " + start + " to " + destination);
+    			canSchedule = false;
+    		}
+    	}
+    	//Elevator has to be moving from start > destination if the direction is down 
+    	else if(isUp == false) {
+    		if(destination > start) {
+    			System.err.println("Please use the appropriate direction to go from floor " + start + " to " + destination);
+    			canSchedule = false;
+    		}
+    	}
+    	return canSchedule; 
+    	
+    }
 	
 	/**
 	 * Command line user interface for adding new requests to the elevator system dynamically
 	 * @param scheduler The elevator system scheduler
 	 */
-	private static void runCommandLineUI(Scanner sc) { //, Scheduler scheduler has been removed from
+	private void runCommandLineUI(Scanner sc) { //, Scheduler scheduler has been removed from
 	     System.out.println(UI_COMMAND_EXPLAIN_STRING);
 	     while(sc.hasNextLine()) {
 	    	 //Read the current command line
@@ -212,29 +282,102 @@ public class FloorSubsystem extends Thread{
 	    		 
 	    		 //TODO : THIS GOTTA BE TAILORED TO FLOOR SUBSYSTEM MAKING INPUT REQUESTS
 	    	 } else if (next.equals("n")) {
-	    		 System.out.println("Enter your command with the following format <CurrentFloor> <DestinationFloor>\n"+"Example: 2 6 for a request to go from floor 2 to 6");
+	    		 System.out.println("Enter your command with the following format <Time in milliseconds delay or Timestamp 'hh:mm:ss'> <CurrentFloor> <Direction> <DestinationFloor>\n"+"Example: 1000,5,Down,2 for a request to go from floor 5 to 2 after 1000 milliseconds");
+	    		 System.out.println("Example: 22:51:00,5,Down,2 for a request to go from floor 5 to 2 at 22:51");
+	    		 //System.out.println("or in the following format <Time in LocalTimeFormat> <CurrentFloor> <Direction> <DestinationFloor>\n" + "Example: 22:51:00.00,5,Down,2 for a request to go from floor 5 to 2 at 22:51");
 	    		 next = sc.nextLine();
-	    		 String commands[] = next.split(" ");
-   	    	 
-	   	    	 if (commands.length == 2) {
-	   	    		 try {
-		    	    		 int startFloor = Integer.parseInt(commands[0]);
-		    	    		 int endFloor = Integer.parseInt(commands[1]);
-		    	    		 if (startFloor<1 || endFloor<1 || startFloor>floorCount || endFloor>floorCount ) {
-		    	    			 System.err.println("Invalid floors received");
-		    	    		 } else if (startFloor == endFloor) {
-		    	    			 System.err.println("Current floor and destination floors cannot be the same");
-		    	    		 }else {
-		    	    			 System.out.println("New request sent to scheduler");
-		    	    			 //scheduler.addElevatorRequest(startFloor, endFloor);
+	    		 String commands[] = next.split(",");
+	    		 //time =  LocalTime.parse(lineValues[0]);
+	   	    	 if (commands.length == 4 & (commands[0].split(":").length == 1)) {
+	   	    		 try {   
+	   	    			 	 int startFloor = Integer.parseInt(commands[1]);
+	    	    		     int endFloor = Integer.parseInt(commands[3]);
+	   	    			 	 boolean isUp;
+	   	    			 	 if ( (commands[2]).equals("Up")){
+	   	    			 		 isUp = true;
+	   	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+		   	    			 	 try{
+		   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(new Long(Integer.parseInt(commands[0])), startFloor, isUp , endFloor);
+		   	    			 		 this.requests = new ArrayList<ScheduledElevatorRequest>();
+  	    			 				 this.requests.add(req);
+  	    			 				 sendRequestToScheduler();
+		   	    			 	 } catch(Exception e){ 
+		   	    			 		 printUIGuidelines();
+		   	    			 	 }
+	   	    			 		 }
+	   	    			 	 }
+	   	    			 	 else if ( (commands[2]).equals("Down")) {
+	   	    			 		 isUp= false;
+	   	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+	   	    			 			 try{
+	   	    			 				 ScheduledElevatorRequest req = new ScheduledElevatorRequest(new Long(Integer.parseInt(commands[0])), Integer.parseInt(commands[1]), isUp , Integer.parseInt(commands[3]));
+	   	    			 				 System.out.println("New request sent to scheduler");
+	   	    			 				 //this.requests = new ArrayList<ScheduledElevatorRequest>();
+	  	    			 				 //this.requests.add(req);
+	  	    			 				 //sendRequestToScheduler();
+	   	    			 			 } catch(Exception e){ 
+	   	    			 				 printUIGuidelines();
+	   	    			 			 }
+	   	    			 		 }
+	   	    			 	 }
 		    	    			 
-		    	    		 }
+		    	    			
+		    	    		 
 	   	    		 } catch  (NumberFormatException e) {
-	   	    			 System.err.println("Cannot have non numerical arguments when creating new requests");
+	   	    			printUIGuidelines();
 	   	    		 }
-	   	    	 } else {
-	   	    		 System.err.println("Must have exactly 2 arguments to create a request");
+	   	    		 
 	   	    	 }
+	   	    	 else if(commands.length == 4 & (commands[0].split(":").length == 3)) {
+	   	    		try {   
+  	    			 	 int startFloor = Integer.parseInt(commands[1]);
+  	    			 	 int endFloor = Integer.parseInt(commands[3]);
+  	    			 	 //LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
+  	    			 	 boolean isUp;
+  	    			 	 
+  	    			 	 if ( (commands[2]).equals("Up")){
+  	    			 		 isUp = true;
+  	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+	   	    			 	 try{
+	   	    			 		 LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
+	   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor);
+	   	    			 		 System.out.println("New request sent to scheduler");
+	   	    			 		 //this.requests = new ArrayList<ScheduledElevatorRequest>();
+	   	    			 		 //this.requests.add(req);
+	    			 			 //sendRequestToScheduler();
+	   	    			 	 } catch(Exception e){
+	   	    			 		 printUIGuidelines();
+	   	    			 	 }
+  	    			 		 }
+  	    			 	 }
+  	    			 	 else if ( (commands[2]).equals("Down")) {
+  	    			 		 isUp= false;
+  	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+  	    			 			 try{
+  	    			 				 LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
+  		   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor);
+  	    			 				 System.out.println("New request sent to scheduler");
+  	    			 				 //this.requests = new ArrayList<ScheduledElevatorRequest>();
+  	    			 				 //this.requests.add(req);
+  	    			 				 //sendRequestToScheduler();
+  	    			 				 
+  	    			 			 } catch(Exception e){ 
+  	    			 				 printUIGuidelines();
+  	    			 			 }
+  	    			 		 }
+  	    			 	 }
+	    	    			 
+	    	    			
+	    	    		 
+  	    		 } catch  (NumberFormatException e) {
+  	    			printUIGuidelines();
+  	    		 }
+  	    		 
+	   	    	 }
+	   	    	 else {
+	   	    		printUIGuidelines();
+  			 	 }
+	   	    	 
 	    		 
 	   	    //UNKNOWN OPTION
 	    	 } else {
@@ -245,8 +388,9 @@ public class FloorSubsystem extends Thread{
 	}
 	
 	public static void main(String[] args) {
-		Logger logger = new Logger(true,true ,true,true); 
-		FloorSubsystem floorSubsys = new FloorSubsystem(logger, 7 ); //FLOOR_COUNT = 7
+		Config config = new Config("multi.properties");
+		Logger logger = new Logger(config); 
+		FloorSubsystem floorSubsys = new FloorSubsystem(logger, config ); //FLOOR_COUNT = 7
 		
 		
 		Thread floorThread = new Thread(floorSubsys, "FloorSubsystemThread");

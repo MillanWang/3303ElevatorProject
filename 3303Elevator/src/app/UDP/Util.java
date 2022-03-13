@@ -28,7 +28,7 @@ public class Util {
             e.printStackTrace();
             System.exit(1);
         }
-
+        
         int bufferSize = config.getInt("udp.buffer.size");
         //Create a packet to hold the reply packet
         byte[] data = new byte[bufferSize];
