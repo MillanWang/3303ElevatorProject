@@ -37,6 +37,7 @@ public class FloorSubsystem extends Thread{
 	private String inputFileLocation;
 	private Logger currentLogger; 
 	private Scanner sc;
+	private Config conf;
 	private static int floorCount;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
 	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
@@ -56,7 +57,7 @@ public class FloorSubsystem extends Thread{
 		this.inputFileLocation = this.askToChooseFileOrUseDefault(sc);//System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 		this.currentLogger = log;
 		this.floorCount = conf.getInt("floor.highestFloorNumber");
-		
+		this.conf = conf;
 	    
 		
 		
@@ -132,7 +133,7 @@ public class FloorSubsystem extends Thread{
 	  * sends to scheduler an arraylist of scheduledElevatorRequest using datagram packet after serialization 
 	  */
 	private void sendRequestToScheduler() {
-		Config config = new Config("local.properties");
+		
 		byte[] data = null;
 		try {
 			data = Util.serialize(this.requests);
@@ -141,7 +142,7 @@ public class FloorSubsystem extends Thread{
 			e1.printStackTrace();
 		}
 		try {
-			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getByName(config.getString("scheduler.address")), config.getInt("scheduler.floorReceivePort"));
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getByName(conf.getString("scheduler.address")), conf.getInt("scheduler.floorReceivePort"));
 			Util.sendRequest_ReturnReply(sendPacket);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -162,7 +163,7 @@ public class FloorSubsystem extends Thread{
 		
 		addInputRequests(this.inputFileLocation); 
 		this.sendRequestToScheduler();
-		SchedulerPacketReceiver sReceiver = new SchedulerPacketReceiver( this, config.getInt("floor.schedulerReceeivePort"));
+		SchedulerPacketReceiver sReceiver = new SchedulerPacketReceiver( this, config.getInt("floor.schedulerReceivePort"));
 		(new Thread(sReceiver, "SchedulerPacketReceiver")).start();
 		runCommandLineUI(sc); //, scheduler from runCommandLineUI	
 	}
@@ -312,9 +313,9 @@ public class FloorSubsystem extends Thread{
 	   	    			 			 try{
 	   	    			 				 ScheduledElevatorRequest req = new ScheduledElevatorRequest(new Long(Integer.parseInt(commands[0])), Integer.parseInt(commands[1]), isUp , Integer.parseInt(commands[3]));
 	   	    			 				 System.out.println("New request sent to scheduler");
-	   	    			 				 //this.requests = new ArrayList<ScheduledElevatorRequest>();
-	  	    			 				 //this.requests.add(req);
-	  	    			 				 //sendRequestToScheduler();
+	   	    			 				 this.requests = new ArrayList<ScheduledElevatorRequest>();
+	  	    			 				 this.requests.add(req);
+	  	    			 				 sendRequestToScheduler();
 	   	    			 			 } catch(Exception e){ 
 	   	    			 				 printUIGuidelines();
 	   	    			 			 }
@@ -342,9 +343,9 @@ public class FloorSubsystem extends Thread{
 	   	    			 		 LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
 	   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor);
 	   	    			 		 System.out.println("New request sent to scheduler");
-	   	    			 		 //this.requests = new ArrayList<ScheduledElevatorRequest>();
-	   	    			 		 //this.requests.add(req);
-	    			 			 //sendRequestToScheduler();
+	   	    			 		 this.requests = new ArrayList<ScheduledElevatorRequest>();
+	    			 			 this.requests.add(req);
+	    			 			 sendRequestToScheduler();
 	   	    			 	 } catch(Exception e){
 	   	    			 		 printUIGuidelines();
 	   	    			 	 }
@@ -357,9 +358,9 @@ public class FloorSubsystem extends Thread{
   	    			 				 LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
   		   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor);
   	    			 				 System.out.println("New request sent to scheduler");
-  	    			 				 //this.requests = new ArrayList<ScheduledElevatorRequest>();
-  	    			 				 //this.requests.add(req);
-  	    			 				 //sendRequestToScheduler();
+  	    			 				 this.requests = new ArrayList<ScheduledElevatorRequest>();
+  	    			 				 this.requests.add(req);
+  	    			 				 sendRequestToScheduler();
   	    			 				 
   	    			 			 } catch(Exception e){ 
   	    			 				 printUIGuidelines();
