@@ -47,7 +47,7 @@ public class FloorSubsystem extends Thread{
 	 * @param Scheduler 
 	 * @param inputFile: the file path to be accessed 
 	 */
-	public FloorSubsystem( Logger log, int floorCount) { //Scheduler scheduler,  removed from constructor
+	public FloorSubsystem( Logger log, Config conf) { //Scheduler scheduler,  removed from constructor
 		sc = new Scanner(System.in);
 		
 		//this.scheduler = scheduler; 
@@ -55,7 +55,7 @@ public class FloorSubsystem extends Thread{
 		this.elevatorInfo = new LinkedList<ElevatorInfo>();
 		this.inputFileLocation = this.askToChooseFileOrUseDefault(sc);//System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 		this.currentLogger = log;
-		this.floorCount = floorCount;
+		this.floorCount = conf.getInt("floor.highestFloorNumber");
 		
 	    
 		
@@ -388,8 +388,9 @@ public class FloorSubsystem extends Thread{
 	}
 	
 	public static void main(String[] args) {
-		Logger logger = new Logger(true,true ,true,true); 
-		FloorSubsystem floorSubsys = new FloorSubsystem(logger, 7 ); //FLOOR_COUNT = 7
+		Config config = new Config("multi.properties");
+		Logger logger = new Logger(config); 
+		FloorSubsystem floorSubsys = new FloorSubsystem(logger, config ); //FLOOR_COUNT = 7
 		
 		
 		Thread floorThread = new Thread(floorSubsys, "FloorSubsystemThread");
