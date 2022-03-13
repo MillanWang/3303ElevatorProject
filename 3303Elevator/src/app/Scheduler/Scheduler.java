@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import app.Logger;
-import app.MainProgramRunner;
 import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
@@ -90,6 +88,7 @@ public class Scheduler implements Runnable{
 	 * @param floorSystemRequests List of ScheduledElevatorRequest
 	 */
 	public synchronized void floorSystemScheduleRequest(List<ScheduledElevatorRequest> floorSystemRequests) {
+		this.logger.logSchedulerEvent("Scheduler received request(s) from floor system");
 		//Wait loop until elevator info is known
 		while (this.allElevatorInfo==null) {
 			try {wait();} catch (InterruptedException e) {}
@@ -135,7 +134,9 @@ public class Scheduler implements Runnable{
 			//Destination will only be known once we arrive at the start floor
 			this.upwardsDestinationsPerFloor.get(startFloor-1).add(destinationFloor);
 			//Find the best elevator to handle this request, then put the start floor on it's up list
-			this.getElevatorSpecificFloorsToVisit(getBestElevatorId(startFloor,isUpwards)).addUpwardsFloorToVisit(startFloor);
+			int bestElevatorID = getBestElevatorId(startFloor,isUpwards);
+			this.logger.logSchedulerEvent("Elevator "+bestElevatorID+" has been scheduled go up to floor "+destinationFloor);
+			this.getElevatorSpecificFloorsToVisit(bestElevatorID).addUpwardsFloorToVisit(startFloor);
 			
 			
 			
@@ -143,7 +144,9 @@ public class Scheduler implements Runnable{
 			//Destination will only be known once we arrive at the start floor
 			this.downwardsDestinationsPerFloor.get(startFloor-1).add(destinationFloor);
 			//Find the best elevator to handle this request, then put the start floor on it's down list
-			this.getElevatorSpecificFloorsToVisit(getBestElevatorId(startFloor,isUpwards)).addDownwardsFloorToVisit(startFloor);
+			int bestElevatorID = getBestElevatorId(startFloor,isUpwards);
+			this.logger.logSchedulerEvent("Elevator "+bestElevatorID+" has been scheduled go down to floor "+destinationFloor);
+			this.getElevatorSpecificFloorsToVisit(bestElevatorID).addDownwardsFloorToVisit(startFloor);
 		}
 		notifyAll();
 	}
@@ -187,6 +190,8 @@ public class Scheduler implements Runnable{
 	 * @return The ID of the closest elevator below the start floor with the given state. -1 if there is none
 	 */
 	private synchronized int findClosestElevatorBelowWithState(int floor, Direction direction) {
+		if (direction==null) return -1;
+		
 		LinkedList<Integer[]> belowElevators = new LinkedList<Integer[]>();
 		//Identify elevators below
 		for (ElevatorInfo eInfo : this.allElevatorInfo) {
@@ -218,6 +223,7 @@ public class Scheduler implements Runnable{
 	 * @return The ID of the closest elevator above the start floor with the given state. -1 if there is none
 	 */
 	private synchronized int findClosestElevatorAboveWithState(int floor, Direction direction) {
+		if (direction==null) return -1;
 		LinkedList<Integer[]> aboveElevators = new LinkedList<Integer[]>();
 		//Identify above elevators 
 		for (ElevatorInfo eInfo : this.allElevatorInfo) {
@@ -283,7 +289,7 @@ public class Scheduler implements Runnable{
 				eInfo.getState().equals(ElevatorStateMachine.DoorOpening)||
 				eInfo.getState().equals(ElevatorStateMachine.OpenDoor)) {
 
-				if ("".equals("REPLACE THIS WITH A CHECK FOR THE LAST DIRECTION OF THE ELEVATOR")) {
+				if (eInfo.getMostRecentDirection()==Direction.UP) {
 					//Previous elevator direction upwards
 					this.getElevatorSpecificFloorsToVisit(eInfo.getId()).upwardsFloorIsVisited(eInfo.getFloor());
 					//Add upwards destinations of this floor to the current elevator
@@ -372,7 +378,9 @@ public class Scheduler implements Runnable{
 	}
 	
 	public static void main(String[] args) {
-		Scheduler scheduler = new Scheduler(null, new Config("multi.properties"));
+//		Config config = new Config("multi.properties");
+		Config config = new Config("local.properties");
+		Scheduler scheduler = new Scheduler(new Logger(config), config);
 		(new Thread(scheduler, "Scheduler")).start();
 	}
 }

@@ -28,9 +28,7 @@ import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
 import app.UDP.Util;
 public class FloorSubsystem extends Thread{
 
-	
-	//private Scheduler scheduler; 
-	private static ArrayList<ScheduledElevatorRequest> requests; 
+	private ArrayList<ScheduledElevatorRequest> requests; 
 	private LinkedList<ElevatorInfo> elevatorInfo; 
 	private Integer elevatorPosition; 
 	private Direction elevatorStatus; 
@@ -38,7 +36,7 @@ public class FloorSubsystem extends Thread{
 	private Logger currentLogger; 
 	private Scanner sc;
 	private Config conf;
-	private static int floorCount;
+	private int floorCount;
 	public static final String UI_COMMAND_EXPLAIN_STRING = "Elevator Simulation Program : Type a command and press enter to continue\nCommands:  \n\t\"n\" - schedule next request\n\t\"q\" - exit program";
 	public static final String UI_ASK_TO_CHOOSE_FILE_STRING = "Welcome to the Elevator simulation program. \nWould you like to choose an input file or use the default? \n\t\"y\" - choose file\n\t\"n\"  - default file";
 	public static final String DEFAULT_INPUT_FILE_ABSOLUTE_PATH = System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
@@ -138,14 +136,12 @@ public class FloorSubsystem extends Thread{
 		try {
 			data = Util.serialize(this.requests);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		try {
 			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getByName(conf.getString("scheduler.address")), conf.getInt("scheduler.floorReceivePort"));
 			Util.sendRequest_ReturnReply(sendPacket);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.requests = new ArrayList<ScheduledElevatorRequest>();
@@ -389,7 +385,9 @@ public class FloorSubsystem extends Thread{
 	}
 	
 	public static void main(String[] args) {
-		Config config = new Config("multi.properties");
+//		Config config = new Config("multi.properties");
+		Config config = new Config("local.properties");
+		
 		Logger logger = new Logger(config); 
 		FloorSubsystem floorSubsys = new FloorSubsystem(logger, config ); //FLOOR_COUNT = 7
 		
