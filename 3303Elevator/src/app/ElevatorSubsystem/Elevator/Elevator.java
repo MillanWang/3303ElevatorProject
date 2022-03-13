@@ -43,6 +43,7 @@ public class Elevator implements Runnable {
 		this.logger = logger;
 		this.id = id;
 		this.buf = buf;
+		this.last= Direction.UP;//;AWAITING_NEXT_REQUEST;
 	}
 
 	public int getId() {

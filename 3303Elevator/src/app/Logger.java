@@ -64,7 +64,7 @@ public class Logger extends Util{
 		if(printElevatorEvents == true) {
 			String m = "[" + dateTime.now() + "]" + message;
 			System.out.println(m);
-			if(sLoggerAddr.getAddress().toString() != "localHost") { //if live, send to server logger
+			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
 				Util.sendRequest_ReturnReply(packet);
 			}
@@ -81,7 +81,7 @@ public class Logger extends Util{
 		if(printFloorEvents == true) {
 			String m = (dateTime.now()+ " floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor());
 			System.out.println(m);
-			if(sLoggerAddr.getAddress().toString() != "localHost") { //if live, send to server logger
+			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
 				Util.sendRequest_ReturnReply(packet);
 			}
@@ -98,7 +98,7 @@ public class Logger extends Util{
 		if(printSchedulerEvents == true) {
 			String m = (dateTime.now()+ " " + schedulerLogString);
 			System.out.println(m);
-			if(sLoggerAddr.getAddress().toString() != "localHost") { //if live, send to server logger
+			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
 				Util.sendRequest_ReturnReply(packet);
 			}
@@ -114,7 +114,7 @@ public class Logger extends Util{
 		if(printTimeManagementSystemEvent == true) {
 			String m = (dateTime.now() + " " + timeManagementLogString);
 			System.out.println(m);
-			if(sLoggerAddr.getAddress().toString() != "localHost") { //if live, send to server logger
+			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
 				Util.sendRequest_ReturnReply(packet);
 			}

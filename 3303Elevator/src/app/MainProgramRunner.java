@@ -35,12 +35,13 @@ public class MainProgramRunner {
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(config);
 		
 		Thread schedulerThread = new Thread(scheduler, "SchedulerThread");
-		Thread elevatorThread = new Thread(elevatorSubsys, "ElevatorSubsystemThread");
 		Thread floorThread = new Thread(floorSubsys, "FloorSubsystemThread");
+		Thread elevatorThread = new Thread(elevatorSubsys, "ElevatorSubsystemThread");
 		
 		schedulerThread.start();
-		elevatorThread.start();
 		floorThread.start();
+		elevatorThread.start();
+
 	}
 	
 }

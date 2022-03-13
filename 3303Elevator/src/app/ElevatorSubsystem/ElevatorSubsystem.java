@@ -34,6 +34,7 @@ public class ElevatorSubsystem implements Runnable{
 	private Logger logger;
 	private TimeManagementSystem tms;
 	private ElevatorBuffer buf;
+
 	/**
 	 * Constructor used to create elevator subsystem
 	 *
@@ -120,7 +121,9 @@ public class ElevatorSubsystem implements Runnable{
 	}
 
 	public static void main(String[] args){
+//		Config config = new Config("multi.properties");
 		Config config = new Config("local.properties");
+		
 		ElevatorSubsystem e = new ElevatorSubsystem(config);
 		(new Thread(e)).start();
 	}

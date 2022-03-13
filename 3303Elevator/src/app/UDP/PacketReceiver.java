@@ -5,6 +5,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import app.Config.Config;
+
 /**
  * Class for running a thread that receives packets and sends replies
  * @author Millan Wang
@@ -41,7 +43,7 @@ public abstract class PacketReceiver implements Runnable {
 	 */
 	private DatagramPacket receiveNextPacket() {
 		//Create a packet to receive next packet
-        byte[] data = new byte[512];
+        byte[] data = new byte[(new Config("multi.properties")).getInt("udp.buffer.size")];
         DatagramPacket receivedPacket = new DatagramPacket(data, data.length);
         
         //Receive the packet

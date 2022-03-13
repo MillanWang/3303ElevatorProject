@@ -106,7 +106,7 @@ public class ElevatorSpecificFloorsToVisit {
 		//Return negative 1 to indicate that there is no next floor to visit
 		if (this.upwardsFloorsToVisit.isEmpty() && this.downwardsFloorsToVisit.isEmpty()) return -1;
 		
-		if(direction.equals(Direction.DOWN)) {
+		if(direction==Direction.DOWN) {
 			if(this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor,false).isEmpty()) {
 				//No more downwards floors to visit. Go to the lowest/first upwards
 				//If the lowest up floor is lower than the current, we will go down to it.
@@ -118,7 +118,7 @@ public class ElevatorSpecificFloorsToVisit {
 			}
 			
 			
-		} else if (direction.equals(Direction.UP)){
+		} else if (direction==Direction.UP){
 			if (this.upwardsFloorsToVisit.tailSet(elevatorCurrentFloor, false).isEmpty()) {
 				//No more upwards floors to visit. Go to Highest/last downwards floor
 				//If the highest floor is above the current, we will keep going up to it

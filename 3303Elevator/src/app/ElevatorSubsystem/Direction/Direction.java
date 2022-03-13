@@ -1,5 +1,7 @@
 package app.ElevatorSubsystem.Direction;
 
+import java.io.Serializable;
+
 /**
  * SYSC 3303, Final Project
  * Direction.java
@@ -7,7 +9,7 @@ package app.ElevatorSubsystem.Direction;
  *
  * @author Ben Kittilsen
  * */
-public enum Direction{
+public enum Direction implements Serializable{
 	UP,
 	DOWN,
 	STOPPED_AT_FLOOR,
