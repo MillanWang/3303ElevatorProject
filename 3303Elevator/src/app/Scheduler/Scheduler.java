@@ -3,12 +3,12 @@ package app.Scheduler;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import app.Logger;
@@ -68,8 +68,9 @@ public class Scheduler implements Runnable{
 		this.elevatorSubsystemReceivePort = config.getInt("scheduler.floorReceivePort");
 		this.floorSubsystemReceivePort = config.getInt("scheduler.elevatorReceivePort");
 		
-		//TODO : GEt the proper inet address and port from the updated properties config
-		this.floorInetAddress = null;
+		try {
+			this.floorInetAddress = InetAddress.getByName(config.getString("floor.schedulerReceivePort"));
+		} catch (UnknownHostException e) {e.printStackTrace();}
 		this.floorSubsystemSendPort = config.getInt("scheduler.elevatorReceivePort");
 		
 		
@@ -162,10 +163,10 @@ public class Scheduler implements Runnable{
 	private synchronized int getBestElevatorId(int startFloor, boolean isUpwards) {
 		if (isUpwards) {
 			//Upwards. First check if there are any upwards or parked elevators under us
-			if (this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.MoveUp)!=-1) {
-				return this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.MoveUp);
-			} else if (this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.Idle)!=-1) {
-				return this.findClosestElevatorBelowWithState(startFloor, ElevatorStateMachine.Idle);
+			if (this.findClosestElevatorBelowWithState(startFloor, Direction.UP)!=-1) {
+				return this.findClosestElevatorBelowWithState(startFloor, Direction.UP);
+			} else if (this.findClosestElevatorBelowWithState(startFloor, Direction.AWAITING_NEXT_REQUEST)!=-1) {
+				return this.findClosestElevatorBelowWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
 			} else {
 				//No upwards or parked elevators below start floor. Randomly select one
 				Collections.shuffle(this.allElevatorInfo);
@@ -173,10 +174,10 @@ public class Scheduler implements Runnable{
 			}
 		} else {
 			//Downwards. First check if there are any downwards or packed elevators above us
-			if (this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.MoveDown)!=-1) {
-				return this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.MoveDown);
-			} else if (this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.Idle)!=-1) {
-				return this.findClosestElevatorAboveWithState(startFloor, ElevatorStateMachine.Idle);
+			if (this.findClosestElevatorAboveWithState(startFloor, Direction.DOWN)!=-1) {
+				return this.findClosestElevatorAboveWithState(startFloor, Direction.DOWN);
+			} else if (this.findClosestElevatorAboveWithState(startFloor, Direction.AWAITING_NEXT_REQUEST)!=-1) {
+				return this.findClosestElevatorAboveWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
 			} else {
 				//No downwards or parked elevators above start floor. Randomly select one
 				Collections.shuffle(this.allElevatorInfo);
@@ -191,11 +192,12 @@ public class Scheduler implements Runnable{
 	 * @param eState the state to look for
 	 * @return The ID of the closest elevator below the start floor with the given state. -1 if there is none
 	 */
-	private synchronized int findClosestElevatorBelowWithState(int floor, ElevatorStateMachine eState) {
+	private synchronized int findClosestElevatorBelowWithState(int floor, Direction direction) {
 		LinkedList<Integer[]> belowElevators = new LinkedList<Integer[]>();
 		//Identify elevators below
 		for (ElevatorInfo eInfo : this.allElevatorInfo) {
-			if (eInfo.getFloor()<=floor && eInfo.getState().equals(eState)) { //TODO CHANGE TO DIRECTION UP INSTEAD OF STATE
+			
+			if (eInfo.getFloor()<=floor && eInfo.getMostRecentDirection().equals(direction)) {
 				belowElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
 			}
 		}
@@ -221,11 +223,11 @@ public class Scheduler implements Runnable{
 	 * @param eState the state to look for
 	 * @return The ID of the closest elevator above the start floor with the given state. -1 if there is none
 	 */
-	private synchronized int findClosestElevatorAboveWithState(int floor, ElevatorStateMachine eState) {
+	private synchronized int findClosestElevatorAboveWithState(int floor, Direction direction) {
 		LinkedList<Integer[]> aboveElevators = new LinkedList<Integer[]>();
 		//Identify above elevators 
 		for (ElevatorInfo eInfo : this.allElevatorInfo) {
-			if (eInfo.getFloor()>=floor && eInfo.getState().equals(eState)) { //TODO CHANGE TO DIRECTION UP INSTEAD OF STATE
+			if (eInfo.getFloor()>=floor && eInfo.getMostRecentDirection().equals(direction)) { 
 				aboveElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
 			}
 		}
@@ -313,7 +315,7 @@ public class Scheduler implements Runnable{
 		//Create elevatorID:NextFloorToVisit hashMap
 		HashMap<Integer,Integer> elevatorID_NextFloorToVisit = new HashMap<Integer,Integer>();
 		for (ElevatorInfo eInfo : this.allElevatorInfo) {
-			elevatorID_NextFloorToVisit.put(eInfo.getId(), this.getElevatorSpecificFloorsToVisit(eInfo.getId()).getNextFloorToVisit(eInfo.getFloor(), Direction.DOWN/*TODO: UPDATE THIS WITH THE EINFO DIRECTION FIELDDDD*/));
+			elevatorID_NextFloorToVisit.put(eInfo.getId(), this.getElevatorSpecificFloorsToVisit(eInfo.getId()).getNextFloorToVisit(eInfo.getFloor(), eInfo.getMostRecentDirection()));
 		}
 
 
