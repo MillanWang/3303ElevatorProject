@@ -36,10 +36,7 @@ public class Logger extends Util{
 	/**
 	 * Constructor selects the events types to be printed through the boolean parameters  
 	 * 
-	 * @param printElevatorEvents: true if the logger is to print Elevator events else false
-	 * @param printSchedulerEvents: true if the logger is to print Scheduler events else false 
-	 * @param printFloorEvents: true if the logger is to print floor events else false
-	 * @param printTimeManagementSystemEvent: true if the logger is to print Time management system events else false 
+	 * @param c Config object to configure all boolean flags for class and get addresses
 	 * 
 	 */
 	public Logger(Config c) {
