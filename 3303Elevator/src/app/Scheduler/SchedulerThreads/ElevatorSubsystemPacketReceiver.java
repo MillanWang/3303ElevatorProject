@@ -45,11 +45,14 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
 		LinkedList<ElevatorInfo> elevatorSubsystemComms = null;
         try {
         	elevatorSubsystemComms = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
-		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
-        
+		} catch (ClassNotFoundException | IOException e1) {
+			e1.printStackTrace();
+			}
+       
         //Update the scheduler with the elevator info and then get the next toVisitList from scheduler
         this.scheduler.setAllElevatorInfo(elevatorSubsystemComms);
         HashMap<Integer,Integer> allElevatorsAllFloorsToVisit = this.scheduler.getNextFloorsToVisit();
+
         
         //Create byte array to build reply packet contents more easily
         ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
