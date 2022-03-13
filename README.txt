@@ -54,7 +54,8 @@ Source Code File Breakdown:
 
 
     -Floor Subsystem:
-      	-FloorSubsystem.java -> Makes requests to and recieves requests from scheduler as subsytem will act as multiple floors
+      	-FloorSubsystem.java -> Makes requests to and recieves requests from scheduler as subsytem will act as multiple floors and operates command line UI to send new requests 
+	 to scheduler
      	-ScheduledElevatorRequest.java -> contains the elevator request details to be sent to the scheduler from floor subsystem
       	-TextFileReader.java -> Reads an input file to create elevator requests event objects
 	-emptyinputfile.txt -> Empty input file
@@ -103,6 +104,9 @@ Roles and Division of Responsibilities for iteration 3:
     -Peter Tanyous:
 	-Floor Subsystem
 		-Testing
+		-commandline UI new handler
+		-floorSubsystem sequence diagram
+	-SchedulerPacketReceiver
 	-Logger
 		-Testing
 	-UML Class Diagram
