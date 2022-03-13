@@ -87,11 +87,10 @@ public class ElevatorBuffer {
 				System.err.println(e);
 			}
 		}
-
+		
 		this.eStatus.add(req);
 
 		if(this.eStatus.size() == this.numOfElevators) {
-
 			this.readStatus = true;
 		}
 		
@@ -113,7 +112,8 @@ public class ElevatorBuffer {
 			}
 		}
 
-		LinkedList<ElevatorInfo> tmp = this.eStatus;
+		@SuppressWarnings("unchecked")
+		LinkedList<ElevatorInfo> tmp = (LinkedList<ElevatorInfo>) this.eStatus.clone();
 		this.eStatus.clear();
 		
 		if(this.eStatus.size() == 0) {

@@ -217,6 +217,10 @@ public class Elevator implements Runnable {
 			
 			int nextFloor = buf.getNextFloor(this.id);
 			
+			if(nextFloor < 1 || nextFloor > this.maxFloorCount) {
+				continue;
+			}
+			
 			while(!this.checkFloor(nextFloor)) {
 				
 				if(nextFloor > this.currentFloor) {
