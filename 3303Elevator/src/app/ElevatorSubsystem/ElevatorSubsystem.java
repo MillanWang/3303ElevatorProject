@@ -47,7 +47,7 @@ public class ElevatorSubsystem implements Runnable{
 			System.exit(1);
 		}
 		
-		this.maxFloor = config.getInt("floor.total.number");
+		this.maxFloor = config.getInt("floor.highestFloorNumber");
 		this.numElevators = config.getInt("elevator.total.number");
 		this.buf = new ElevatorBuffer(numElevators);
 		this.elevators = new ArrayList<Elevator>();
