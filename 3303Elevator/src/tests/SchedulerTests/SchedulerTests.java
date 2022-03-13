@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import app.Logger;
+import app.Config.Config;
 import app.FloorSubsystem.FloorSubsystem;
 import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
@@ -24,7 +25,8 @@ public class SchedulerTests {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.scheduler = new Scheduler(new Logger(true,true,true,true), false);
+		Config config = new Config("test.properties");
+		this.scheduler = new Scheduler(new Logger(config), config);
 	}
 
 	/**

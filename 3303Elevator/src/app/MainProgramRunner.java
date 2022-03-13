@@ -1,5 +1,6 @@
 package app;
 
+import app.Config.Config;
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.FloorSubsystem.FloorSubsystem;
 import app.Scheduler.Scheduler;
@@ -27,17 +28,11 @@ public class MainProgramRunner {
 	
 	
 	public static void main(String[] args) {
-		Logger logger = new Logger(ELEVATOR_LOGGING,SCHEDULER_LOGGING ,FLOORSUBSYSTEM_LOGGING,TIMEMANAGEMENT_LOGGING); 
-		Scheduler scheduler = new Scheduler(logger, INSTANTLY_SCHEDULE_REQUESTS);
+		Config config = new Config("local.properties");
+		Logger logger = new Logger(config); 
+		Scheduler scheduler = new Scheduler(logger, config);
 		FloorSubsystem floorSubsys = new FloorSubsystem(logger, FLOOR_COUNT);
-				
-		
-		//TODO: ELEVATORSUBSYSTEM - Constructor may need changes. InetAddress of Scheduler may need to come from config files
-		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(null, 
-																 ELEVATOR_COUNT, 
-																 FLOOR_COUNT, 
-																 logger, 
-																 new TimeManagementSystem(TIME_MULTIPLIER, logger));
+		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(config);
 		
 		Thread schedulerThread = new Thread(scheduler, "SchedulerThread");
 		Thread elevatorThread = new Thread(elevatorSubsys, "ElevatorSubsystemThread");

@@ -37,14 +37,10 @@ public class Scheduler implements Runnable{
 	private LinkedList<ElevatorSpecificFloorsToVisit> allElevatorsAllFloorsToVisit;
 	private LinkedList<TreeSet<Integer>> upwardsDestinationsPerFloor;
 	private LinkedList<TreeSet<Integer>> downwardsDestinationsPerFloor;
-	
-	private int numberOfElevators;
 	private LinkedList<ElevatorInfo> allElevatorInfo;
 
 	private boolean skipDelaysOnFloorInputs;
 	private int highestFloorNumber;
-	
-	
 	private int elevatorSubsystemReceivePort;
 	private int floorSubsystemReceivePort;
 	private InetAddress floorInetAddress;
@@ -61,9 +57,7 @@ public class Scheduler implements Runnable{
 	 * @param skipDelaysOnFloorInputs boolean indicating if all incoming timeSpecified requests should be ran without delay
 	 * @param floorSubsys Reference to the floor subsystem dependency
 	 */
-	public Scheduler(Logger logger, boolean skipDelaysOnFloorInputs) {
-		Config config = new Config("local.properties");
-		this.numberOfElevators= config.getInt("elevator.total.number"); ; 
+	public Scheduler(Logger logger, Config config) {
 		this.highestFloorNumber= config.getInt("floor.highestFloorNumber"); ; 
 		this.elevatorSubsystemReceivePort = config.getInt("scheduler.floorReceivePort");
 		this.floorSubsystemReceivePort = config.getInt("scheduler.elevatorReceivePort");
@@ -76,7 +70,7 @@ public class Scheduler implements Runnable{
 		
 		this.logger = logger;
 		
-		this.skipDelaysOnFloorInputs= skipDelaysOnFloorInputs; 
+		this.skipDelaysOnFloorInputs= config.getInt("scheduler.skipDelaysOnFloorInputs")==1; 
 		
 		//Directional destinations per floor
 		this.upwardsDestinationsPerFloor= new LinkedList<TreeSet<Integer>>();
@@ -267,8 +261,6 @@ public class Scheduler implements Runnable{
 	/**
 	 * Returns a TreeSet of the floors to be visited by the current elevator given it's current direction and location
 	 * 
-	 * WORK IN PROGRESS - NOT PERFECT YET
-	 *
 	 * @param currentFloorNumber The elevators current floor number
 	 * @param currentElevatorDirectionIsUpwards if the elevator is currently going upwards
 	 * @return TreeSet of the remaining floors to visit in this direction
@@ -379,7 +371,7 @@ public class Scheduler implements Runnable{
 	}
 	
 	public static void main(String[] args) {
-		Scheduler scheduler = new Scheduler(null, MainProgramRunner.INSTANTLY_SCHEDULE_REQUESTS);
+		Scheduler scheduler = new Scheduler(null, new Config("multi.properties"));
 		(new Thread(scheduler, "Scheduler")).start();
 	}
 }
