@@ -14,6 +14,7 @@ import app.UDP.Util;
 /**
  * @author Abdelrahim
  *
+ * ServerLogger class to log all program operations in one location
  */
 public class ServerLogger extends PacketReceiver{
 	
@@ -47,6 +48,7 @@ public class ServerLogger extends PacketReceiver{
 	}
 	
 	/**
+	 * Main method to start serverlogger thread to send and receive log data
 	 * @param args
 	 */
 	public static void main(String[] args) {

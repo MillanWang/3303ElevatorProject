@@ -58,8 +58,7 @@ public class Logger extends Util{
 	/**
 	 * logElevatorEvents is used to print the elevator events logged
 	 * 
-	 * @param movement: movement enum specifying the movement state of the elevator 
-	 * @param floorNumber: floor number to which the elevator is moving to or is parked at 
+	 * @param message message to be logged by system
 	 */
 	public void logElevatorEvents(String message) {
 		if(printElevatorEvents == true) {
@@ -122,6 +121,11 @@ public class Logger extends Util{
 		}
 	}
 	
+	/**
+	 * Builds datagram packet to be sent to server logger
+	 * @param m message to be sent to server logger
+	 * @return datagram packet of message
+	 */
 	private DatagramPacket buildLoggerPacket(String m){
 		byte[] data = {};
 		
