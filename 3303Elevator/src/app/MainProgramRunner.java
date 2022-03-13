@@ -31,7 +31,7 @@ public class MainProgramRunner {
 		Config config = new Config("local.properties");
 		Logger logger = new Logger(config); 
 		Scheduler scheduler = new Scheduler(logger, config);
-		FloorSubsystem floorSubsys = new FloorSubsystem(logger, FLOOR_COUNT);
+		FloorSubsystem floorSubsys = new FloorSubsystem(logger, config);
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(config);
 		
 		Thread schedulerThread = new Thread(scheduler, "SchedulerThread");
