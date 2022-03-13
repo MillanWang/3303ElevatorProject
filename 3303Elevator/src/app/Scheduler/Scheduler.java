@@ -59,8 +59,8 @@ public class Scheduler implements Runnable{
 	 */
 	public Scheduler(Logger logger, Config config) {
 		this.highestFloorNumber= config.getInt("floor.highestFloorNumber"); ; 
-		this.elevatorSubsystemReceivePort = config.getInt("scheduler.floorReceivePort");
-		this.floorSubsystemReceivePort = config.getInt("scheduler.elevatorReceivePort");
+		this.elevatorSubsystemReceivePort = config.getInt("scheduler.elevatorReceivePort");
+		this.floorSubsystemReceivePort = config.getInt("scheduler.floorReceivePort");
 		
 		try {
 			this.floorInetAddress = InetAddress.getByName(config.getString("floor.schedulerReceivePort"));
@@ -254,7 +254,8 @@ public class Scheduler implements Runnable{
 		}
 		
 		this.allElevatorInfo = allElevatorInfo;
-		this.sendUpdateToFloorSubsystem();
+		//TODO Figure out how to deal with thsiSENDS BEFORE THE FLOOR IS ONLINE
+		//this.sendUpdateToFloorSubsystem();
 		notifyAll();
 	}
 	
