@@ -2,9 +2,11 @@ package app.ElevatorSubsystem.Elevator;
 
 import app.Scheduler.TimeManagementSystem;
 import app.Logger;
+import app.ElevatorSubsystem.ElevatorBuffer;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.StateMachine.*;
 import java.util.ArrayList;
+import java.util.TreeSet;
 /**
  * SYSC 3303, Final Project
  * Elevator.java
@@ -12,30 +14,35 @@ import java.util.ArrayList;
  *
  * @author Ben Kittilsen
  * */
-public class Elevator{
+public class Elevator implements Runnable {
 
 	private final int id;
 
 	private ElevatorDoor door;
 	private int currentFloor, floorsMoved;
+	private boolean exit;
 	private ElevatorStateMachine state;
 	private TimeManagementSystem tms;
 	private Logger logger;
+	private ElevatorBuffer buf;
+	private Direction last;
 
 	/**
 	 * Maximum number of floors
 	 */
 	private int maxFloorCount;
 
-	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms) {
+	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms, ElevatorBuffer buf) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
 		this.floorsMoved = 0;
+		this.exit = false;
 		this.state = ElevatorStateMachine.Idle;
 		this.tms = tms;
 		this.door = new ElevatorDoor(this.tms);
 		this.logger = logger;
 		this.id = id;
+		this.buf = buf;
 	}
 
 	public int getId() {
@@ -48,7 +55,7 @@ public class Elevator{
 	 * @return a new elevator info object
 	 */
 	public ElevatorInfo getInfo() {
-		return new ElevatorInfo(this.id, this.currentFloor, this.state);
+		return new ElevatorInfo(this.id, this.currentFloor, this.state, last);
 	}
 	
 	/**
@@ -162,16 +169,22 @@ public class Elevator{
 	 * @param message
 	 */
 	public void log(String msg){
-		logger.logElevatorEvents("[Elevator "+ this.id + "]"+msg);
+		logger.logElevatorEvents("[Elevator "+ this.id + "] "+msg);
 	}
 
 	/**
 	 * Checks the destination floor and updates the elevators state
 	 * @param destinationFloor
 	 */
-	private void checkFloor(int destinationFloor) {
-		this.log("at floor " + this.getFloor());
+	private boolean checkFloor(int destinationFloor) {
+		this.log("at floor " + this.currentFloor);
 		if(this.getFloor() == destinationFloor){ //or max floor
+			
+			if(this.state == ElevatorStateMachine.Idle) {
+				this.setDirection(Direction.STOPPED_AT_FLOOR);
+			}
+			
+			
 			this.nextState();// stopping or opening door
 
 			if(this.getState() == ElevatorStateMachine.Stopping) {
@@ -186,65 +199,41 @@ public class Elevator{
 			this.nextState();//door closing
 			this.nextState();
 			this.log("doors finished closing");
+			return true;
 		}
+		return false;
+	}
+	
+	public void stop() {
+		this.exit = true;
 	}
 
-	public void move() {
-		// boolean movingUp = elevator.getState() == ElevatorStateMachine.MoveUp;
-		// I think we should pass the elevator state to the scheduler
-		// the three states that we need to consider are moving up (MoveUp), moving down (MoveDown),
-		// and finally the parked state which is now (nextProcessing, or Idle state) almost identical.
-
-		//log("" + elevator.getState());
-
-		//SortedSet<Integer> floorsToVisit = scheduler.getNextFloorsToVisit(elevator.getFloor(), true);//tmp for now
-		//log("" + floorsToVisit);
-		ArrayList<Integer> floorsToVisit = new ArrayList<Integer>();
-
-		if(floorsToVisit.size() == 0) {
-			if(!this.isStationary()) {
-				//error here
+	public void run() {
+		
+		this.log("is online");
+		this.buf.addStatus(this.getInfo())
+		;
+		while(!exit) {
+			
+			int nextFloor = buf.getNextFloor(this.id);
+			
+			while(!this.checkFloor(nextFloor)) {
+				
+				if(nextFloor > this.currentFloor) {
+					this.setDirection(Direction.UP);
+					this.last = Direction.UP;
+				}else if(nextFloor < this.currentFloor){
+					this.setDirection(Direction.DOWN);
+					this.last = Direction.DOWN;
+				}
+				
+				this.waitTransit(nextFloor);
+				this.nextState();			
 			}
-			return;
+			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
+			this.buf.addStatus(this.getInfo());
+			this.last = Direction.AWAITING_NEXT_REQUEST;
 		}
-
-
-		// checking if the elevator is idle or next processing
-		if(this.isStationary()) {
-			//int destFloor = floorsToVisit.first();
-			int destFloor = floorsToVisit.get(0);
-			floorsMoved = 0;
-
-			if(destFloor > this.getFloor()) {
-				this.setDirection(Direction.UP);
-			}else if(destFloor < this.getFloor()) {
-				this.setDirection(Direction.DOWN);
-			}else if(destFloor == this.getFloor()) {
-				this.setDirection(Direction.AWAITING_NEXT_REQUEST);
-			}else {
-				//There is an issue
-			}
-
-			this.waitTransit(destFloor);
-			this.nextState();
-			checkFloor(destFloor);
-		// check if the elevator is moving up or down
-		}else if(this.isMoving()) {
-			// used to determine the movement we need to continue
-			//int destFloor = this.getState() == ElevatorStateMachine.MoveUp ? floorsToVisit.first() : floorsToVisit.last();
-			int destFloor = floorsToVisit.get(0);
-
-			if(destFloor > this.getFloor()) {
-				this.setDirection(Direction.UP);
-			}else if(destFloor < this.getFloor()) {
-				this.setDirection(Direction.DOWN);
-			}
-
-			this.waitTransit(destFloor);
-			this.nextState();
-			checkFloor(destFloor);
-		}
-		System.out.println("\n\n");
+		this.log("is offline");
 	}
-
 }

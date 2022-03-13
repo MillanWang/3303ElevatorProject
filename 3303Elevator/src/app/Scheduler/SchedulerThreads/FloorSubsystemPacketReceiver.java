@@ -3,6 +3,7 @@ package app.Scheduler.SchedulerThreads;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.ArrayList;
 
 import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
@@ -41,9 +42,9 @@ public class FloorSubsystemPacketReceiver extends PacketReceiver {
 
         //Set the appropriate reply message in the packet based on the deserialization attempt
         try {
-			ScheduledElevatorRequest requestObj = (ScheduledElevatorRequest) Util.deserialize(requestPacket.getData());
+        	ArrayList<ScheduledElevatorRequest> requestObj = (ArrayList<ScheduledElevatorRequest>) Util.deserialize(requestPacket.getData());
 			//Deserialization successful. Add to scheduler
-        	this.scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,1,true,2)); //SWAP WITH DESERIALIZED VERSION ASAP
+        	this.scheduler.floorSystemScheduleRequest(requestObj); //SWAP WITH DESERIALIZED VERSION ASAP
         	try {
 				packetMessageOutputStream.write("200 OK".getBytes());
 			} catch (IOException e) {e.printStackTrace();}
