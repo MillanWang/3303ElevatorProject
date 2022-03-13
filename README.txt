@@ -97,7 +97,7 @@ Roles and Division of Responsibilities for iteration 3:
 	-Elevator Subsystem
 		-Testing
 		-State machine diagram
-	-Config
+	-Config class for context specific configurations
 	-VPN Configuration
 	-UML Class Diagram
 
@@ -112,12 +112,14 @@ Roles and Division of Responsibilities for iteration 3:
 	-UML Class Diagram
 
     -Millan Wang:
+	-Added abstract class for packetReceiver which will be used to host servers
+	-Integration testing to ensure communication between subsystems works given input file
 	-Scheduler
+		-Incorporated multi-elevator ability
 		-Testing
-		-State machine diagram
+		-State machine diagram updated
 	-MainProgramRunner
-		-Testing
-		-State machine diagram
+		-Adjusted to start all of the other processes locally
 	-UML Class Diagram
 	-UML Sequence Diagram
 
