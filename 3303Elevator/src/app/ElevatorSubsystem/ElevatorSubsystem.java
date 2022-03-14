@@ -57,6 +57,7 @@ public class ElevatorSubsystem implements Runnable{
 	}
 	
 	private DatagramPacket buildSchedulerPacket(){
+		this.log("get elevators status");
 		LinkedList<ElevatorInfo> list = this.buf.getAllStatus();
 		
 		byte[] data = {};
@@ -88,6 +89,7 @@ public class ElevatorSubsystem implements Runnable{
 			Thread t = new Thread(e);
 			t.start();
 		}
+		
 	}
 	
 	
@@ -115,13 +117,20 @@ public class ElevatorSubsystem implements Runnable{
 			}
 			
 			if(info != null) {
+				
+				for(int i = 0; i < this.numElevators; i++) {
+					if(!info.containsKey(i+1)) {
+						info.put(i+1, -1);
+					}
+				}
+				
 				this.buf.addReq(info);
 			}
 		}
 	}
 
 	public static void main(String[] args){
-//		Config config = new Config("multi.properties");
+		//Config config = new Config("multi.properties");
 		Config config = new Config("local.properties");
 		
 		ElevatorSubsystem e = new ElevatorSubsystem(config);

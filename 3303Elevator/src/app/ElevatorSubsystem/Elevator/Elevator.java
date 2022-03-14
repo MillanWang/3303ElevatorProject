@@ -43,7 +43,7 @@ public class Elevator implements Runnable {
 		this.logger = logger;
 		this.id = id;
 		this.buf = buf;
-		this.last= Direction.UP;//;AWAITING_NEXT_REQUEST;
+		this.last= Direction.UP;
 	}
 
 	public int getId() {
@@ -52,13 +52,13 @@ public class Elevator implements Runnable {
 
 	/***
 	 * For this current elevator creates instance of the elevator Info
-	 * 
+	 *
 	 * @return a new elevator info object
 	 */
 	public ElevatorInfo getInfo() {
 		return new ElevatorInfo(this.id, this.currentFloor, this.state, last);
 	}
-	
+
 	/**
 	 * delay thread while elevator is being loaded
 	 * */
@@ -73,7 +73,7 @@ public class Elevator implements Runnable {
 
 	/**
 	 * Delay thread while moving up or down
-	 * 
+	 *
 	 * @param finalDest current final elevator destination floor
 	 * */
 	public void waitTransit(int finalDest) {
@@ -180,12 +180,12 @@ public class Elevator implements Runnable {
 	private boolean checkFloor(int destinationFloor) {
 		this.log("at floor " + this.currentFloor);
 		if(this.getFloor() == destinationFloor){ //or max floor
-			
+
 			if(this.state == ElevatorStateMachine.Idle) {
 				this.setDirection(Direction.STOPPED_AT_FLOOR);
 			}
-			
-			
+
+
 			this.nextState();// stopping or opening door
 
 			if(this.getState() == ElevatorStateMachine.Stopping) {
@@ -204,26 +204,22 @@ public class Elevator implements Runnable {
 		}
 		return false;
 	}
-	
+
 	public void stop() {
 		this.exit = true;
 	}
 
 	public void run() {
-		
+
 		this.log("is online");
-		this.buf.addStatus(this.getInfo())
-		;
+		this.buf.addStatus(this.getInfo());
+
 		while(!exit) {
-			
+
 			int nextFloor = buf.getNextFloor(this.id);
-			
-			if(nextFloor < 1 || nextFloor > this.maxFloorCount) {
-				continue;
-			}
-			
-			while(!this.checkFloor(nextFloor)) {
-				
+
+			while(!this.checkFloor(nextFloor) && !(nextFloor < 1 || nextFloor > this.maxFloorCount)) {
+				this.log(" :" + this.currentFloor + " :" + nextFloor);
 				if(nextFloor > this.currentFloor) {
 					this.setDirection(Direction.UP);
 					this.last = Direction.UP;
@@ -231,11 +227,11 @@ public class Elevator implements Runnable {
 					this.setDirection(Direction.DOWN);
 					this.last = Direction.DOWN;
 				}
-				
+
 				this.waitTransit(nextFloor);
-				this.nextState();			
+				this.nextState();
 			}
-			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
+			//this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			this.buf.addStatus(this.getInfo());
 			this.last = Direction.AWAITING_NEXT_REQUEST;
 		}
