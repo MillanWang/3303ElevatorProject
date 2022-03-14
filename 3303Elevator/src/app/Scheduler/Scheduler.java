@@ -378,8 +378,8 @@ public class Scheduler implements Runnable{
 	}
 	
 	public static void main(String[] args) {
-//		Config config = new Config("multi.properties");
-		Config config = new Config("local.properties");
+		Config config = new Config("multi.properties");
+//		Config config = new Config("local.properties");
 		Scheduler scheduler = new Scheduler(new Logger(config), config);
 		(new Thread(scheduler, "Scheduler")).start();
 	}
