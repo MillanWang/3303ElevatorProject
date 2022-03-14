@@ -20,17 +20,16 @@ import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 
 public class FloorSubsystemTests {
-	
-	Logger log = new Logger(new Config("test.properties"));
-	Scheduler scheduler = new Scheduler(log, 5, true); 
-	FloorSubsystem floorSubsys = new FloorSubsystem(scheduler, log);
+	Config config = new Config("test.properties");
+	Logger log = new Logger(config);
+	Scheduler scheduler = new Scheduler(log, config); 
+	FloorSubsystem floorSubsys = new FloorSubsystem(log, config);
 	ScheduledElevatorRequest testInput; 
 	@Test
 	/**
 	 * tests the InputRequests in floorSubsystem (Checks for proper file reading, and additional getter methods to confirm the addition of the requests
 	 */
 	public void addInputRequeststest() {
-		scheduler.setFloorSubsys(floorSubsys);
 		floorSubsys.addInputRequests("src/app/FloorSubsystem/inputfile.txt");
 		assertNotEquals(0,floorSubsys.getRequests().size());
 		assertNull(floorSubsys.getRequests().get(floorSubsys.getRequests().size() - 1).getTime());
@@ -42,9 +41,9 @@ public class FloorSubsystemTests {
 	 */
 	public void addScheduleRequeststest() {
 		testInput = new ScheduledElevatorRequest(LocalTime.now(), 1 , true, 5); //LocalTime time, int startfloor, boolean Upwards, int destinationfloor
-		assertEquals(0, floorSubsys.getSchedulerRequests().size());
-		floorSubsys.addScheduleRequests(testInput);
-		assertEquals(1, floorSubsys.getSchedulerRequests().size());
+		assertEquals(0, floorSubsys.getRequests().size());
+		floorSubsys.getRequests().add(testInput);
+		assertEquals(1, floorSubsys.getRequests().size());
 	}
 	@Test 
 	/**
