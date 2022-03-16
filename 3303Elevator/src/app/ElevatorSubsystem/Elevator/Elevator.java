@@ -21,7 +21,7 @@ public class Elevator implements Runnable {
 	private ElevatorDoor door;
 	private int currentFloor, floorsMoved;
 	private boolean exit;
-	private ElevatorStateMachine state;
+	private ElevatorState state;
 	private TimeManagementSystem tms;
 	private Logger logger;
 	private ElevatorBuffer buf;
@@ -37,7 +37,7 @@ public class Elevator implements Runnable {
 		this.currentFloor = 1;
 		this.floorsMoved = 0;
 		this.exit = false;
-		this.state = ElevatorStateMachine.Idle;
+		this.state = new ElevatorState();
 		this.tms = tms;
 		this.door = new ElevatorDoor(this.tms);
 		this.logger = logger;
@@ -56,7 +56,7 @@ public class Elevator implements Runnable {
 	 * @return a new elevator info object
 	 */
 	public ElevatorInfo getInfo() {
-		return new ElevatorInfo(this.id, this.currentFloor, this.state, last);
+		return new ElevatorInfo(this.id, this.currentFloor, this.state.getState(), last);
 	}
 
 	/**
@@ -107,18 +107,18 @@ public class Elevator implements Runnable {
 	 * Get state machine for elevator
 	 * */
 	public ElevatorStateMachine getState() {
-		return state;
+		return state.getState();
 	}
 
 	/**
 	 * Update state to next state
 	 * */
 	public void nextState() {
-		state = state.nextState();
+		state.nextState();
 
-		if(state == ElevatorStateMachine.MoveUp) {
+		if(state.getState() == ElevatorStateMachine.MoveUp) {
 			currentFloor++;
-		}else if(state == ElevatorStateMachine.MoveDown) {
+		}else if(state.getState() == ElevatorStateMachine.MoveDown) {
 			currentFloor--;
 		}
 	}
@@ -128,7 +128,7 @@ public class Elevator implements Runnable {
 	 * @return if the elevator is moving
 	 */
 	public boolean isMoving() {
-		return state == ElevatorStateMachine.MoveUp || state == ElevatorStateMachine.MoveDown;
+		return state.getState() == ElevatorStateMachine.MoveUp || state.getState() == ElevatorStateMachine.MoveDown;
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class Elevator implements Runnable {
 	 * @return if the elevator is currently stationary
 	 */
 	public boolean isStationary() {
-		return state == ElevatorStateMachine.Idle || state == ElevatorStateMachine.NextStopProcessing;
+		return state.getState() == ElevatorStateMachine.Idle || state.getState() == ElevatorStateMachine.NextStopProcessing;
 	}
 
 	/**
@@ -181,7 +181,7 @@ public class Elevator implements Runnable {
 		this.log("at floor " + this.currentFloor);
 		if(this.getFloor() == destinationFloor){ //or max floor
 
-			if(this.state == ElevatorStateMachine.Idle) {
+			if(this.state.getState() == ElevatorStateMachine.Idle) {
 				this.setDirection(Direction.STOPPED_AT_FLOOR);
 			}
 

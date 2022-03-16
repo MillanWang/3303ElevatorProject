@@ -7,26 +7,19 @@
  */
 package app;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.LinkedList;
+import java.time.format.DateTimeFormatter;
 
 import app.Config.Config;
-import app.ElevatorSubsystem.Direction.Direction;
-import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.FloorSubsystem.ScheduledElevatorRequest;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import app.UDP.PacketReceiver;
 import app.UDP.Util;
 
 public class Logger extends Util{
-
-	private LocalTime dateTime; 
+ 
 	private boolean printElevatorEvents;
 	private boolean printSchedulerEvents; 
 	private boolean printFloorEvents; 
@@ -52,6 +45,11 @@ public class Logger extends Util{
 		}
 	}
 	
+	private String getDateTime() {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		return "[" + LocalDateTime.now().format(dtf) + "]";
+	}
+	
 	/**
 	 * logElevatorEvents is used to print the elevator events logged
 	 * 
@@ -59,7 +57,7 @@ public class Logger extends Util{
 	 */
 	public void logElevatorEvents(String message) {
 		if(printElevatorEvents == true) {
-			String m = "[" + dateTime.now() + "]" + message;
+			String m = getDateTime() + message;
 			System.out.println(m);
 			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
@@ -76,7 +74,7 @@ public class Logger extends Util{
 	 */
 	public void logFloorEvent(ScheduledElevatorRequest request) {
 		if(printFloorEvents == true) {
-			String m = (dateTime.now()+ " floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor());
+			String m = getDateTime()+ "[Floor Num " +  request.getStartFloor() + "] logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor();
 			System.out.println(m);
 			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
@@ -93,7 +91,7 @@ public class Logger extends Util{
 	 */
 	public void logSchedulerEvent(String schedulerLogString) {
 		if(printSchedulerEvents == true) {
-			String m = (dateTime.now()+ " " + schedulerLogString);
+			String m = getDateTime() + " " + schedulerLogString;
 			System.out.println(m);
 			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
@@ -109,7 +107,7 @@ public class Logger extends Util{
 	 */
 	public void logTimeManagementSystemEvent(String timeManagementLogString) {
 		if(printTimeManagementSystemEvent == true) {
-			String m = (dateTime.now() + " " + timeManagementLogString);
+			String m = getDateTime() + " " + timeManagementLogString;
 			System.out.println(m);
 			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);

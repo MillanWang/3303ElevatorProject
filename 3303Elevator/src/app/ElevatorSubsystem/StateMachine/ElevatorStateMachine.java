@@ -16,20 +16,19 @@ public enum ElevatorStateMachine {
 	 * */
 	Idle {
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			ElevatorStateMachine state; 
 
-			if(this.getDirection() == Direction.UP) {
+			if(d == Direction.UP) {
 				state = MoveUp;
-			}else if(this.getDirection() == Direction.DOWN) {
+			}else if(d == Direction.DOWN) {
 				state = MoveDown;
-			}else if(this.getDirection() == Direction.STOPPED_AT_FLOOR){
+			}else if(d == Direction.STOPPED_AT_FLOOR){
 				state = DoorOpening;
 			}else {
 				state = Idle;
 			}
 			
-			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -43,14 +42,14 @@ public enum ElevatorStateMachine {
 	 * */
 	MoveUp{
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			ElevatorStateMachine state = Stopping;
 			
-			if(this.getDirection() == Direction.UP) {
+			if(d == Direction.UP) {
 				state = MoveUp;
 			}
 			
-			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
+			
 			return state;
 		}
 		
@@ -64,14 +63,14 @@ public enum ElevatorStateMachine {
 	 * */
 	MoveDown{
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			ElevatorStateMachine state = Stopping;
 			
-			if(this.getDirection() == Direction.DOWN) {
+			if(d == Direction.DOWN) {
 				state = MoveDown;
 			}
 			
-			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
+
 			return state;
 		}
 		
@@ -85,7 +84,7 @@ public enum ElevatorStateMachine {
 	 * */
 	Stopping{
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			return DoorOpening;
 		}
 		
@@ -99,7 +98,7 @@ public enum ElevatorStateMachine {
 	 * */
 	DoorOpening{
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			return OpenDoor;
 		}
 		
@@ -113,7 +112,7 @@ public enum ElevatorStateMachine {
 	 * */
 	OpenDoor{
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			return DoorClosing;
 		}
 		
@@ -127,15 +126,14 @@ public enum ElevatorStateMachine {
 	 * */
 	DoorClosing{
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			ElevatorStateMachine state; 
-			if(this.getDirection() == Direction.STOPPED_AT_FLOOR) {
+			if(d == Direction.STOPPED_AT_FLOOR) {
 				state = DoorOpening; 
 			}else {
 				state = NextStopProcessing;
 			}
 			
-			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -149,18 +147,17 @@ public enum ElevatorStateMachine {
 	 * */
 	NextStopProcessing{
 		@Override
-		public ElevatorStateMachine nextState() {
+		public ElevatorStateMachine nextState(Direction d) {
 			ElevatorStateMachine state;
 			
-			if(this.getDirection()== Direction.UP) {
+			if(d == Direction.UP) {
 				state = MoveUp;
-			}else if(this.getDirection() == Direction.DOWN) {
+			}else if(d == Direction.DOWN) {
 				state = MoveDown;
 			}else {
 				state = Idle;
 			}
 			
-			this.setDirection(Direction.AWAITING_NEXT_REQUEST);
 			return state;
 		}
 		
@@ -170,15 +167,7 @@ public enum ElevatorStateMachine {
 		}
 	};
 
-	public abstract ElevatorStateMachine nextState();
+	public abstract ElevatorStateMachine nextState(Direction d);
 	public abstract String toString();
-	
-	private Direction direction = Direction.AWAITING_NEXT_REQUEST;
-	public Direction getDirection() {
-		return direction;
-	}
-	
-	public void setDirection(Direction d) {
-		direction = d;
-	}
+
 }
