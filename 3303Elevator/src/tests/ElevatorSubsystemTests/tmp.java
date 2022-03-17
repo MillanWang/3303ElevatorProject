@@ -1,4 +1,4 @@
-package app;
+package tests.ElevatorSubsystemTests;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
