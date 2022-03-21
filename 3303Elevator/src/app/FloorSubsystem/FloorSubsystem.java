@@ -16,7 +16,7 @@ import java.util.*;
 
 import javax.swing.JFileChooser;
 
-import FloorSubsystemThreads.SchedulerPacketReceiver;
+import app.FloorSubsystem.FloorSubsystemThreads.SchedulerPacketReceiver;
 import app.Logger;
 import app.Config.Config;
 import app.ElevatorSubsystem.ElevatorSubsystem;

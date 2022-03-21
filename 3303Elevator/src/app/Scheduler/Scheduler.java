@@ -158,29 +158,30 @@ public class Scheduler implements Runnable{
 	 * @return The ID of the most suitable elevator for this request
 	 */
 	private synchronized int getBestElevatorId(int startFloor, boolean isUpwards) {
-		if (isUpwards) {
-			//Upwards. First check if there are any upwards or parked elevators under us
-			if (this.findClosestElevatorBelowWithState(startFloor, Direction.UP)!=-1) {
-				return this.findClosestElevatorBelowWithState(startFloor, Direction.UP);
-			} else if (this.findClosestElevatorBelowWithState(startFloor, Direction.AWAITING_NEXT_REQUEST)!=-1) {
-				return this.findClosestElevatorBelowWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
-			} else {
-				//No upwards or parked elevators below start floor. Randomly select one
-				Collections.shuffle(this.allElevatorInfo);
-				return this.allElevatorInfo.get(0).getId();
-			}
-		} else {
-			//Downwards. First check if there are any downwards or packed elevators above us
-			if (this.findClosestElevatorAboveWithState(startFloor, Direction.DOWN)!=-1) {
-				return this.findClosestElevatorAboveWithState(startFloor, Direction.DOWN);
-			} else if (this.findClosestElevatorAboveWithState(startFloor, Direction.AWAITING_NEXT_REQUEST)!=-1) {
-				return this.findClosestElevatorAboveWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
-			} else {
-				//No downwards or parked elevators above start floor. Randomly select one
-				Collections.shuffle(this.allElevatorInfo);
-				return this.allElevatorInfo.get(0).getId();
-			}
-		}
+		return 0;
+//		if (isUpwards) {
+//			//Upwards. First check if there are any upwards or parked elevators under us
+//			if (this.findClosestElevatorBelowWithState(startFloor, Direction.UP)!=-1) {
+//				return this.findClosestElevatorBelowWithState(startFloor, Direction.UP);
+//			} else if (this.findClosestElevatorBelowWithState(startFloor, Direction.AWAITING_NEXT_REQUEST)!=-1) {
+//				return this.findClosestElevatorBelowWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
+//			} else {
+//				//No upwards or parked elevators below start floor. Randomly select one
+//				Collections.shuffle(this.allElevatorInfo);
+//				return this.allElevatorInfo.get(0).getId();
+//			}
+//		} else {
+//			//Downwards. First check if there are any downwards or packed elevators above us
+//			if (this.findClosestElevatorAboveWithState(startFloor, Direction.DOWN)!=-1) {
+//				return this.findClosestElevatorAboveWithState(startFloor, Direction.DOWN);
+//			} else if (this.findClosestElevatorAboveWithState(startFloor, Direction.AWAITING_NEXT_REQUEST)!=-1) {
+//				return this.findClosestElevatorAboveWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
+//			} else {
+//				//No downwards or parked elevators above start floor. Randomly select one
+//				Collections.shuffle(this.allElevatorInfo);
+//				return this.allElevatorInfo.get(0).getId();
+//			}
+//		}
 	}
 	
 	/**
@@ -189,32 +190,32 @@ public class Scheduler implements Runnable{
 	 * @param eState the state to look for
 	 * @return The ID of the closest elevator below the start floor with the given state. -1 if there is none
 	 */
-	private synchronized int findClosestElevatorBelowWithState(int floor, Direction direction) {
-		if (direction==null) return -1;
-		
-		LinkedList<Integer[]> belowElevators = new LinkedList<Integer[]>();
-		//Identify elevators below
-		for (ElevatorInfo eInfo : this.allElevatorInfo) {
-			
-			if (eInfo.getFloor()<=floor && eInfo.getMostRecentDirection().equals(direction)) {
-				belowElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
-			}
-		}
-		
-		//None found
-		if (belowElevators.isEmpty()) return -1;
-		
-		//Identify the closest one. Largest in this case
-		int[] currentMax = new int[] {belowElevators.get(0)[0], belowElevators.get(0)[1]};
-		for (Integer[] arr : belowElevators) {
-			if (arr[1]>currentMax[1]) {
-				currentMax[0] = arr[0];
-				currentMax[1] = arr[1];
-			}
-		}
-		
-		return currentMax[0];
-	}
+//	private synchronized int findClosestElevatorBelowWithState(int floor, Direction direction) {
+//		if (direction==null) return -1;
+//		
+//		LinkedList<Integer[]> belowElevators = new LinkedList<Integer[]>();
+//		//Identify elevators below
+//		for (ElevatorInfo eInfo : this.allElevatorInfo) {
+//			
+//			if (eInfo.getFloor()<=floor && eInfo.getMostRecentDirection().equals(direction)) {
+//				belowElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
+//			}
+//		}
+//		
+//		//None found
+//		if (belowElevators.isEmpty()) return -1;
+//		
+//		//Identify the closest one. Largest in this case
+//		int[] currentMax = new int[] {belowElevators.get(0)[0], belowElevators.get(0)[1]};
+//		for (Integer[] arr : belowElevators) {
+//			if (arr[1]>currentMax[1]) {
+//				currentMax[0] = arr[0];
+//				currentMax[1] = arr[1];
+//			}
+//		}
+//		
+//		return currentMax[0];
+//	}
 	
 	/**
 	 * Finds the closest elevator above the start floor with the given state
@@ -222,47 +223,47 @@ public class Scheduler implements Runnable{
 	 * @param eState the state to look for
 	 * @return The ID of the closest elevator above the start floor with the given state. -1 if there is none
 	 */
-	private synchronized int findClosestElevatorAboveWithState(int floor, Direction direction) {
-		if (direction==null) return -1;
-		LinkedList<Integer[]> aboveElevators = new LinkedList<Integer[]>();
-		//Identify above elevators 
-		for (ElevatorInfo eInfo : this.allElevatorInfo) {
-			if (eInfo.getFloor()>=floor && eInfo.getMostRecentDirection().equals(direction)) { 
-				aboveElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
-			}
-		}
-		
-		//None found
-		if (aboveElevators.isEmpty()) return -1;
-		
-		//Identify the closest one. Smallest in this case
-		int[] currentMin = new int[] {aboveElevators.get(0)[0], aboveElevators.get(0)[1]};
-		for (Integer[] arr : aboveElevators) {
-			if (arr[1]<currentMin[1]) {
-				currentMin[0] = arr[0];
-				currentMin[1] = arr[1];
-			}
-		}
-		
-		return currentMin[0];
-	}
+//	private synchronized int findClosestElevatorAboveWithState(int floor, Direction direction) {
+//		if (direction==null) return -1;
+//		LinkedList<Integer[]> aboveElevators = new LinkedList<Integer[]>();
+//		//Identify above elevators 
+//		for (ElevatorInfo eInfo : this.allElevatorInfo) {
+//			if (eInfo.getFloor()>=floor && eInfo.getMostRecentDirection().equals(direction)) { 
+//				aboveElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
+//			}
+//		}
+//		
+//		//None found
+//		if (aboveElevators.isEmpty()) return -1;
+//		
+//		//Identify the closest one. Smallest in this case
+//		int[] currentMin = new int[] {aboveElevators.get(0)[0], aboveElevators.get(0)[1]};
+//		for (Integer[] arr : aboveElevators) {
+//			if (arr[1]<currentMin[1]) {
+//				currentMin[0] = arr[0];
+//				currentMin[1] = arr[1];
+//			}
+//		}
+//		
+//		return currentMin[0];
+//	}
 	
 	/**
 	 * Sets the allElevatorInfo 
 	 * @param allElevatorInfo the new allElevatorInfo list
 	 */
 	public synchronized void setAllElevatorInfo(LinkedList<ElevatorInfo> allElevatorInfo) {
-		//On first request, populate the list of ElevatorSpecific floors to visit
-		if (this.allElevatorsAllFloorsToVisit.isEmpty()) {
-			for (ElevatorInfo e : allElevatorInfo) {
-				this.allElevatorsAllFloorsToVisit.add(new ElevatorSpecificFloorsToVisit(e.getId()));
-			}
-		}
-		
-		this.allElevatorInfo = allElevatorInfo;
-		//TODO Figure out how to deal with thsiSENDS BEFORE THE FLOOR IS ONLINE
-		//this.sendUpdateToFloorSubsystem();
-		notifyAll();
+//		//On first request, populate the list of ElevatorSpecific floors to visit
+//		if (this.allElevatorsAllFloorsToVisit.isEmpty()) {
+//			for (ElevatorInfo e : allElevatorInfo) {
+//				this.allElevatorsAllFloorsToVisit.add(new ElevatorSpecificFloorsToVisit(e.getId()));
+//			}
+//		}
+//		
+//		this.allElevatorInfo = allElevatorInfo;
+//		//TODO Figure out how to deal with thsiSENDS BEFORE THE FLOOR IS ONLINE
+//		//this.sendUpdateToFloorSubsystem();
+//		notifyAll();
 	}
 	
 	/**
@@ -327,7 +328,7 @@ public class Scheduler implements Runnable{
 	 */
 	private synchronized boolean areThereUnvisitedFloors() {
 		for (ElevatorSpecificFloorsToVisit esftv : this.allElevatorsAllFloorsToVisit) {
-			if (esftv.getActiveRequestCount()>0) {
+			if (esftv.getActiveNumberOfStopsCount()>0) {
 				return true;
 			}
 		}

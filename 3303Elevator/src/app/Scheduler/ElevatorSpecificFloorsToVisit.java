@@ -1,7 +1,9 @@
 package app.Scheduler;
 
+import java.util.LinkedList;
 import java.util.TreeSet;
 
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 
 /**
@@ -10,6 +12,15 @@ import app.ElevatorSubsystem.Direction.Direction;
  *
  */
 public class ElevatorSpecificFloorsToVisit {
+	
+	public enum ElevatorSpecificSchedulingState{
+		AWAITING_NEXT_REQUEST,
+		SERVICING_DOWNWARDS_FLOORS_TO_VISIT,
+		SERVICING_UPWARDS_FLOORS_TO_VISIT,
+		MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT,
+		MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT,
+		OUT_OF_SERVICE
+	}
 	
 	/**
 	 * The ID of the elevator to receive the floorsToVisit set
@@ -23,6 +34,14 @@ public class ElevatorSpecificFloorsToVisit {
 	private TreeSet<Integer> downwardsFloorsToVisit;
 	
 	/**
+	 * Directional lists of sets of destinations to visit once arriving at the floor
+	 */
+	private LinkedList<TreeSet<Integer>> upwardsDestinationsPerFloor;
+	private LinkedList<TreeSet<Integer>> downwardsDestinationsPerFloor;
+	
+	private ElevatorSpecificSchedulingState currentState;
+	
+	/**
 	 * Constructor for the ElevatorSpecificFloorsToVisit class
 	 * @param floorsToVisit
 	 * @param elevatorID
@@ -31,6 +50,17 @@ public class ElevatorSpecificFloorsToVisit {
 		this.elevatorID = elevatorID;
 		this.upwardsFloorsToVisit = new TreeSet<Integer>();
 		this.downwardsFloorsToVisit = new TreeSet<Integer>();
+		this.currentState = ElevatorSpecificSchedulingState.AWAITING_NEXT_REQUEST;
+		
+		int highestFloorNumber= (new Config("local.properties")).getInt("floor.highestFloorNumber"); ; 
+		//Directional destinations per floor
+		this.upwardsDestinationsPerFloor= new LinkedList<TreeSet<Integer>>();
+		this.downwardsDestinationsPerFloor = new LinkedList<TreeSet<Integer>>();
+		//Populate them with TreeSets
+		for (int i = 0; i<highestFloorNumber ; i++) {
+			this.upwardsDestinationsPerFloor.add(new TreeSet<Integer>());
+			this.downwardsDestinationsPerFloor.add(new TreeSet<Integer>());
+		}
 	}
 	
 	/**
@@ -42,11 +72,50 @@ public class ElevatorSpecificFloorsToVisit {
 	}
 
 	/**
-	 * Returns the number of active requests on the current elevator
-	 * @return the number of active requests on the current elevator
+	 * @return the currentState of the current elevator scheduler
 	 */
-	public int getActiveRequestCount() {
-		return this.downwardsFloorsToVisit.size() + this.upwardsFloorsToVisit.size();
+	public ElevatorSpecificSchedulingState getElevatorSpecificCurrentState() {
+		return currentState;
+	}
+
+	/**
+	 * Returns the number of active number of remaining stops on the current elevator
+	 * @return the number of active number of remaining stops on the current elevator
+	 */
+	public int getActiveNumberOfStopsCount() {
+		TreeSet<Integer> upDestinationsSet = new TreeSet<Integer>();
+		TreeSet<Integer> downDestinationsSet = new TreeSet<Integer>();
+		for (TreeSet<Integer> dests : this.downwardsDestinationsPerFloor) {
+			downDestinationsSet.addAll(dests);
+		}
+		for (TreeSet<Integer> dests : this.upwardsDestinationsPerFloor) {
+			upDestinationsSet.addAll(dests);
+		}
+		
+		upDestinationsSet.addAll(this.upwardsFloorsToVisit);
+		downDestinationsSet.addAll(this.downwardsFloorsToVisit);
+		
+		return upDestinationsSet.size() + downDestinationsSet.size();
+	}
+	
+	/**
+	 * Adds a request to the current elevator
+	 * @param startFloor starting floor of the request
+	 * @param destinationFloor destination floor of the request
+	 */
+	public void addRequest(int startFloor, int destinationFloor) {
+		boolean isUpwards = startFloor < destinationFloor;
+		
+		//Add elevator request to corresponding directionalToVisitSet if it isn't already queued
+		if (isUpwards) {
+			this.upwardsFloorsToVisit.add(startFloor);
+			//Destination will only be known & added to floorsToVisitList once we arrive at the start floor
+			this.upwardsDestinationsPerFloor.get(startFloor-1).add(destinationFloor);
+		} else if (!isUpwards ) {
+			this.downwardsFloorsToVisit.add(startFloor);
+			//Destination will only be known & added to floorsToVisitList once we arrive at the start floor
+			this.downwardsDestinationsPerFloor.get(startFloor-1).add(destinationFloor);
+		}
 	}
 	
 	/**
@@ -58,6 +127,9 @@ public class ElevatorSpecificFloorsToVisit {
 	}
 
 	/**
+	 * 
+	 * DEPRECATED???
+	 * 
 	 * Adds a floor to the upwards floors to visit 
 	 * @param floor to visit
 	 */
@@ -70,6 +142,8 @@ public class ElevatorSpecificFloorsToVisit {
 	 */
 	public void upwardsFloorIsVisited(Integer floor) {
 		this.upwardsFloorsToVisit.remove(floor);
+		this.upwardsFloorsToVisit.addAll(this.upwardsDestinationsPerFloor.get(floor-1));
+		this.upwardsDestinationsPerFloor.get(floor-1).clear();
 	}
 	
 	/**
@@ -81,6 +155,9 @@ public class ElevatorSpecificFloorsToVisit {
 	}
 	
 	/**
+	 * DEPRECATED???
+	 * 
+	 * 
 	 * Adds a floor to the downwards floors to visit 
 	 * @param floor to visit
 	 */
@@ -94,6 +171,8 @@ public class ElevatorSpecificFloorsToVisit {
 	 */
 	public void downwardsFloorIsVisited(Integer floor) {
 		this.downwardsFloorsToVisit.remove(floor);
+		this.downwardsFloorsToVisit.addAll(this.downwardsDestinationsPerFloor.get(floor-1));
+		this.downwardsDestinationsPerFloor.get(floor-1).clear();
 	}
 
 	/**
@@ -104,16 +183,24 @@ public class ElevatorSpecificFloorsToVisit {
 	 */
 	public Integer getNextFloorToVisit(int elevatorCurrentFloor, Direction direction) {
 		//Return negative 1 to indicate that there is no next floor to visit
-		if (this.upwardsFloorsToVisit.isEmpty() && this.downwardsFloorsToVisit.isEmpty()) return -1;
+		if (this.upwardsFloorsToVisit.isEmpty() && this.downwardsFloorsToVisit.isEmpty()) {
+			this.currentState = ElevatorSpecificSchedulingState.AWAITING_NEXT_REQUEST;
+			return -1;
+		}
 		
 		if(direction==Direction.DOWN) {
 			if(this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor,false).isEmpty()) {
 				//No more downwards floors to visit. Go to the lowest/first upwards
 				//If the lowest up floor is lower than the current, we will go down to it.
 					//Elevator will know to switch to upwards when nextFloor>currentFloor
-				return this.upwardsFloorsToVisit.first();
+				Integer nextFloor = this.upwardsFloorsToVisit.first();
+				this.currentState = nextFloor<elevatorCurrentFloor ? 
+												ElevatorSpecificSchedulingState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT : 
+												ElevatorSpecificSchedulingState.SERVICING_UPWARDS_FLOORS_TO_VISIT;
+				return nextFloor;
 			} else {
 				//There are more downwards floors to visit below the current. Return closest/highest/last one
+				this.currentState = ElevatorSpecificSchedulingState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT;
 				return this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor,false).last();
 			}
 			
@@ -123,21 +210,34 @@ public class ElevatorSpecificFloorsToVisit {
 				//No more upwards floors to visit. Go to Highest/last downwards floor
 				//If the highest floor is above the current, we will keep going up to it
 					//Elevator will know to switch to down when we have nextFloor<currentFloor
-				return this.downwardsFloorsToVisit.last();
+				Integer nextFloor = this.downwardsFloorsToVisit.last();
+				this.currentState = nextFloor>elevatorCurrentFloor ? 
+												ElevatorSpecificSchedulingState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT : 
+												ElevatorSpecificSchedulingState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT;
+				return nextFloor;
 			} else {
 				//There are more upwards floors to visit above the current. Return the closest/lowest/first one
-				return this.downwardsFloorsToVisit.tailSet(elevatorCurrentFloor, false).first();
+				this.currentState = ElevatorSpecificSchedulingState.SERVICING_UPWARDS_FLOORS_TO_VISIT;
+				return this.upwardsFloorsToVisit.tailSet(elevatorCurrentFloor, false).first();
 			}
 
 			
 		} else {
 			//If the direction is not specified to be up or down, return the closest floor to visit
-			if (this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor,false).last() > this.upwardsFloorsToVisit.tailSet(elevatorCurrentFloor, false).first()) {
+			if (this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor,false).last() > this.upwardsFloorsToVisit.tailSet(elevatorCurrentFloor, false).first()) { //TODO : Review how this checks for closest
 				//Closest downwards is closer than closest upwards
-				return this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor,false).last();
+				Integer nextFloor = this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor,false).last();
+				this.currentState = nextFloor<elevatorCurrentFloor ? 
+						ElevatorSpecificSchedulingState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT : 
+						ElevatorSpecificSchedulingState.SERVICING_UPWARDS_FLOORS_TO_VISIT;
+				return nextFloor;
 			} else {
 				//Closest upwards is closer than closet downwards
-				return this.upwardsFloorsToVisit.tailSet(elevatorCurrentFloor, false).first();
+				Integer nextFloor =  this.upwardsFloorsToVisit.tailSet(elevatorCurrentFloor, false).first();
+				this.currentState = nextFloor>elevatorCurrentFloor ? 
+						ElevatorSpecificSchedulingState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT : 
+						ElevatorSpecificSchedulingState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT;
+				return nextFloor;
 			}
 		}
 	}
