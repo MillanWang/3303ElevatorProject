@@ -1,4 +1,4 @@
-package FloorSubsystemThreads;
+package app.FloorSubsystem.FloorSubsystemThreads;
 
 import app.UDP.PacketReceiver;
 import app.UDP.Util;
