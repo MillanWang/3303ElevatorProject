@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-import app.Scheduler.ElevatorSpecificFloorsToVisit;
+import app.Scheduler.ElevatorSpecificScheduler;
 import app.Scheduler.Scheduler;
 import app.UDP.PacketReceiver;
 import app.UDP.Util;

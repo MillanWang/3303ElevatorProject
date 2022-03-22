@@ -7,13 +7,13 @@ import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 
 public class AllElevatorsSchedulingManager {
-	private LinkedList<ElevatorSpecificFloorsToVisit> allElevatorsAllFloorsToVisit;
+	private LinkedList<ElevatorSpecificScheduler> allElevatorsAllFloorsToVisit;
 	private LinkedList<ElevatorInfo> allElevatorInfo;
 	
 	
 	
 	public AllElevatorsSchedulingManager () {
-		this.allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificFloorsToVisit>();
+		this.allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificScheduler>();
 	}
 
 	
@@ -26,7 +26,7 @@ public class AllElevatorsSchedulingManager {
 		//On first request, populate the list of ElevatorSpecific floors to visit
 		if (this.allElevatorsAllFloorsToVisit.isEmpty()) {
 			for (ElevatorInfo e : allElevatorInfo) {
-				this.allElevatorsAllFloorsToVisit.add(new ElevatorSpecificFloorsToVisit(e.getId()));
+				this.allElevatorsAllFloorsToVisit.add(new ElevatorSpecificScheduler(e.getId()));
 			}
 		}
 		
@@ -136,8 +136,8 @@ public class AllElevatorsSchedulingManager {
 	 * @param elevatorID the ID of the elevator
 	 * @return the ElevatorSpecificFloorsToVisit object corresponding to that ID
 	 */
-	private synchronized ElevatorSpecificFloorsToVisit getElevatorSpecificFloorsToVisit(int elevatorID) {
-		for (ElevatorSpecificFloorsToVisit esftv : this.allElevatorsAllFloorsToVisit) {
+	private synchronized ElevatorSpecificScheduler getElevatorSpecificFloorsToVisit(int elevatorID) {
+		for (ElevatorSpecificScheduler esftv : this.allElevatorsAllFloorsToVisit) {
 			if (esftv.getElevatorID()==elevatorID) {
 				return esftv;
 			}
