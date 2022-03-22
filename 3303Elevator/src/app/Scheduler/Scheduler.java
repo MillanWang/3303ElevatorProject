@@ -32,7 +32,7 @@ import app.UDP.Util;
  */
 public class Scheduler implements Runnable{
 	
-	private LinkedList<ElevatorSpecificFloorsToVisit> allElevatorsAllFloorsToVisit;
+	private LinkedList<ElevatorSpecificScheduler> allElevatorsAllFloorsToVisit;
 	private LinkedList<TreeSet<Integer>> upwardsDestinationsPerFloor;
 	private LinkedList<TreeSet<Integer>> downwardsDestinationsPerFloor;
 	private LinkedList<ElevatorInfo> allElevatorInfo;
@@ -79,7 +79,7 @@ public class Scheduler implements Runnable{
 			this.downwardsDestinationsPerFloor.add(new TreeSet<Integer>());
 		}
 		
-		this.allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificFloorsToVisit>();
+		this.allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificScheduler>();
 	}
 	
 	
@@ -136,7 +136,7 @@ public class Scheduler implements Runnable{
 			//Find the best elevator to handle this request, then put the start floor on it's up list
 			int bestElevatorID = getBestElevatorId(startFloor,isUpwards);
 			this.logger.logSchedulerEvent("Elevator "+bestElevatorID+" has been scheduled go up to floor "+destinationFloor);
-			this.getElevatorSpecificFloorsToVisit(bestElevatorID).addUpwardsFloorToVisit(startFloor);
+//			this.getElevatorSpecificFloorsToVisit(bestElevatorID).addUpwardsFloorToVisit(startFloor); //TODO : Update with all elevators stuff
 			
 			
 			
@@ -146,7 +146,7 @@ public class Scheduler implements Runnable{
 			//Find the best elevator to handle this request, then put the start floor on it's down list
 			int bestElevatorID = getBestElevatorId(startFloor,isUpwards);
 			this.logger.logSchedulerEvent("Elevator "+bestElevatorID+" has been scheduled go down to floor "+destinationFloor);
-			this.getElevatorSpecificFloorsToVisit(bestElevatorID).addDownwardsFloorToVisit(startFloor);
+//			this.getElevatorSpecificFloorsToVisit(bestElevatorID).addDownwardsFloorToVisit(startFloor); //TODO : Update with all elevators stuff
 		}
 		notifyAll();
 	}
@@ -292,20 +292,20 @@ public class Scheduler implements Runnable{
 
 				if (eInfo.getMostRecentDirection()==Direction.UP) {
 					//Previous elevator direction upwards
-					this.getElevatorSpecificFloorsToVisit(eInfo.getId()).upwardsFloorIsVisited(eInfo.getFloor());
+//					this.getElevatorSpecificFloorsToVisit(eInfo.getId()).upwardsFloorIsVisited(eInfo.getFloor()); //TODO : Update with all elevators stuff
 					//Add upwards destinations of this floor to the current elevator
 					for (Integer i : this.upwardsDestinationsPerFloor.get(eInfo.getFloor()-1)) {
-						this.getElevatorSpecificFloorsToVisit(eInfo.getId()).addUpwardsFloorToVisit(i);	
+//						this.getElevatorSpecificFloorsToVisit(eInfo.getId()).addUpwardsFloorToVisit(i);	 //TODO : Update with all elevators stuff
 					}
 					this.upwardsDestinationsPerFloor.get(eInfo.getFloor()-1).clear();
 
 					
 				} else {
 					//Previous elevator direction downwards
-					this.getElevatorSpecificFloorsToVisit(eInfo.getId()).downwardsFloorIsVisited(eInfo.getFloor());
+//					this.getElevatorSpecificFloorsToVisit(eInfo.getId()).downwardsFloorIsVisited(eInfo.getFloor());//TODO : Update with all elevators stuff
 					//Add the downwards destinations of this floor to the current elevator
 					for (Integer i : this.downwardsDestinationsPerFloor.get(eInfo.getFloor()-1)) {
-						this.getElevatorSpecificFloorsToVisit(eInfo.getId()).addDownwardsFloorToVisit(i);	
+//						this.getElevatorSpecificFloorsToVisit(eInfo.getId()).addDownwardsFloorToVisit(i);	 //TODO : Update with all elevators stuff
 					}
 					this.downwardsDestinationsPerFloor.get(eInfo.getFloor()-1).clear();
 				}
@@ -315,7 +315,8 @@ public class Scheduler implements Runnable{
 		//Create elevatorID:NextFloorToVisit hashMap
 		HashMap<Integer,Integer> elevatorID_NextFloorToVisit = new HashMap<Integer,Integer>();
 		for (ElevatorInfo eInfo : this.allElevatorInfo) {
-			elevatorID_NextFloorToVisit.put(eInfo.getId(), this.getElevatorSpecificFloorsToVisit(eInfo.getId()).getNextFloorToVisit(eInfo.getFloor(), eInfo.getMostRecentDirection()));
+			//TODO : Update with all elevators stuff
+//			elevatorID_NextFloorToVisit.put(eInfo.getId(), this.getElevatorSpecificFloorsToVisit(eInfo.getId()).getNextFloorToVisit(eInfo.getFloor(), eInfo.getMostRecentDirection()));
 		}
 
 
@@ -327,7 +328,7 @@ public class Scheduler implements Runnable{
 	 * @return
 	 */
 	private synchronized boolean areThereUnvisitedFloors() {
-		for (ElevatorSpecificFloorsToVisit esftv : this.allElevatorsAllFloorsToVisit) {
+		for (ElevatorSpecificScheduler esftv : this.allElevatorsAllFloorsToVisit) {
 			if (esftv.getActiveNumberOfStopsCount()>0) {
 				return true;
 			}
@@ -340,8 +341,8 @@ public class Scheduler implements Runnable{
 	 * @param elevatorID the ID of the elevator
 	 * @return the ElevatorSpecificFloorsToVisit object corresponding to that ID
 	 */
-	private synchronized ElevatorSpecificFloorsToVisit getElevatorSpecificFloorsToVisit(int elevatorID) {
-		for (ElevatorSpecificFloorsToVisit esftv : this.allElevatorsAllFloorsToVisit) {
+	private synchronized ElevatorSpecificScheduler getElevatorSpecificFloorsToVisit(int elevatorID) {
+		for (ElevatorSpecificScheduler esftv : this.allElevatorsAllFloorsToVisit) {
 			if (esftv.getElevatorID()==elevatorID) {
 				return esftv;
 			}

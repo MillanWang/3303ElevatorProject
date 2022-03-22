@@ -11,7 +11,7 @@ import java.util.LinkedList;
 
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.FloorSubsystem.*;
-import app.Scheduler.ElevatorSpecificFloorsToVisit;
+import app.Scheduler.ElevatorSpecificScheduler;
 
 public class SchedulerPacketReceiver extends PacketReceiver {
 	
