@@ -1,18 +1,19 @@
 package app.Scheduler;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 
-public class AllElevatorsSchedulingManager {
+public class ElevatorSpecificSchedulerManager {
 	private LinkedList<ElevatorSpecificScheduler> allElevatorsAllFloorsToVisit;
 	private LinkedList<ElevatorInfo> allElevatorInfo;
 	
 	
 	
-	public AllElevatorsSchedulingManager () {
+	public ElevatorSpecificSchedulerManager () {
 		this.allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificScheduler>();
 	}
 
@@ -40,7 +41,7 @@ public class AllElevatorsSchedulingManager {
 	 * @param isUpwards if the request is upwards
 	 * @return The ID of the most suitable elevator for this request
 	 */
-	private synchronized int getBestElevatorId(int startFloor, boolean isUpwards) {
+	private synchronized int getBestElevatorId(int startFloor, boolean isUpwards) { //TODO : Feature flag to determine if we shall use easy or hard algorithm
 		if (isUpwards) {
 			//Upwards. First check if there are any upwards or parked elevators under us
 			if (this.findClosestElevatorBelowWithState(startFloor, Direction.UP)!=-1) {
