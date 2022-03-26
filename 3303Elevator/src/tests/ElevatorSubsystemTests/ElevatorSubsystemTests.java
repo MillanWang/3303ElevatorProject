@@ -18,15 +18,12 @@ import app.UDP.Util;
 
 public class ElevatorSubsystemTests {
 	
-	private LinkedList<ElevatorInfo> res1, res2;
-	private HashMap<Integer, Integer> testCase;
-	
-	@Before 
-	public void setUp() {
+	@Test
+	public void testSingleElevator() {
 		Config config = new Config("test.properties");
 		Thread s, e;
 		
-		testCase = new HashMap<>();
+		HashMap<Integer, Integer>testCase = new HashMap<>();
 		testCase.put(1, 5);
 		FakeScheduler f = new FakeScheduler(config, testCase);
 		ElevatorSubsystem eSub = new ElevatorSubsystem(config);
@@ -39,16 +36,43 @@ public class ElevatorSubsystemTests {
 		
 		try {
 			e.join();
+			s.join();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		res1 = f.getFirst();
-		res2 = f.getSecond();
+		
+		LinkedList<ElevatorInfo> res2 = f.getSecond();
+		assertTrue(checkIfSame(config.getInt("elevator.total.number"), res2, testCase));
 	}
 	
 	@Test
-	public void test() {
+	public void testMultiElevator() {
 		Config config = new Config("test.properties");
+		Thread s, e;
+		
+		HashMap<Integer, Integer>testCase = new HashMap<>();
+		//{1=4, 2=7, 3=3, 4=5}
+		testCase.put(1, 4);
+		testCase.put(2, 7);
+		testCase.put(3, 3);
+		testCase.put(4, 5);
+		FakeScheduler f = new FakeScheduler(config, testCase);
+		ElevatorSubsystem eSub = new ElevatorSubsystem(config);
+		
+		s = new Thread(f,"Scheduler");
+		e = new Thread(eSub);
+		s.start();
+		
+		e.start();
+		
+		try {
+			e.join();
+			s.join();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
+		LinkedList<ElevatorInfo> res2 = f.getSecond();
 		assertTrue(checkIfSame(config.getInt("elevator.total.number"), res2, testCase));
 	}
 	
@@ -138,6 +162,7 @@ class FakeScheduler implements Runnable {
 			data = Util.serialize(request);
 			packet = new DatagramPacket(data, data.length,packet.getAddress(), packet.getPort());
 			socket.send(packet);
+			socket.close();
 		}catch(IOException e){
 			e.printStackTrace();
 		}catch(ClassNotFoundException e) {
