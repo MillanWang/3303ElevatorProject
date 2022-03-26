@@ -20,9 +20,9 @@ import app.FloorSubsystem.ScheduledElevatorRequest;
 import app.Scheduler.Scheduler;
 
 public class ScheduledElevatorRequestTest {
-	ScheduledElevatorRequest req = new ScheduledElevatorRequest(LocalTime.now(), 1 , true, 5);
-	ScheduledElevatorRequest reqTwo = new ScheduledElevatorRequest(LocalTime.now(), 6, false, 2);
-	ScheduledElevatorRequest reqThree = new ScheduledElevatorRequest(null, 2, true, 4); 
+	ScheduledElevatorRequest req = new ScheduledElevatorRequest(LocalTime.now(), 1 , true, 5,0);
+	ScheduledElevatorRequest reqTwo = new ScheduledElevatorRequest(LocalTime.now(), 6, false, 2, 1);
+	ScheduledElevatorRequest reqThree = new ScheduledElevatorRequest(null, 2, true, 4, 2); 
 	
 	@Test
 	/*
