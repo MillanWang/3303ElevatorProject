@@ -48,6 +48,7 @@ public class TextFileReader {
 		LocalTime time;
 		Integer source;
 		Integer destination;
+		Integer errorType;  // 0 if no error, 1 Transient error, 2 permanent error 
 		
 		String[] lineValues = line.split(",");
 		
@@ -66,7 +67,8 @@ public class TextFileReader {
 		}
 		source = Integer.valueOf(lineValues[1]);
 		destination = Integer.valueOf(lineValues[3]);
-		ScheduledElevatorRequest event = new ScheduledElevatorRequest(time , source , isUpward , destination);
+		errorType = Integer.valueOf(lineValues[4]);
+		ScheduledElevatorRequest event = new ScheduledElevatorRequest(time , source , isUpward , destination, errorType);
 		return event; 
 		
 	}

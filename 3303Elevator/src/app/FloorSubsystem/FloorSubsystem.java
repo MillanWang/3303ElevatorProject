@@ -223,10 +223,11 @@ public class FloorSubsystem extends Thread{
 	 		  "2. Enter <CrrentFloor> as a positive non zero number\n"+
 	 		  "3. Enter <Direction> as 'Up' or 'Down'\n" + 
 	 		  "4. Enter <DestinationFloor> as a positive non zero number\n"+
-	 		  "5. Either use 'Up' or 'Down' for the directions\n"+
-	 		  "6. Remove all spaces and separate the arguments using a comma ','\n"+
-	 		  "Example: 1000,5,Down,2 for a request to go from floor 5 to 2 after 1000 milliseconds\n"+
-	 		 "Example: 22:51:00,5,Down,2 for a request to go from floor 5 to 2 at 22:51");
+	 		  "5. Enter <ErrorType>  0 if no error, 1 Transient error, 2 permanent error\n"+
+	 		  "6. Either use 'Up' or 'Down' for the directions\n"+
+	 		  "7. Remove all spaces and separate the arguments using a comma ','\n"+
+	 		  "Example: 1000,5,Down,2,0 for a request to go from floor 5 to 2 after 1000 milliseconds with no error\n"+
+	 		 "Example: 22:51:00,5,Down,2,1 for a request to go from floor 5 to 2 at 22:51 with a transient error");
     }
     /**
      * checks if the UI input is valid to initialize a ScheduledElevatorRequest
@@ -235,9 +236,13 @@ public class FloorSubsystem extends Thread{
      * @param destination
      * @return
      */
-    private static boolean newScheduledElevatorRequestCheck(boolean isUp, int start, int destination) {
+    private static boolean newScheduledElevatorRequestCheck(boolean isUp, int start, int destination, int error) {
     	boolean canSchedule = true;
-    	if(start == destination) {
+    	if(error > 2 || error <0 ) {
+    		System.err.print("error type can only be 0 for no error or 1 for a transient error or 2 for a permanent error");
+    		canSchedule = false;
+    	}
+    	else if(start == destination) {
     		System.err.println("Start floor and Destination floor cannot be the same");
     		canSchedule = false;
     	}
@@ -279,22 +284,25 @@ public class FloorSubsystem extends Thread{
 	    		 
 	    		 //TODO : THIS GOTTA BE TAILORED TO FLOOR SUBSYSTEM MAKING INPUT REQUESTS
 	    	 } else if (next.equals("n")) {
-	    		 System.out.println("Enter your command with the following format <Time in milliseconds delay or Timestamp 'hh:mm:ss'> <CurrentFloor> <Direction> <DestinationFloor>\n"+"Example: 1000,5,Down,2 for a request to go from floor 5 to 2 after 1000 milliseconds");
-	    		 System.out.println("Example: 22:51:00,5,Down,2 for a request to go from floor 5 to 2 at 22:51");
+	    		 System.out.println("Enter your command with the following format <Time in milliseconds delay or Timestamp 'hh:mm:ss'> <CurrentFloor> <Direction> <DestinationFloor> <errorType> \n"
+	    				 +"Example: 1000,5,Down,2,0 for a request to go from floor 5 to 2 after 1000 milliseconds with no errors \n" + 
+	    				 "Example: 22:51:00,5,Down,2,1 for a request to go from floor 5 to 2 at 22:51 with a transient error \n" + 
+	    				 "Example: 23:45:00,5,Down,2,2 for a request to go from floor 5 to 2 at 23:45 with a permanent error \n");
 	    		 //System.out.println("or in the following format <Time in LocalTimeFormat> <CurrentFloor> <Direction> <DestinationFloor>\n" + "Example: 22:51:00.00,5,Down,2 for a request to go from floor 5 to 2 at 22:51");
 	    		 next = sc.nextLine();
 	    		 String commands[] = next.split(",");
 	    		 //time =  LocalTime.parse(lineValues[0]);
-	   	    	 if (commands.length == 4 & (commands[0].split(":").length == 1)) {
+	   	    	 if (commands.length == 5 & (commands[0].split(":").length == 1)) {
 	   	    		 try {   
 	   	    			 	 int startFloor = Integer.parseInt(commands[1]);
 	    	    		     int endFloor = Integer.parseInt(commands[3]);
 	   	    			 	 boolean isUp;
+	   	    			 	 int error = Integer.parseInt(commands[4]);
 	   	    			 	 if ( (commands[2]).equals("Up")){
 	   	    			 		 isUp = true;
-	   	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+	   	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor, error)) {
 		   	    			 	 try{
-		   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(new Long(Integer.parseInt(commands[0])), startFloor, isUp , endFloor);
+		   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(new Long(Integer.parseInt(commands[0])), startFloor, isUp , endFloor, error);
 		   	    			 		 this.requests = new ArrayList<ScheduledElevatorRequest>();
   	    			 				 this.requests.add(req);
   	    			 				 sendRequestToScheduler();
@@ -305,9 +313,9 @@ public class FloorSubsystem extends Thread{
 	   	    			 	 }
 	   	    			 	 else if ( (commands[2]).equals("Down")) {
 	   	    			 		 isUp= false;
-	   	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+	   	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor ,error)) {
 	   	    			 			 try{
-	   	    			 				 ScheduledElevatorRequest req = new ScheduledElevatorRequest(new Long(Integer.parseInt(commands[0])), Integer.parseInt(commands[1]), isUp , Integer.parseInt(commands[3]));
+	   	    			 				 ScheduledElevatorRequest req = new ScheduledElevatorRequest(new Long(Integer.parseInt(commands[0])), startFloor, isUp , endFloor, error );
 	   	    			 				 System.out.println("New request sent to scheduler");
 	   	    			 				 this.requests = new ArrayList<ScheduledElevatorRequest>();
 	  	    			 				 this.requests.add(req);
@@ -325,19 +333,20 @@ public class FloorSubsystem extends Thread{
 	   	    		 }
 	   	    		 
 	   	    	 }
-	   	    	 else if(commands.length == 4 & (commands[0].split(":").length == 3)) {
+	   	    	 else if(commands.length == 5 & (commands[0].split(":").length == 3)) {
 	   	    		try {   
   	    			 	 int startFloor = Integer.parseInt(commands[1]);
   	    			 	 int endFloor = Integer.parseInt(commands[3]);
   	    			 	 //LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
   	    			 	 boolean isUp;
+  	    			 	 int error = Integer.parseInt(commands[4]);
   	    			 	 
   	    			 	 if ( (commands[2]).equals("Up")){
   	    			 		 isUp = true;
-  	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+  	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor, error)) {
 	   	    			 	 try{
 	   	    			 		 LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
-	   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor);
+	   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor, error);
 	   	    			 		 System.out.println("New request sent to scheduler");
 	   	    			 		 this.requests = new ArrayList<ScheduledElevatorRequest>();
 	    			 			 this.requests.add(req);
@@ -349,10 +358,10 @@ public class FloorSubsystem extends Thread{
   	    			 	 }
   	    			 	 else if ( (commands[2]).equals("Down")) {
   	    			 		 isUp= false;
-  	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor)) {
+  	    			 		 if(newScheduledElevatorRequestCheck(isUp,startFloor, endFloor, error)) {
   	    			 			 try{
   	    			 				 LocalTime time = LocalTime.of(Integer.parseInt(commands[0].split(":")[0]),Integer.parseInt(commands[0].split(":")[1]),Integer.parseInt(commands[0].split(":")[2])); 
-  		   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor);
+  		   	    			 		 ScheduledElevatorRequest req = new ScheduledElevatorRequest(time, startFloor, isUp , endFloor, error);
   	    			 				 System.out.println("New request sent to scheduler");
   	    			 				 this.requests = new ArrayList<ScheduledElevatorRequest>();
   	    			 				 this.requests.add(req);
