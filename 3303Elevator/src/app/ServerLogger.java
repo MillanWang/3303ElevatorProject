@@ -3,9 +3,14 @@
  */
 package app;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import app.Config.Config;
 import app.UDP.PacketReceiver;
@@ -18,8 +23,18 @@ import app.UDP.Util;
  */
 public class ServerLogger extends PacketReceiver{
 	
-	public ServerLogger(int port) {
+	private BufferedWriter writer; //writes to the logger file 
+	
+	public ServerLogger(int port , String filename) {
 		super("Server Logger", port);
+		try {
+			
+			writer = new BufferedWriter(new FileWriter(filename, false));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	};
 	
 	/**
@@ -31,6 +46,9 @@ public class ServerLogger extends PacketReceiver{
         try {
 			String message = (String) Util.deserialize(requestPacket.getData());
 			System.out.println(message);
+			writer.newLine();
+			writer.write(message); //writes the logger message to the logger file 
+			writer.flush();
 		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
         
         //Create byte array to build reply packet contents more easily
@@ -53,8 +71,13 @@ public class ServerLogger extends PacketReceiver{
 	 */
 	public static void main(String[] args) {
 		Config c = new Config("multi.properties");
+		//creating logger filename using current date and time 
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		LocalDateTime now = LocalDateTime.now(); 
+		String time = now.format(formatter);
+		time = time +"-logger.txt";
 		// TODO Auto-generated method stub
-		ServerLogger sLogger = new ServerLogger(c.getInt("logger.port"));
+		ServerLogger sLogger = new ServerLogger(c.getInt("logger.port"), time ); 
 		Thread sLoggerThread = new Thread(sLogger, "Server Logger Thread");
 		sLoggerThread.run();
 	}
