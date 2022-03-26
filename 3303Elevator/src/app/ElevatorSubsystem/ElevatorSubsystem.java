@@ -2,20 +2,15 @@ package app.ElevatorSubsystem;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.SortedSet;
 
 import app.Logger;
 import app.Config.Config;
-import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.Scheduler.*;
 import app.UDP.Util;
 
@@ -33,7 +28,8 @@ public class ElevatorSubsystem implements Runnable{
 	private InetSocketAddress schedulerAddr;
 	private Logger logger;
 	private TimeManagementSystem tms;
-	private ElevatorBuffer buf;
+	private ElevatorNextFloorBuffer nextFloorBuf; 
+	private ElevatorStatusBuffer statusBuf;
 
 	/**
 	 * Constructor used to create elevator subsystem
@@ -50,7 +46,8 @@ public class ElevatorSubsystem implements Runnable{
 
 		this.maxFloor = config.getInt("floor.highestFloorNumber");
 		this.numElevators = config.getInt("elevator.total.number");
-		this.buf = new ElevatorBuffer(numElevators);
+		this.nextFloorBuf = new ElevatorNextFloorBuffer();
+		this.statusBuf = new ElevatorStatusBuffer(numElevators);
 		this.elevators = new ArrayList<Elevator>();
 		this.logger = new Logger(config);
 		this.tms =  new TimeManagementSystem(config.getInt("time.multiplier"), this.logger);;
@@ -58,7 +55,7 @@ public class ElevatorSubsystem implements Runnable{
 
 	private DatagramPacket buildSchedulerPacket(){
 		this.log("get elevators status");
-		LinkedList<ElevatorInfo> list = this.buf.getAllStatus();
+		LinkedList<ElevatorInfo> list = this.statusBuf.getAllStatus();
 
 		byte[] data = {};
 
@@ -84,7 +81,7 @@ public class ElevatorSubsystem implements Runnable{
 	private void createElevators() {
 		this.log("creating elevators");
 		for(int i = 0; i < this.numElevators; i++) {
-			Elevator e = new Elevator(i+1, this.maxFloor, this.logger, this.tms, this.buf);
+			Elevator e = new Elevator(i+1, this.maxFloor, this.logger, this.tms, this.nextFloorBuf, this.statusBuf);
 			this.elevators.add(e);
 			Thread t = new Thread(e);
 			t.start();
@@ -126,15 +123,13 @@ public class ElevatorSubsystem implements Runnable{
 						count++;
 					}
 				}
-				
+
 				for(int i = 0; i < this.numElevators; i++) {
-					if(info.containsKey(i+1)) {
-						System.out.println((i+1) + " " + info.get(i+1));
-					}
+					System.out.println((i+1) + " " + info.get(i+1));
 				}
-				System.out.println(count);
+				
 				this.numElevators -= count;
-				this.buf.addReq(info);
+				this.nextFloorBuf.addReq(info);
 				
 				if(this.numElevators == 0) {
 					return;
