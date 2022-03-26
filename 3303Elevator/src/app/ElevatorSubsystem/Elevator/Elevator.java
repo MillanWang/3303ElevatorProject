@@ -56,7 +56,7 @@ public class Elevator implements Runnable {
 	 * @return a new elevator info object
 	 */
 	public ElevatorInfo getInfo() {
-		return new ElevatorInfo(this.id, this.currentFloor, this.state.getState(), last);
+		return new ElevatorInfo(this.id, this.currentFloor, this.state.getState(), this.last);
 	}
 
 	/**
@@ -217,6 +217,24 @@ public class Elevator implements Runnable {
 		while(!exit) {
 
 			int nextFloor = buf.getNextFloor(this.id);
+
+			//  Next Floor speciel cases
+			// -1: No next stop
+			// -2: temporary out of service
+			// -3: Permanents
+
+			if(nextFloor == -2){
+				this.log("is temporary out of service");
+				this.currentFloor = nextFloor;
+			}
+
+			if(nextFloor == -3){
+				this.log("has permanently been stopped");
+				this.currentFloor = nextFloor;
+				this.buf.addStatus(this.getInfo());
+				return;
+			}
+
 
 			while(!this.checkFloor(nextFloor) && !(nextFloor < 1 || nextFloor > this.maxFloorCount)) {
 				this.log(" :" + this.currentFloor + " :" + nextFloor);
