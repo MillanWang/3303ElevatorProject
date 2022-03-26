@@ -100,6 +100,7 @@ public class ElevatorSubsystem implements Runnable{
 	public void run(){
 		this.createElevators();
 		while(true) {
+			this.log("building packet");
 			DatagramPacket sendPacket = this.buildSchedulerPacket();
 			this.log("sending status to scheduler");
 			DatagramPacket recievedPacket = Util.sendRequest_ReturnReply(sendPacket);
@@ -125,12 +126,21 @@ public class ElevatorSubsystem implements Runnable{
 						count++;
 					}
 				}
+				
+				for(int i = 0; i < this.numElevators; i++) {
+					if(info.containsKey(i+1)) {
+						System.out.println((i+1) + " " + info.get(i+1));
+					}
+				}
+				System.out.println(count);
 				this.numElevators -= count;
 				this.buf.addReq(info);
 				
 				if(this.numElevators == 0) {
 					return;
 				}
+			}else {
+				System.out.println("Elevator info is null");
 			}
 		}
 	}
