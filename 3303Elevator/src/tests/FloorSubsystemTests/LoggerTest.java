@@ -53,7 +53,7 @@ public class LoggerTest {
 	 * tests the floor log message when new request is added
 	 */
 	public void logFloorEventTest() {
-		ScheduledElevatorRequest request = new ScheduledElevatorRequest(10000, 2, true, 6);
+		ScheduledElevatorRequest request = new ScheduledElevatorRequest(10000, 2, true, 6,0);
 		log.logFloorEvent(request);
 		assertTrue(outputStreamCaptor.toString().trim().contains("floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor()));
 	}

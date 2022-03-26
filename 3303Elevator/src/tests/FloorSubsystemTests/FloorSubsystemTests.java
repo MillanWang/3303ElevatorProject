@@ -40,7 +40,7 @@ public class FloorSubsystemTests {
 	 * tests the schedule requests to be received from the scheduler 
 	 */
 	public void addScheduleRequeststest() {
-		testInput = new ScheduledElevatorRequest(LocalTime.now(), 1 , true, 5); //LocalTime time, int startfloor, boolean Upwards, int destinationfloor
+		testInput = new ScheduledElevatorRequest(LocalTime.now(), 1, true, 5 , 0);//LocalTime time, int startfloor, boolean Upwards, int destinationfloor
 		assertEquals(0, floorSubsys.getRequests().size());
 		floorSubsys.getRequests().add(testInput);
 		assertEquals(1, floorSubsys.getRequests().size());

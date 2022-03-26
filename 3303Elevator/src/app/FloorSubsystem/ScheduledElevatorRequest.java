@@ -18,7 +18,7 @@ public class ScheduledElevatorRequest implements Serializable{
 	private int startfloor;
 	private boolean isUpwards;
 	private int destinationfloor;  
-	private int errorType;  // 0 if no error, 1 Transient error, 2 permanent error
+	private int requestType;  // 0 if no error, 1 Transient error, 2 permanent error
 	
 	/**
 	 * Constructor parses the input string to assign the fields 
@@ -28,15 +28,15 @@ public class ScheduledElevatorRequest implements Serializable{
 		this.time = time;
 		this.startfloor = startfloor; 
 		this.isUpwards = Upwards;
-		this.errorType = requestType; 
+		this.requestType = requestType; 
 		this.destinationfloor = destinationfloor;
 		this.millisecondDelay = this.calculateMilliSecondDelay(time);
 	}
-	public ScheduledElevatorRequest(long millisecondDelay, int startfloor, boolean Upwards, int destinationfloor, int errorType) {
+	public ScheduledElevatorRequest(long millisecondDelay, int startfloor, boolean Upwards, int destinationfloor, int requestType) {
 		this.time = this.getLocalTimeDelay(millisecondDelay);
 		this.startfloor = startfloor; 
 		this.isUpwards = Upwards;
-		this.errorType  = errorType; 
+		this.requestType  = requestType; 
 		this.destinationfloor = destinationfloor;
 		this.millisecondDelay = millisecondDelay;
 	}
@@ -80,8 +80,8 @@ public class ScheduledElevatorRequest implements Serializable{
 	 * returns the error type of the request 
 	 * @return 0 if no error, 1 Transient error, 2 permanent error
 	 */
-	public int getErrorType() {
-		return this.errorType;
+	public int getRequestType() {
+		return this.requestType;
 	}
 	
 	/**
