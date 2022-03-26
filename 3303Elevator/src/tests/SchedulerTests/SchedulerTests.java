@@ -40,39 +40,11 @@ public class SchedulerTests {
 	 */
 	@Test
 	public void testFloorSystemScheduleRequestCanGetPickedUp_AShape_SplitRequests() {
-		//Schedule trip from 1 to 3 and 
-		ArrayList<ScheduledElevatorRequest> requests = new ArrayList<ScheduledElevatorRequest>();
-		requests.add(new ScheduledElevatorRequest(null,1,true,3));
-		requests.add(new ScheduledElevatorRequest(null,2,true,5));
-		scheduler.floorSystemScheduleRequest(requests);
 		
-		int elevatorID=1;
-		int floor=1;
-		
-		//TESTING MULTITHREADINGLY IS OUTSIDE OF THE CURRENT TIME BUDGET :(
-		/*
-		 * Because of wait loops, testing calling those methods on scheduler would require multiple threads
-		 * Gotta figure out a way to do multithreaded JUnit testing
-		 * */
-		
-		LinkedList<ElevatorInfo> elevatorSubsystemComms = new LinkedList<ElevatorInfo>();
-		elevatorSubsystemComms.add(new ElevatorInfo(elevatorID, floor, ElevatorStateMachine.Idle, Direction.UP));
-		this.scheduler.setAllElevatorInfo(elevatorSubsystemComms);
-		
-		
-		//Has a next floor to visit
-		Assert.assertFalse(scheduler.getNextFloorsToVisit().get(elevatorID)!=-1);
-		
-		
-//		Assert.assertFalse(scheduler.getNextFloorsToVisit(2, true).isEmpty());
-//		//Once we reach the top, no more next floors to visit
-//		Assert.assertTrue(scheduler.getNextFloorsToVisit(3, true).isEmpty());
-//		
-//		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,3,true,1));
-//		scheduler.floorSystemScheduleRequest(new ScheduledElevatorRequest(null,2,true,1));
-//		Assert.assertFalse(scheduler.getNextFloorsToVisit(3, false).isEmpty());
-//		Assert.assertFalse(scheduler.getNextFloorsToVisit(2, false).isEmpty());
-//		//Once we reach the bottom, no more next floors to visit
-//		Assert.assertTrue(scheduler.getNextFloorsToVisit(1, true).isEmpty());
 	}
+	
+	//TODO Show that delayed threads take time to schedule
+	//TODO Show that requests get discarded when everyone is out of service
+	//TODO Show that floor requests lead to elevators having a next floor to visit
+	//TODO Show that there will be negative floors to visit with no requests and out of service elevators
 }

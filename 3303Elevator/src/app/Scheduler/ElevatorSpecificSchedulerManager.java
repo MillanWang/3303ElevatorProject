@@ -4,35 +4,87 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 
 public class ElevatorSpecificSchedulerManager {
-	private LinkedList<ElevatorSpecificScheduler> allElevatorsAllFloorsToVisit;
+	private HashMap<Integer, ElevatorSpecificScheduler> allElevatorSpecificSchedulers;
 	private LinkedList<ElevatorInfo> allElevatorInfo;
+	private ElevatorSpecificSchedulerManagerState currentState;
+	private boolean useSimpleLeastLoadAlgorithm;
 	
 	
 	
-	public ElevatorSpecificSchedulerManager () {
-		this.allElevatorsAllFloorsToVisit = new LinkedList<ElevatorSpecificScheduler>();
+	public ElevatorSpecificSchedulerManager (boolean useSimpleLeastLoadAlgorithm) {
+		this.useSimpleLeastLoadAlgorithm=useSimpleLeastLoadAlgorithm;
+		this.currentState = ElevatorSpecificSchedulerManagerState.AWAITING_NEXT_ELEVATOR_REQUEST;
+		
+		//Creating an elevator specific scheduler for each elevator
+		this.allElevatorSpecificSchedulers = new HashMap<Integer, ElevatorSpecificScheduler>();
+		for (int i = 1; i <= (new Config("local.properties")).getInt("elevator.total.number") ; i++) {
+			this.allElevatorSpecificSchedulers.put(i, new ElevatorSpecificScheduler(i));
+		}
 	}
-
-	
 	
 	/**
-	 * Sets the allElevatorInfo 
-	 * @param allElevatorInfo the new allElevatorInfo list
+	 * Getter for most recent list of ElevatorInfo
+	 * @return the allElevatorInfo
 	 */
-	public synchronized void setAllElevatorInfo(LinkedList<ElevatorInfo> allElevatorInfo) {
-		//On first request, populate the list of ElevatorSpecific floors to visit
-		if (this.allElevatorsAllFloorsToVisit.isEmpty()) {
-			for (ElevatorInfo e : allElevatorInfo) {
-				this.allElevatorsAllFloorsToVisit.add(new ElevatorSpecificScheduler(e.getId()));
+	public LinkedList<ElevatorInfo> getAllElevatorInfo() {
+		return allElevatorInfo;
+	}
+
+	/**
+	 * Schedules a floor request to an algorithmically determined elevatorID
+	 * @param startFloor
+	 * @param destinationFloor
+	 * @param requestType
+	 * @return
+	 */
+	public int scheduleFloorRequest(int startFloor, int destinationFloor, int requestType) {
+		if (currentState==ElevatorSpecificSchedulerManagerState.ALL_ELEVATORS_OUT_OF_SERVICE||checkIfAllElevatorsArePermanentError()) {
+			return -1;
+		}
+		int elevatorID_toSchedule=-1;
+		if (this.useSimpleLeastLoadAlgorithm) {
+			elevatorID_toSchedule=getBestElevatorId_SimpleLeastLoadAlgorithm();
+		} else {
+			elevatorID_toSchedule=getBestElevatorId_DirectionalPriorityAlgorithm(startFloor, startFloor<destinationFloor);
+		}
+		this.allElevatorSpecificSchedulers.get(elevatorID_toSchedule).addRequest(startFloor, destinationFloor, requestType);
+		return elevatorID_toSchedule;
+	}
+	
+	/**
+	 * Checks if all elevators are currently in an error state
+	 * @return if all elevators are in an error state
+	 */
+	private boolean checkIfAllElevatorsArePermanentError() {
+		//Iterate through all ElevatorSpecificScheduler states. Return false if any are not out of service
+		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
+			if (this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE||
+				this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE) {
+				this.currentState = ElevatorSpecificSchedulerManagerState.AWAITING_NEXT_ELEVATOR_REQUEST;
+				return false;
 			}
 		}
-		
-		this.allElevatorInfo = allElevatorInfo;
-//		notifyAll(); Is this even needed?????
+		this.currentState = ElevatorSpecificSchedulerManagerState.ALL_ELEVATORS_OUT_OF_SERVICE;
+		return true;
+	}
+	
+	/**
+	 * Backup algorithm used to assign requests to the elevators with the least floors to visit, regardless of position. 
+	 * @return ID of the elevator with the least floors to visit
+	 */
+	private synchronized int getBestElevatorId_SimpleLeastLoadAlgorithm() {
+		Integer minFloorsToVisitElevatorID = 1;
+		for (Integer id : this.allElevatorSpecificSchedulers.keySet()) {
+			if (this.allElevatorSpecificSchedulers.get(id).getActiveNumberOfStopsCount() <= this.allElevatorSpecificSchedulers.get(minFloorsToVisitElevatorID).getActiveNumberOfStopsCount()) {
+				minFloorsToVisitElevatorID = id;
+			}
+		}
+		return minFloorsToVisitElevatorID;
 	}
 	
 	/**
@@ -41,7 +93,7 @@ public class ElevatorSpecificSchedulerManager {
 	 * @param isUpwards if the request is upwards
 	 * @return The ID of the most suitable elevator for this request
 	 */
-	private synchronized int getBestElevatorId(int startFloor, boolean isUpwards) { //TODO : Feature flag to determine if we shall use easy or hard algorithm
+	private synchronized int getBestElevatorId_DirectionalPriorityAlgorithm(int startFloor, boolean isUpwards) { //TODO : Feature flag to determine if we shall use easy or hard algorithm
 		if (isUpwards) {
 			//Upwards. First check if there are any upwards or parked elevators under us
 			if (this.findClosestElevatorBelowWithState(startFloor, Direction.UP)!=-1) {
@@ -130,20 +182,27 @@ public class ElevatorSpecificSchedulerManager {
 		
 		return currentMin[0];
 	}
-	
-	
-	/**
-	 * Returns the ElevatorSpecificFloorsToVisit given the elevatorID
-	 * @param elevatorID the ID of the elevator
-	 * @return the ElevatorSpecificFloorsToVisit object corresponding to that ID
-	 */
-	private synchronized ElevatorSpecificScheduler getElevatorSpecificFloorsToVisit(int elevatorID) {
-		for (ElevatorSpecificScheduler esftv : this.allElevatorsAllFloorsToVisit) {
-			if (esftv.getElevatorID()==elevatorID) {
-				return esftv;
-			}
+
+	public HashMap<Integer, Integer> getAllElevatorsNextFloorToVisit(LinkedList<ElevatorInfo> allElevatorInfos){
+		HashMap<Integer, Integer> elevatorID_nextFloorMapping = new HashMap<Integer, Integer>();
+		for (ElevatorInfo eInfo : allElevatorInfos) {
+			elevatorID_nextFloorMapping.put(eInfo.getId(), 
+											this.allElevatorSpecificSchedulers.get(eInfo.getId())
+												.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		}
-		//Should never get here. Elevator ID should always be valid
-		return null;
+		return elevatorID_nextFloorMapping;
+	} 
+	
+	@Override
+	public String toString() {
+		String returnString = "";
+		returnString+="\n\n********************************\n";
+		returnString+="[ElevatorSpecificSchedulerManager]\nState : "+this.currentState+"\n";
+		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
+			returnString+=allElevatorSpecificSchedulers.get(i).toString();
+		}
+		returnString+="********************************\n\n";
+		return returnString;
 	}
+	
 }

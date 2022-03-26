@@ -47,9 +47,8 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
         	elevatorSubsystemComms = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
 		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
        
-        //Update the scheduler with the elevator info and then get the next toVisitList from scheduler
-        this.scheduler.setAllElevatorInfo(elevatorSubsystemComms);
-        HashMap<Integer,Integer> allElevatorsAllFloorsToVisit = this.scheduler.getNextFloorsToVisit();
+        //Get the next floor to visit for each elevator from scheduler
+        HashMap<Integer,Integer> allElevatorsAllFloorsToVisit = this.scheduler.getNextFloorsToVisit(elevatorSubsystemComms);
 
         
         //Create byte array to build reply packet contents more easily
