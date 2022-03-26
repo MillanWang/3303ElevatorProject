@@ -24,11 +24,11 @@ public class ScheduledElevatorRequest implements Serializable{
 	 * Constructor parses the input string to assign the fields 
 	 * @param input; the input string (from text file)
 	 */
-	public ScheduledElevatorRequest(LocalTime time, int startfloor, boolean Upwards, int destinationfloor, int errorType) {
+	public ScheduledElevatorRequest(LocalTime time, int startfloor, boolean Upwards, int destinationfloor, int requestType) {
 		this.time = time;
 		this.startfloor = startfloor; 
 		this.isUpwards = Upwards;
-		this.errorType = errorType; 
+		this.errorType = requestType; 
 		this.destinationfloor = destinationfloor;
 		this.millisecondDelay = this.calculateMilliSecondDelay(time);
 	}
