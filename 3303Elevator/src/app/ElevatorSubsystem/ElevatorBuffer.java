@@ -29,7 +29,7 @@ public class ElevatorBuffer {
 	 * @param map
 	 */
 	public synchronized void addReq(HashMap<Integer,Integer> map){
-
+		System.out.println("Add req");
 		while(this.readNextFloor) {
 			try {
 				wait();
@@ -37,6 +37,7 @@ public class ElevatorBuffer {
 				System.err.println(e);
 			}
 		}
+		System.out.println("here");
 
 		this.eReq = map;
 		this.readNextFloor = true;
@@ -80,6 +81,7 @@ public class ElevatorBuffer {
 	 * @param req
 	 */
 	public synchronized void addStatus(ElevatorInfo req) {
+		System.out.println("Add status");
 		while(this.readStatus) {
 			try {
 				wait();
