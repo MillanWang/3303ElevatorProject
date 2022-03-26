@@ -9,7 +9,7 @@ import app.Scheduler.Scheduler;
  */
 public class DelayedRequest implements Runnable{
 	private Scheduler scheduler;
-	private Integer startFloor, destinationFloor;
+	private Integer startFloor, destinationFloor, requestType;
 	private long delay;
 	
 	/**
@@ -19,10 +19,11 @@ public class DelayedRequest implements Runnable{
 	 * @param destinationFloor floor that the request ends at
 	 * @param delay time in milliseconds to wait before sending the request
 	 */
-	public DelayedRequest(Scheduler scheduler, Integer startFloor, Integer destinationFloor, long millisecondDelay) {
+	public DelayedRequest(Scheduler scheduler, Integer startFloor, Integer destinationFloor, Integer requestType, long millisecondDelay) {
 		this.scheduler = scheduler;
 		this.startFloor = startFloor;
 		this.destinationFloor = destinationFloor;
+		this.requestType = requestType;
 		this.delay = millisecondDelay;
 	}
 
@@ -32,7 +33,7 @@ public class DelayedRequest implements Runnable{
 	@Override
 	public void run() {
 		try {Thread.sleep(delay);} catch (InterruptedException e) {}
-		this.scheduler.addElevatorRequest(startFloor, destinationFloor);
+		this.scheduler.addElevatorRequest(startFloor, destinationFloor, requestType);
 	}
 	
 }

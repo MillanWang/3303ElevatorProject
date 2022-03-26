@@ -144,6 +144,84 @@ public class ElevatorSpecificFloorsToVisitTest {
 		//TODO : Start with a bunch of requests. Service all of them in one go
 	}
 	
+	@Test
+	public void test_TemporaryOutOfService() {
+		this.esScheduler = new ElevatorSpecificScheduler(ELEVATOR_ID);
+		//Awaiting elevator requests
+		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
+		
+		//Add a normal request in each direction
+		esScheduler.addRequest(5, 1, 0);
+		esScheduler.addRequest(1, 7, 0);
+		
+		//Still awaiting elevator requests with active floor requests
+		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
+		//Have 4 overall floors to visit 
+		Assert.assertEquals(4, esScheduler.getActiveNumberOfStopsCount());
+		
+		//Get next floor to visit. Should be 7 as default is to start at 1 going upwards
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
+		Assert.assertEquals(7,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+		
+		
+		//Now schedule a temporary error request
+		esScheduler.addRequest(6, 9, 1);
+		Assert.assertEquals(ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE, esScheduler.getCurrentState());
+		//Next floor to visit with temporary error is -2
+		Assert.assertEquals(-2,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+		//Add 2 floors to visit which will be dealt with once back online
+		Assert.assertEquals(5, esScheduler.getActiveNumberOfStopsCount());
+		
+		
+		//TODO : Find out how to indicate a revive elevator message with elevator info
+		// Getting next floor to visit after elevator revival with ElevatorInfo.
+		// Resume scheduled plan with next floor=7
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
+//		Assert.assertEquals(7,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));TODO CHECK THAT NEXT FLOOR IS 7 WHEN TEMP ERROR DONE
+//		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState()); TODO Uncomment out when elevator is back online
+	}
+	
+	/**
+	 * Test the functionality of permanently out of service elevators
+	 */
+	@Test
+	public void test_PermanentOutOfService() {
+		this.esScheduler = new ElevatorSpecificScheduler(ELEVATOR_ID);
+		//Awaiting elevator requests
+		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
+		
+		//Add a normal request in each direction
+		esScheduler.addRequest(5, 1, 0);
+		esScheduler.addRequest(1, 7, 0);
+		
+		//Still awaiting elevator requests with active floor requests
+		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
+		//Have 4 overall floors to visit 
+		Assert.assertEquals(4, esScheduler.getActiveNumberOfStopsCount());
+		
+		//Get next floor to visit. Should be 7 as default is to start at 1 going upwards
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
+		Assert.assertEquals(7,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+		
+		
+		//Now schedule a PERMANENT error request
+		esScheduler.addRequest(6, 9, 2);
+		Assert.assertEquals(ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE, esScheduler.getCurrentState());
+		//Next floor to visit with permanent error is -3
+		Assert.assertEquals(-3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+		//Added 2 floors to visit which will not be visited cause this elevator is dead
+		Assert.assertEquals(5, esScheduler.getActiveNumberOfStopsCount());
+		
+		//TODO Show that the process for reviving from temp errors does not work for permanent errors
+
+		
+		//Even if the elevator somehow moves, it will still always have -3 for next floor to visit in the PERMANENT_OUT_OF_SERVICE state
+		moveBetweenFloorsWithoutStopping(21,7,ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 5, null, Direction.UP);
+		Assert.assertEquals(-3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+	}
+	
+	
 	/**
 	 * Moves between the start and end floor without stopping and asserts that there
 	 * is no change to the next floor to visit or ElevatorSpecificSchedulerState for the ride

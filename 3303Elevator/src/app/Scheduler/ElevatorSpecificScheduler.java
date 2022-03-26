@@ -61,7 +61,7 @@ public class ElevatorSpecificScheduler {
 		this.downwardsFloorsToVisit = new TreeSet<Integer>();
 		this.currentState = ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST;
 		
-		int highestFloorNumber= (new Config("local.properties")).getInt("floor.highestFloorNumber"); ; 
+		int highestFloorNumber= (new Config("local.properties")).getInt("floor.highestFloorNumber"); 
 		//Directional destinations per floor
 		this.upwardsDestinationsPerFloor= new LinkedList<TreeSet<Integer>>();
 		this.downwardsDestinationsPerFloor = new LinkedList<TreeSet<Integer>>();
@@ -130,11 +130,13 @@ public class ElevatorSpecificScheduler {
 	 */
 	public void addRequest(int startFloor, int destinationFloor, int requestType) {
 		if (requestType==1) {
-			// Temporary error request type
+			// Temporary error request type. Discard incoming request
 			this.currentState = ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE;
+			return;
 		} else if (requestType==2) {
-			//Permanent error request type
+			//Permanent error request type. Discard incoming request
 			this.currentState = ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE;
+			return;
 		}
 		
 		
@@ -181,6 +183,13 @@ public class ElevatorSpecificScheduler {
 	 * @return the floor number of the next floor to visit
 	 */
 	private int getNextFloorToVisit(int elevatorCurrentFloor) {//, Direction direction) { //TODO : REVIEW IF DIRECTION NEEDED
+		
+		//Temporary out of service
+		if (this.currentState == ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE) return -2;
+		//Permanent out of service
+		if (this.currentState == ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE) return -3;
+		
+		
 		//Return negative 1 to indicate that there is no next floor to visit
 		if (this.upwardsFloorsToVisit.isEmpty() && this.downwardsFloorsToVisit.isEmpty()) {
 			this.currentState = ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST;
@@ -305,7 +314,7 @@ public class ElevatorSpecificScheduler {
     public String toString() {
 		String returnString = "[Elevator "+this.elevatorID+" - ElevatorSpecificScheduler]\n";
 		returnString+= "\tState : " + currentState + "\n";
-		returnString+= "\tMost recent floor : " + this.mostRecentFloor + "\n";
+		returnString+= "\tMost recent floor : " + (this.mostRecentFloor<=0?"(none)":this.mostRecentFloor) + "\n";
 		returnString+= "\tUpwards floors to visit : " + this.upwardsFloorsToVisit.toString() + " (currently known)\n";
 		returnString+= "\tDownwards floors to visit : " + this.downwardsFloorsToVisit.toString() + " (currently known)\n";
 		returnString+= "\tTotal floors to visit : " + this.getActiveNumberOfStopsCount() + " (including currently unknown destinations)\n";
