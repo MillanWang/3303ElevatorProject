@@ -30,6 +30,7 @@ public class ElevatorSubsystem implements Runnable{
 	private TimeManagementSystem tms;
 	private ElevatorNextFloorBuffer nextFloorBuf; 
 	private ElevatorStatusBuffer statusBuf;
+	private Config config;
 
 	/**
 	 * Constructor used to create elevator subsystem
@@ -37,6 +38,7 @@ public class ElevatorSubsystem implements Runnable{
 	 * @param scheduler 	 the scheduler used to communication
 	 * */
 	public ElevatorSubsystem(Config config){
+		this.config=config;
 
 		try {
 			this.schedulerAddr = new InetSocketAddress(config.getString("scheduler.address"), config.getInt("scheduler.elevatorReceivePort"));
@@ -94,6 +96,10 @@ public class ElevatorSubsystem implements Runnable{
 	 */
 	@SuppressWarnings("unchecked")
 	public void run(){
+		(new Thread(
+				new ElevatorSubsystem_SchedulerPacketReceiver("ElevatorSubsystem_SchedulerPacketReceiver",this.config.getInt("elevator.port"),this),
+				"ElevatorSubsystem_SchedulerPacketReceiver")).start();
+		
 		this.createElevators();
 		boolean disableLog = false;
 		while(true) {

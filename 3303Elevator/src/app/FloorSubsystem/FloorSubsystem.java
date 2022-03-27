@@ -24,7 +24,7 @@ import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.Scheduler.Scheduler;
-import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
+import app.Scheduler.SchedulerThreads.Scheduler_ElevatorSubsystemPacketReceiver;
 import app.UDP.Util;
 public class FloorSubsystem extends Thread{
 

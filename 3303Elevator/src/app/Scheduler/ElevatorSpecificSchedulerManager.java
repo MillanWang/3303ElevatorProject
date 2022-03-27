@@ -191,7 +191,6 @@ public class ElevatorSpecificSchedulerManager {
 											this.allElevatorSpecificSchedulers.get(eInfo.getId())
 												.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		}
-		System.out.println(elevatorID_nextFloorMapping);
 		return elevatorID_nextFloorMapping;
 	} 
 	
