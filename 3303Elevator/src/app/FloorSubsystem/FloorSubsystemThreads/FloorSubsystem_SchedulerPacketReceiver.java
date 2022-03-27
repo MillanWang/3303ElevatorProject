@@ -13,11 +13,11 @@ import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.FloorSubsystem.*;
 import app.Scheduler.ElevatorSpecificScheduler;
 
-public class SchedulerPacketReceiver extends PacketReceiver {
+public class FloorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 	
 	private FloorSubsystem FloorSubsystem;
 	
-	public SchedulerPacketReceiver(FloorSubsystem FloorSubsystem, int port) {
+	public FloorSubsystem_SchedulerPacketReceiver(FloorSubsystem FloorSubsystem, int port) {
 		super("SchedulerPacketReceiver", port);
 		this.FloorSubsystem = FloorSubsystem;
 	}

@@ -5,19 +5,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
 
 import app.Logger;
 import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
-import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-import app.ElevatorSubsystem.StateMachine.ElevatorState;
-import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.FloorSubsystem.*;
 import app.Scheduler.SchedulerThreads.DelayedRequest;
 import app.Scheduler.SchedulerThreads.Scheduler_ElevatorSubsystemPacketReceiver;
@@ -50,7 +45,7 @@ public class Scheduler implements Runnable{
 	
 
 	/**
-	 * Constructor for scheduler lass
+	 * Constructor for scheduler class
 	 * 
 	 * @param highestFloorNumber highest floor number
 	 * @param skipDelaysOnFloorInputs boolean indicating if all incoming timeSpecified requests should be ran without delay
@@ -89,7 +84,7 @@ public class Scheduler implements Runnable{
 			//Assuming sanitized inputs
 			Integer startFloor = ser.getStartFloor();
 			Integer destinationFloor = ser.getDestinationFloor();
-			Integer requestType = 0; // ser.getRequestType(); TODO : Make this retrieve the request type from the obj
+			Integer requestType = ser.getRequestType();
 			
 			if (startFloor > highestFloorNumber ||destinationFloor > highestFloorNumber || startFloor <= 0 || destinationFloor <= 0) {
 				System.err.println("Non existent floor received");
@@ -152,7 +147,10 @@ public class Scheduler implements Runnable{
 
 	
 	
-	
+	/**
+	 * Sends 
+	 * @param allElevatorInfos
+	 */
 	public synchronized void sendNextPacket_elevatorSpecificNextFloor(LinkedList<ElevatorInfo> allElevatorInfos) {
         //Create byte array to build reply packet contents more easily
         ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();

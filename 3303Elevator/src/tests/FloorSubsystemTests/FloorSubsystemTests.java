@@ -21,10 +21,10 @@ import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.FloorSubsystem.FloorSubsystem;
 import app.FloorSubsystem.ScheduledElevatorRequest;
-import app.FloorSubsystem.FloorSubsystemThreads.SchedulerPacketReceiver;
+import app.FloorSubsystem.FloorSubsystemThreads.FloorSubsystem_SchedulerPacketReceiver;
 import app.Scheduler.Scheduler;
-import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
-import app.Scheduler.SchedulerThreads.FloorSubsystemPacketReceiver;
+import app.Scheduler.SchedulerThreads.Scheduler_ElevatorSubsystemPacketReceiver;
+import app.Scheduler.SchedulerThreads.Scheduler_FloorSubsystemPacketReceiver;
 
 public class FloorSubsystemTests {
 	Config config = new Config("test.properties");
@@ -82,10 +82,10 @@ public class FloorSubsystemTests {
 	//testing scheduler packets
 	@Test
 	public void packetstest() {
-	FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver(floorSubsystemReceivePort, scheduler);
-	(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
-	floorSubsys.sendRequestToScheduler();
-	assertTrue(outputStreamCaptor.toString().trim().contains("Scheduler received request(s) from floor system")); //assures that scheduler received the requests 
+		Scheduler_FloorSubsystemPacketReceiver fssReceiver = new Scheduler_FloorSubsystemPacketReceiver(floorSubsystemReceivePort, scheduler);
+		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
+		floorSubsys.sendRequestToScheduler();
+		assertTrue(outputStreamCaptor.toString().trim().contains("Scheduler received request(s) from floor system")); //assures that scheduler received the requests 
 	}
 }
 
