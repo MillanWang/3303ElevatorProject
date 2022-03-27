@@ -21,7 +21,7 @@ import app.UDP.Util;
  *
  * @author Ben Kittilsen
  * */
-public class ElevatorSubsystem {
+public class ElevatorSubsystem implements Runnable{
 
 	private int maxFloor, numElevators;
 	private InetSocketAddress schedulerAddr;
@@ -29,7 +29,7 @@ public class ElevatorSubsystem {
 	private TimeManagementSystem tms;
 	private ElevatorNextFloorBuffer nextFloorBuf;
 	private ElevatorStatusBuffer statusBuf;
-
+	private Config config;
 	/**
 	 * Constructor used to create elevator subsystem
 	 *
@@ -41,7 +41,7 @@ public class ElevatorSubsystem {
 		}catch(Exception e) {
 			System.exit(1);
 		}
-
+		this.config = config;
 		this.maxFloor = config.getInt("floor.highestFloorNumber");
 		this.numElevators = config.getInt("elevator.total.number");
 		this.nextFloorBuf = new ElevatorNextFloorBuffer();
@@ -96,7 +96,7 @@ public class ElevatorSubsystem {
 				elevatorCountDecrease++;
 			}
 		}
-		this.numelevators -= elevatorCountDecrease;
+		this.numElevators -= elevatorCountDecrease;
 		this.nextFloorBuf.addReq(nextFloorRequests);
 
 		if(this.numElevators == 0){
@@ -118,13 +118,22 @@ public class ElevatorSubsystem {
 		}
 	}
 
+	@Override
+	public void run(){
+		(new Thread(
+			new ElevatorSubsystem_SchedulerPacketReceiver(
+				"ElevatorSubsystem_SchedulerPacketReceiver",
+				this.config.getInt("elevator.port"),
+				this
+			),
+		"ElevatorSubsystem_SchedulerPacketReceiver")).start();
+	}
+
 	public static void main(String[] args){
 		//Config config = new Config("multi.properties");
 		Config config = new Config("local.properties");
 		ElevatorSubsystem e = new ElevatorSubsystem(config);
-		(new Thread(
-				new ElevatorSubsystem_SchedulerPacketReceiver("ElevatorSubsystem_SchedulerPacketReceiver",config.getInt("elevator.port"),e),
-				"ElevatorSubsystem_SchedulerPacketReceiver")).start();
+		(new Thread(e)).start();
 	}
 
 }
