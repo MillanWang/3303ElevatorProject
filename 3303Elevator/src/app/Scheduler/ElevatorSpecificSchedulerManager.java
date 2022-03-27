@@ -36,6 +36,13 @@ public class ElevatorSpecificSchedulerManager {
 	}
 
 	/**
+	 * @return the currentState
+	 */
+	public ElevatorSpecificSchedulerManagerState getCurrentState() {
+		return currentState;
+	}
+
+	/**
 	 * Schedules a floor request to an algorithmically determined elevatorID
 	 * @param startFloor
 	 * @param destinationFloor
