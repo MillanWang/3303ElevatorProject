@@ -63,7 +63,7 @@ public class ElevatorSpecificSchedulerManager {
 	private boolean checkIfAllElevatorsArePermanentError() {
 		//Iterate through all ElevatorSpecificScheduler states. Return false if any are not out of service
 		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
-			if (this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE||
+			if (this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE&&
 				this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE) {
 				this.currentState = ElevatorSpecificSchedulerManagerState.AWAITING_NEXT_ELEVATOR_REQUEST;
 				return false;
@@ -91,6 +91,7 @@ public class ElevatorSpecificSchedulerManager {
 				minFloorElevatorIDs.add(id);
 			}
 		}
+		if (minFloorElevatorIDs.isEmpty()) return -1;
 		Collections.shuffle(minFloorElevatorIDs);
 		return minFloorElevatorIDs.pop();
 	}
