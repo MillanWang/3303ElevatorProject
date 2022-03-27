@@ -341,7 +341,7 @@ public class ElevatorSpecificScheduler {
 		if (elevatorInfo.getFloor()==-2) return-2;
 		
 		//TEMPORARY ERROR REVIVAL - When a valid current floor is returned instead of the out of service negatives
-		if (currentState == ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE || elevatorInfo.getFloor()>=-1) {
+		if (currentState == ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE && elevatorInfo.getFloor()>=-1) {
 			this.currentState = this.previousStateBeforeTempError;
 			this.previousStateBeforeTempError = null;
 		}
