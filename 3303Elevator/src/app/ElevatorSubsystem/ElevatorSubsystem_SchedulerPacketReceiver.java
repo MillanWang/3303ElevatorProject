@@ -11,10 +11,12 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 
 	ElevatorSubsystem ess;
 	HashMap<Integer, Integer> nextFloorHashMap;
+	boolean exit; 
 
 	protected ElevatorSubsystem_SchedulerPacketReceiver(String name, int port, ElevatorSubsystem ess) {
 		super(name, port);
 		this.ess = ess;
+		exit = false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -36,15 +38,21 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 		return replyPacket;
 	}
 
+	
+	public void exit() {
+		exit = true;
+	}
+	
 	@Override
 	public void run(){
 		System.out.println("Starting " + this.name + "...");
-		while (true) {
+		while (!exit) {
 			this.ess.log("waiting for next request");
 			this.sendReply(this.createReplyPacketGivenRequestPacket(this.receiveNextPacket()));
 			this.ess.updateElevators(this.nextFloorHashMap);
 			nextFloorHashMap = null;
 			this.ess.sendUpdateToScheduler();
 		}
+		this.closeSocket();
 	}
 }

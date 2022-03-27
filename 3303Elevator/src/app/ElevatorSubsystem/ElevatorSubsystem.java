@@ -31,6 +31,7 @@ public class ElevatorSubsystem implements Runnable{
 	private ElevatorNextFloorBuffer nextFloorBuf;
 	private ElevatorStatusBuffer statusBuf;
 	private Config config;
+	private ElevatorSubsystem_SchedulerPacketReceiver esspr;
 
 	/**
 	 * Constructor used to create elevator subsystem
@@ -121,17 +122,23 @@ public class ElevatorSubsystem implements Runnable{
 
 	@Override
 	public void run(){
-		(new Thread(
-			new ElevatorSubsystem_SchedulerPacketReceiver(
+		this.esspr = new ElevatorSubsystem_SchedulerPacketReceiver(
 				"ElevatorSubsystem_SchedulerPacketReceiver",
 				this.config.getInt("elevator.port"),
 				this
-			),
+			);
+		
+		(new Thread(
+			this.esspr,
 			"ElevatorSubsystem_SchedulerPacketReceiver")
 		).start();
 		this.createElevators();
 	}
 
+	public void exit() {
+		this.esspr.exit();
+	}
+	
 	public static void main(String[] args){
 		//Config config = new Config("multi.properties");
 		Config config = new Config("local.properties");

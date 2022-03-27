@@ -32,11 +32,23 @@ public class ElevatorSubsystemTests {
 		
 		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		this.closeElevatorSubsystemSockets(e, f);
 	}
 	
 	@Test
 	public void testMultiElevator() {
-		assertTrue(true);
+		Config c = new Config("test.properties");
+		ElevatorSubsystem e = new ElevatorSubsystem(c);
+		FakeScheduler f = new FakeScheduler(c);
+		(new Thread(e)).start();
+		
+		HashMap<Integer, Integer> req = new HashMap<>();
+		req.put(1, 4);
+		req.put(3, 5);
+		
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		this.closeElevatorSubsystemSockets(e, f);
 	}
 	
 	public boolean checkIfSame(int count, LinkedList<ElevatorInfo> res, HashMap<Integer, Integer> req) {
@@ -51,6 +63,17 @@ public class ElevatorSubsystemTests {
 		}
 		
 		return true;
+	}
+	
+	private void closeElevatorSubsystemSockets(ElevatorSubsystem e, FakeScheduler f) {
+		e.exit();
+		HashMap<Integer, Integer>req = new HashMap<>();
+		req.put(1, -3); 
+		req.put(2, -3);
+		req.put(3, -3); 
+		req.put(4, -3);
+		f.fakeNextFloorRequest(req);
+		f.closeSocket();
 	}
 
 }
@@ -144,4 +167,9 @@ class FakeScheduler {
 		
 		return elevatorInfoRes;
 	}
+	
+	public void closeSocket() {
+		this.rSocket.close();
+	}
+	
 }
