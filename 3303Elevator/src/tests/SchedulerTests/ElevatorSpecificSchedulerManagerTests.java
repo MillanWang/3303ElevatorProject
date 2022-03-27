@@ -24,9 +24,32 @@ public class ElevatorSpecificSchedulerManagerTests {
 	/**
 	 */
 	@Test
-	public void test_FIRST_BUT_GOTTA_FIX_THIS(){
+	public void test_SimpleLeastLoadAlgorithm_RegularRequestDistributed(){
 		ElevatorSpecificSchedulerManager essm = new ElevatorSpecificSchedulerManager(SIMPLE_LEAST_LOAD_ALGORITHM);
-		System.out.println(essm.toString());		System.out.println(essm.toString());
-		Assert.assertTrue(false);
+		essm.scheduleFloorRequest(1, 4, 0); //Schedule a regular up request
+		essm.scheduleFloorRequest(12, 4, 0); //Schedule a regular down request
+		
+		Assert.assertTrue(essm.toString().contains("Downwards floors to visit : [12] (currently known)"));
+		Assert.assertTrue(essm.toString().contains("Upwards floors to visit : [1] (currently known)"));
+	}
+
+	
+	@Test
+	public void test_SimpleLeastLoadAlgorithm_PermanentErrorRequestDistributed(){
+		ElevatorSpecificSchedulerManager essm = new ElevatorSpecificSchedulerManager(SIMPLE_LEAST_LOAD_ALGORITHM);
+		essm.scheduleFloorRequest(1, 4, 2); //Schedule a permanent error request
+
+		Assert.assertTrue(essm.toString().contains("State : PERMANENT_OUT_OF_SERVICE"));
+		
+		essm.scheduleFloorRequest(3, 4, 2); //Schedule another permanent error request
+		essm.scheduleFloorRequest(5, 4, 2); //Schedule another permanent error request
+		essm.scheduleFloorRequest(7, 4, 2); //Schedule another permanent error request
+		
+		//Ensure that the "PERMANENT_OUT_OF_SERVICE" string appears 4 times
+		String currentString = essm.toString();
+		int occurances = (currentString.length() - currentString.replaceAll("PERMANENT_OUT_OF_SERVICE","").length())/"PERMANENT_OUT_OF_SERVICE".length();
+		Assert.assertEquals(4, occurances);
+		
+		essm.scheduleFloorRequest(1, 3,2);//Schedule another permanent error request. This will get discarded
 	}
 }
