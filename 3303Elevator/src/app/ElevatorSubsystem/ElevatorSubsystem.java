@@ -126,7 +126,8 @@ public class ElevatorSubsystem implements Runnable{
 				this.config.getInt("elevator.port"),
 				this
 			),
-		"ElevatorSubsystem_SchedulerPacketReceiver")).start();
+			"ElevatorSubsystem_SchedulerPacketReceiver")
+		).start();
 	}
 
 	public static void main(String[] args){
