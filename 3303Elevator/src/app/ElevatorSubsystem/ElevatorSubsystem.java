@@ -105,43 +105,45 @@ public class ElevatorSubsystem implements Runnable{
 
 			disableLog = false;
 			
-			HashMap<Integer, Integer> info = null;
+			HashMap<Integer, Integer> nextFloorRequests = null;
 
 			try {
 				Object obj = Util.deserialize(recievedPacket.getData());
-				info = (HashMap<Integer, Integer>) obj;
+				nextFloorRequests = (HashMap<Integer, Integer>) obj;
 			}catch(IOException e) {
 				e.printStackTrace();
 			}catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 
-			if(info != null) {
+			if(nextFloorRequests != null) {
 				
-				int dec = 0;
+				int elevatorCountDecrease = 0;
 				for(int i = 0; i < this.numElevators; i++) {
-					if(!info.containsKey(i+1)) {
-						info.put(i+1, -1);
-					}else if(info.get(i+1) == -3){
-						dec++;
+					if(!nextFloorRequests.containsKey(i+1)) {
+						nextFloorRequests.put(i+1, -1);
+					}else if(nextFloorRequests.get(i+1) == -3){
+						elevatorCountDecrease++;
 					}
 				}
 				
-				int count = 0;
+				int noNewFloorRequestCount = 0;
 				for(int i = 0; i < this.numElevators; i++) {
-					if(info.get(i+1) == -1) {
-						count++;
+					if(nextFloorRequests.get(i+1) == -1) {
+						noNewFloorRequestCount++;
 					}
 				}
 				
-				if(count == this.numElevators) {
+				if(noNewFloorRequestCount == this.numElevators) {
 					disableLog = true;
 				}
 				
-				this.numElevators -= dec;
-				this.nextFloorBuf.addReq(info);
+				this.numElevators -= elevatorCountDecrease;
+				this.nextFloorBuf.addReq(nextFloorRequests);
 				
 				if(this.numElevators == 0) {
+					// Exit if there are no elevators left 
+					// Only required for the testing purposes 
 					return;
 				}
 			}
