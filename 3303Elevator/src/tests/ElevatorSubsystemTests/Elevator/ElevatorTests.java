@@ -121,6 +121,4 @@ public class ElevatorTests {
 		assertSame(Direction.UP, elevator.getDirection());
 	}
 	
-	
-	
 }

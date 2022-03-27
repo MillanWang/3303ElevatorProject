@@ -5,8 +5,10 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,60 +22,20 @@ public class ElevatorSubsystemTests {
 	
 	@Test
 	public void testSingleElevator() {
-		Config config = new Config("test.properties");
-		Thread s, e;
+		Config c = new Config("test.properties");
+		ElevatorSubsystem e = new ElevatorSubsystem(c);
+		FakeScheduler f = new FakeScheduler(c);
+		(new Thread(e)).start();
 		
-		HashMap<Integer, Integer>testCase = new HashMap<>();
-		testCase.put(1, 5);
-		FakeScheduler f = new FakeScheduler(config, testCase);
-		ElevatorSubsystem eSub = new ElevatorSubsystem(config);
+		HashMap<Integer, Integer> req = new HashMap<>();
+		req.put(1, 4);
 		
-		s = new Thread(f,"Scheduler");
-		e = new Thread(eSub);
-		s.start();
-		
-		e.start();
-		
-		try {
-			e.join();
-			s.join();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		
-		LinkedList<ElevatorInfo> res2 = f.getSecond();
-		assertTrue(checkIfSame(config.getInt("elevator.total.number"), res2, testCase));
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
 	}
 	
 	@Test
 	public void testMultiElevator() {
-		Config config = new Config("test.properties");
-		Thread s, e;
 		
-		HashMap<Integer, Integer>testCase = new HashMap<>();
-		//{1=4, 2=7, 3=3, 4=5}
-		testCase.put(1, 4);
-		testCase.put(2, 7);
-		testCase.put(3, 3);
-		testCase.put(4, 5);
-		FakeScheduler f = new FakeScheduler(config, testCase);
-		ElevatorSubsystem eSub = new ElevatorSubsystem(config);
-		
-		s = new Thread(f,"Scheduler");
-		e = new Thread(eSub);
-		s.start();
-		
-		e.start();
-		
-		try {
-			e.join();
-			s.join();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		
-		LinkedList<ElevatorInfo> res2 = f.getSecond();
-		assertTrue(checkIfSame(config.getInt("elevator.total.number"), res2, testCase));
 	}
 	
 	public boolean checkIfSame(int count, LinkedList<ElevatorInfo> res, HashMap<Integer, Integer> req) {
@@ -91,82 +53,78 @@ public class ElevatorSubsystemTests {
 
 }
 
-class FakeScheduler implements Runnable {
+class FakeScheduler {
 	
-	private DatagramSocket socket;
-	private DatagramPacket packet;
-	private HashMap<Integer, Integer> request;
-	private LinkedList<ElevatorInfo> first, second;
+	private DatagramSocket rSocket;
+	private InetSocketAddress elevatorAddr;
 	private int bufferSize;
-	private boolean isDone, isWaiting;
-	
-	public FakeScheduler(Config config, HashMap<Integer, Integer> request) {
+
+	public FakeScheduler(Config config) {
 		try {
-			this.request = request;
-			socket = new DatagramSocket(config.getInt("scheduler.elevatorReceivePort"));		
+			rSocket = new DatagramSocket(config.getInt("scheduler.elevatorReceivePort"));		
 			this.bufferSize = config.getInt("udp.buffer.size");
-			isDone = false;
-			isWaiting = false;
-		}catch(IOException e) {
-			e.printStackTrace();
+			this.elevatorAddr = new InetSocketAddress(config.getString("elevator.address"), config.getInt("elevator.port"));
+		}catch(IOException e1) {
+			e1.printStackTrace();
+			System.exit(1);
+		}catch(Exception e2) {
+			e2.printStackTrace();
 			System.exit(1);
 		}
 	}
 	
-	public LinkedList<ElevatorInfo> getFirst(){
-		return first;
+	private DatagramPacket buildNextFloorPacket(HashMap<Integer, Integer> nextFloorReq) {
+		byte[] data = {};
+		
+		try {
+			data = Util.serialize(nextFloorReq);
+		}catch(IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		return new DatagramPacket(
+				data,
+				data.length,
+				elevatorAddr.getAddress(),
+				elevatorAddr.getPort()
+		);
 	}
+	
+	protected DatagramPacket receiveNextPacket() {
+		//Create a packet to receive next packet
+        byte[] data = new byte[bufferSize];
+        DatagramPacket receivedPacket = new DatagramPacket(data, data.length);
 
-	public LinkedList<ElevatorInfo> getSecond(){
-		return second;
+        //Receive the packet
+        try {
+        	this.rSocket.receive(receivedPacket);
+        } catch(IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+        return receivedPacket;
 	}
-	
-	public boolean isDone() {
-		return isDone; 
-	}
-	
-	public boolean isWaiting() {
-		return isWaiting;
-	}
-	
 	
 	@SuppressWarnings("unchecked")
-	public void run() {
+	public LinkedList<ElevatorInfo> fakeNextFloorRequest(HashMap<Integer, Integer> nextFloorReq){
+		LinkedList<ElevatorInfo> elevatorInfoRes = null;
+		DatagramPacket sendPacket = this.buildNextFloorPacket(nextFloorReq);
+		DatagramPacket res = Util.sendRequest_ReturnReply(sendPacket);
+		
+		res = this.receiveNextPacket();
+		
 		try {
-			// Waiting to send the first packet
-			byte[] data = new byte[this.bufferSize];
-			packet = new DatagramPacket(data,data.length);
-			isWaiting = true;
-			socket.receive(packet);
-			Object obj = Util.deserialize(packet.getData());
-			this.first = (LinkedList<ElevatorInfo>) obj;
-			data = Util.serialize(this.request);
-			packet = new DatagramPacket(data, data.length,packet.getAddress(), packet.getPort());
-			socket.send(packet);
-			// Waiting for the second packet
-			data = new byte[this.bufferSize];
-			packet = new DatagramPacket(data,data.length);
-			socket.receive(packet);
-			obj = Util.deserialize(packet.getData());
-			this.second = (LinkedList<ElevatorInfo>) obj;
-			isDone = true;
-			
-			// Shutting down all elevators
-			request = new HashMap<Integer,Integer>();
-			
-			request.put(1, -3);
-			request.put(2, -3);
-			request.put(3, -3);
-			request.put(4, -3);
-			
-			data = Util.serialize(request);
-			packet = new DatagramPacket(data, data.length,packet.getAddress(), packet.getPort());
-			socket.send(packet);
-			socket.close();
-		}catch(IOException e){
-			e.printStackTrace();
-		}catch(ClassNotFoundException e) {
-			e.printStackTrace();
+			Object obj = Util.deserialize(res.getData());
+			elevatorInfoRes = (LinkedList<ElevatorInfo>) obj;
+		}catch(IOException e1) {
+			e1.printStackTrace();
+			return null;
+		} catch (ClassNotFoundException e2) {
+			e2.printStackTrace();
+			return null;
 		}
-	}	
+		
+		return elevatorInfoRes;
+	}
 }

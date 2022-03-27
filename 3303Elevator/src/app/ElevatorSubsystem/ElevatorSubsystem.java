@@ -70,7 +70,7 @@ public class ElevatorSubsystem implements Runnable{
  		);
  	}
 
-	private void log(String msg) {
+	public void log(String msg) {
 		this.logger.logElevatorEvents("[Elevator Subsystem] "+msg);
 	}
 
@@ -85,6 +85,7 @@ public class ElevatorSubsystem implements Runnable{
 	}
 
 	public void updateElevators(HashMap<Integer, Integer> nextFloorRequests){
+		this.log("adding elevator requests");
 		int elevatorCountDecrease = 0;
 		// Filling in the elevator requests if not present
 		for(int i = 0; i < this.numElevators; i++) {
@@ -96,6 +97,13 @@ public class ElevatorSubsystem implements Runnable{
 				elevatorCountDecrease++;
 			}
 		}
+		
+		String msg = " ";
+		for(int i = 0; i < this.numElevators; i++) {
+			msg += (i + 1) + ":" + nextFloorRequests.get(i+1) + " ";
+		}
+		this.log(msg);
+		
 		this.numElevators -= elevatorCountDecrease;
 		this.nextFloorBuf.addReq(nextFloorRequests);
 
@@ -105,17 +113,10 @@ public class ElevatorSubsystem implements Runnable{
 	}
 
 	public void sendUpdateToScheduler(){
-		this.log("sending all elevator update to scheduler");
 		DatagramPacket sendPacket = this.buildSchedulerPacket();
+		this.log("sending all elevator update to scheduler");
 		DatagramPacket receieved = Util.sendRequest_ReturnReply(sendPacket);
-
-		String status = receieved.getData().toString();
-
-		if (status.equals("200 OK")) {
-			this.log("scheduler succesfully receieved elevators status");
-		}else{
-			this.log("scheduler failed to recieve elevators status");
-		}
+		this.log("scheduler succesfully receieved elevators status");
 	}
 
 	@Override
@@ -128,6 +129,7 @@ public class ElevatorSubsystem implements Runnable{
 			),
 			"ElevatorSubsystem_SchedulerPacketReceiver")
 		).start();
+		this.createElevators();
 	}
 
 	public static void main(String[] args){
