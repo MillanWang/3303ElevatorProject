@@ -40,9 +40,9 @@ public class Scheduler implements Runnable{
 	
 	private int elevatorSubsystemReceivePort;
 	public int floorSubsystemReceivePort;
-	private InetAddress floorInetAddress;
+	private InetAddress floorSubsystemInetAddress;
 	private int floorSubsystemSendPort;
-	private InetAddress elevatorInetAddress;
+	private InetAddress elevatorSubsystemInetAddress;
 	private int elevatorSubsystemSendPort;
 	
 	private Logger logger;
@@ -65,8 +65,8 @@ public class Scheduler implements Runnable{
 		this.elevatorSubsystemSendPort = this.config.getInt("elevator.port");
 		
 		try {
-			this.floorInetAddress = InetAddress.getByName(this.config.getString("floor.schedulerReceivePort"));
-			this.elevatorInetAddress = InetAddress.getByName(this.config.getString("elevator.address"));
+			this.floorSubsystemInetAddress = InetAddress.getByName(this.config.getString("floor.schedulerReceivePort"));
+			this.elevatorSubsystemInetAddress = InetAddress.getByName(this.config.getString("elevator.address"));
 		} catch (UnknownHostException e) {e.printStackTrace();}
 		this.floorSubsystemSendPort = this.config.getInt("scheduler.elevatorReceivePort");
 		
@@ -146,7 +146,7 @@ public class Scheduler implements Runnable{
 		try {
 			serializedListOfElevatorInfo = Util.serialize(this.elevatorSpecificSchedulerManager.getMostRecentAllElevatorInfo());
 		} catch (IOException e) {}
-		DatagramPacket packetToSend = new DatagramPacket(serializedListOfElevatorInfo, serializedListOfElevatorInfo.length, this.floorInetAddress, this.floorSubsystemSendPort);
+		DatagramPacket packetToSend = new DatagramPacket(serializedListOfElevatorInfo, serializedListOfElevatorInfo.length, this.floorSubsystemInetAddress, this.floorSubsystemSendPort);
 		Util.sendRequest_ReturnReply(packetToSend);
 	}
 
@@ -161,7 +161,7 @@ public class Scheduler implements Runnable{
 		} catch (IOException e) {e.printStackTrace();}
         //Create packet to reply with. Then send
         byte[] replyData = packetMessageOutputStream.toByteArray();
-        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, elevatorInetAddress, elevatorSubsystemSendPort);
+        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, elevatorSubsystemInetAddress, elevatorSubsystemSendPort);
 		Util.sendRequest_ReturnReply(replyPacket);
 	}
 	
