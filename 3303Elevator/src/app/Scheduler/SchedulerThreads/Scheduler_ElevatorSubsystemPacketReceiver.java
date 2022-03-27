@@ -42,7 +42,7 @@ public class Scheduler_ElevatorSubsystemPacketReceiver extends PacketReceiver {
 	 */
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
-		System.out.println("uihasgdhiugsdaihusgadahiusgdihuasdiugihuasdo8iguvabsdf89gaubpf98gbaew9rgaew9r8ga9ergbae98r7uhbg9a8ie7urbgo8iuawebrougily8abeu8ir");
+		System.out.println("[Scheduler_ElevatorSubsystemPacketReceiver] : Received packet from elevator subsystem");
         //De-serialize packet contents to become input for scheduler's next floors to visit
 		LinkedList<ElevatorInfo> elevatorSubsystemComms = null;
         try {

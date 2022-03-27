@@ -39,6 +39,7 @@ public class Scheduler implements Runnable{
 	private int floorSubsystemSendPort;
 	private InetAddress elevatorSubsystemInetAddress;
 	private int elevatorSubsystemSendPort;
+	private HashMap<Integer,Integer> previousNextFloorHashMap;
 	
 	private Logger logger;
 	private Config config;
@@ -152,14 +153,25 @@ public class Scheduler implements Runnable{
 	 * @param allElevatorInfos
 	 */
 	public synchronized void sendNextPacket_elevatorSpecificNextFloor(LinkedList<ElevatorInfo> allElevatorInfos) {
+		
+		HashMap<Integer,Integer> currentNextFloorsHashMap = getNextFloorsToVisit(allElevatorInfos);
+		if (currentNextFloorsHashMap.equals(previousNextFloorHashMap)) {
+			//Don't send repeats more than once
+			return;
+		} else {
+			this.previousNextFloorHashMap=currentNextFloorsHashMap;
+		}
+		
+		
         //Create byte array to build reply packet contents more easily
         ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
 		try {
-			packetMessageOutputStream.write(Util.serialize(getNextFloorsToVisit(allElevatorInfos)));
+			packetMessageOutputStream.write(Util.serialize(currentNextFloorsHashMap));
 		} catch (IOException e) {e.printStackTrace();}
         //Create packet to reply with. Then send
         byte[] replyData = packetMessageOutputStream.toByteArray();
         DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, elevatorSubsystemInetAddress, elevatorSubsystemSendPort);
+		System.out.println("[Scheduler] : About to send nextFloorToVisitHashMap : " + currentNextFloorsHashMap.toString());
 		Util.sendRequest_ReturnReply(replyPacket);
 	}
 	
