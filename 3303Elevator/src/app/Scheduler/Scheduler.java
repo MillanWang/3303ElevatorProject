@@ -36,7 +36,7 @@ public class Scheduler implements Runnable{
 	private int highestFloorNumber;
 	
 	private int elevatorSubsystemReceivePort;
-	private int floorSubsystemReceivePort;
+	public int floorSubsystemReceivePort;
 	private InetAddress floorInetAddress;
 	private int floorSubsystemSendPort;
 

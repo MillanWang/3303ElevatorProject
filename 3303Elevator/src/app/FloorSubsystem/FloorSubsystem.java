@@ -52,7 +52,7 @@ public class FloorSubsystem extends Thread{
 		//this.scheduler = scheduler; 
 		this.requests = new ArrayList<ScheduledElevatorRequest>();
 		this.elevatorInfo = new LinkedList<ElevatorInfo>();
-		this.inputFileLocation = this.askToChooseFileOrUseDefault(sc);//System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
+		
 		this.currentLogger = log;
 		this.floorCount = conf.getInt("floor.highestFloorNumber");
 		this.conf = conf;
@@ -127,10 +127,17 @@ public class FloorSubsystem extends Thread{
 	public Direction getElevatorStatus() {
 		return this.elevatorStatus;
 	}
+	/**
+	 * sets the inputFileLocation to be used for testing 
+	 * 
+	 */
+	public void setInputFile(String filePath) {
+		this.inputFileLocation = filePath;
+	}
 	 /**
 	  * sends to scheduler an arraylist of scheduledElevatorRequest using datagram packet after serialization 
 	  */
-	private void sendRequestToScheduler() {
+	public void sendRequestToScheduler() {
 		
 		byte[] data = null;
 		try {
@@ -154,6 +161,7 @@ public class FloorSubsystem extends Thread{
 	public synchronized void run() {
 		Config config = new Config("local.properties");
 		//Don't schedule anything with blank input file
+		this.inputFileLocation = this.askToChooseFileOrUseDefault(sc);//System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 		if (this.inputFileLocation.equals("")) return;
 		
 		
@@ -404,6 +412,7 @@ public class FloorSubsystem extends Thread{
 		Thread floorThread = new Thread(floorSubsys, "FloorSubsystemThread");
 		
 		floorThread.start();
+		
 		
 		//runCommandLineUI(sc, scheduler);
 	}
