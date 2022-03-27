@@ -38,6 +38,7 @@ public class ElevatorSpecificScheduler {
 	 * Current state of the elevator specific scheduler
 	 */
 	private ElevatorSpecificSchedulerState currentState;
+	private ElevatorSpecificSchedulerState previousStateBeforeTempError;
 	
 	/**
 	 * Directional sets of floor numbers for the current elevator to visit
@@ -137,6 +138,7 @@ public class ElevatorSpecificScheduler {
 	public void addRequest(int startFloor, int destinationFloor, int requestType) {
 		if (requestType==1) {
 			// Temporary error request type. Schedule incoming request to be dealt with when back online
+			this.previousStateBeforeTempError = currentState; 
 			this.currentState = ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE;
 		} else if (requestType==2) {
 			//Permanent error request type. Discard incoming request
@@ -335,6 +337,15 @@ public class ElevatorSpecificScheduler {
 	 * @return
 	 */
 	public int handleElevatorInfoChange_returnNextFloorToVisit(ElevatorInfo elevatorInfo) {
+		if (elevatorInfo.getFloor()==-3) return-3;
+		if (elevatorInfo.getFloor()==-2) return-2;
+		
+		//TEMPORARY ERROR REVIVAL - When a valid current floor is returned instead of the out of service negatives
+		if (currentState == ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE || elevatorInfo.getFloor()>=-1) {
+			this.currentState = this.previousStateBeforeTempError;
+			this.previousStateBeforeTempError = null;
+		}
+		
 		if (this.isUpwards) {
 			this.upwardsFloorIsVisited(elevatorInfo.getFloor());
 		} else if (!this.isUpwards) {
