@@ -24,12 +24,14 @@ import app.UDP.Util;
 public class ElevatorSubsystem implements Runnable{
 
 	private int maxFloor, numElevators;
+	private ArrayList<Integer> permErrors;
 	private InetSocketAddress schedulerAddr;
 	private Logger logger;
 	private TimeManagementSystem tms;
 	private ElevatorNextFloorBuffer nextFloorBuf;
 	private ElevatorStatusBuffer statusBuf;
 	private Config config;
+
 	/**
 	 * Constructor used to create elevator subsystem
 	 *
@@ -47,7 +49,8 @@ public class ElevatorSubsystem implements Runnable{
 		this.nextFloorBuf = new ElevatorNextFloorBuffer();
 		this.statusBuf = new ElevatorStatusBuffer(numElevators);
 		this.logger = new Logger(config);
-		this.tms =  new TimeManagementSystem(config.getInt("time.multiplier"), this.logger);;
+		this.tms =  new TimeManagementSystem(config.getInt("time.multiplier"), this.logger);
+		this.permErrors = new ArrayList<>();
 	}
 
  	private DatagramPacket buildSchedulerPacket(){
@@ -91,7 +94,11 @@ public class ElevatorSubsystem implements Runnable{
 			if(!nextFloorRequests.containsKey(i+1)) {
 				nextFloorRequests.put(i+1, -1);
 			}else if(nextFloorRequests.get(i+1) == -3){
-				nextFloorRequests.remove(i+1);
+				if(this.permErrors.contains(i+1)) {
+					nextFloorRequests.remove(i+1);	
+				}else {
+					this.permErrors.add(i+1);
+				}
 			}
 		}
 		
