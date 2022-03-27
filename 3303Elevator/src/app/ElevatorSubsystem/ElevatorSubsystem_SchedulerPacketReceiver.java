@@ -10,7 +10,6 @@ import app.UDP.Util;
 public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 
 	ElevatorSubsystem ess;
-
 	HashMap<Integer, Integer> nextFloorHashMap;
 
 	protected ElevatorSubsystem_SchedulerPacketReceiver(String name, int port, ElevatorSubsystem ess) {
@@ -41,7 +40,7 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 		System.out.println("Starting " + this.name + "...");
 		while (true) {
 			this.sendReply(this.createReplyPacketGivenRequestPacket(this.receiveNextPacket()));
-			this.ess.updateElevators(nextFloorRequests);
+			this.ess.updateElevators(this.nextFloorHashMap);
 			nextFloorHashMap = null;
 			this.ess.sendUpdateToScheduler();
 		}

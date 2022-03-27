@@ -41,7 +41,7 @@ public abstract class PacketReceiver implements Runnable {
 	 * Receives and returns the next incoming packet on the current receiveSocket
 	 * @return The incoming receive packet
 	 */
-	protected receiveNextPacket() {
+	protected DatagramPacket receiveNextPacket() {
 		//Create a packet to receive next packet
         byte[] data = new byte[(new Config("multi.properties")).getInt("udp.buffer.size")];
         DatagramPacket receivedPacket = new DatagramPacket(data, data.length);
@@ -60,7 +60,7 @@ public abstract class PacketReceiver implements Runnable {
 	 * Sends reply packet on a temporary DatagramSocket
 	 * @param replyPacket the packet to reply with
 	 */
-	protected sendReply(DatagramPacket replyPacket) {
+	protected void sendReply(DatagramPacket replyPacket) {
 		//Create socket to send the reply packet and then close
 		try {
 			DatagramSocket responseSocket = new DatagramSocket();
