@@ -25,6 +25,7 @@ public class Scheduler_ElevatorSubsystemPacketReceiver extends PacketReceiver {
 	 * The scheduler to get next instructions
 	 */
 	private Scheduler scheduler;
+	private LinkedList<ElevatorInfo> mostRecentElevatorInfo;
 	
 	/**
 	 * Constructor for the ElevaorSubsystemPacketReceiver class
@@ -41,29 +42,39 @@ public class Scheduler_ElevatorSubsystemPacketReceiver extends PacketReceiver {
 	 */
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
+		System.out.println("uihasgdhiugsdaihusgadahiusgdihuasdiugihuasdo8iguvabsdf89gaubpf98gbaew9rgaew9r8ga9ergbae98r7uhbg9a8ie7urbgo8iuawebrougily8abeu8ir");
         //De-serialize packet contents to become input for scheduler's next floors to visit
 		LinkedList<ElevatorInfo> elevatorSubsystemComms = null;
         try {
-        	elevatorSubsystemComms = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
+        	mostRecentElevatorInfo = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
 		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
        
-        //Get the next floor to visit for each elevator from scheduler
-        HashMap<Integer,Integer> allElevatorsAllFloorsToVisit = this.scheduler.getNextFloorsToVisit(elevatorSubsystemComms);
+        
 
         
-        //Create byte array to build reply packet contents more easily
-        ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
-        
-        //Write serialized response object to packet
-        try {
-			packetMessageOutputStream.write(Util.serialize(allElevatorsAllFloorsToVisit));
-		} catch (IOException e) {e.printStackTrace();}
-        
+//        //Create byte array to build reply packet contents more easily
+//        ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
+//        
+//        //Write serialized response object to packet
+//        try {
+//			packetMessageOutputStream.write(Util.serialize(allElevatorsAllFloorsToVisit));
+//		} catch (IOException e) {e.printStackTrace();}
+//        
 
         //Create packet to reply with. Then send
-        byte[] replyData = packetMessageOutputStream.toByteArray();//"200 OK".getBytes();
+        byte[] replyData = "200 OK".getBytes();//packetMessageOutputStream.toByteArray();//
         DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, requestPacket.getAddress(), requestPacket.getPort());
 		return replyPacket;
+	}
+	
+	@Override
+	public void run(){
+		System.out.println("Starting " + this.name + "...");
+		while (true) {
+			this.sendReply(this.createReplyPacketGivenRequestPacket(this.receiveNextPacket()));
+			//Get the next floor to visit for each elevator from scheduler
+	        this.scheduler.sendNextPacket_elevatorSpecificNextFloor(mostRecentElevatorInfo);
+		}
 	}
 
 }

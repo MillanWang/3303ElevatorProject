@@ -78,13 +78,21 @@ public class ElevatorSpecificSchedulerManager {
 	 * @return ID of the elevator with the least floors to visit
 	 */
 	private synchronized int getBestElevatorId_SimpleLeastLoadAlgorithm() {
-		Integer minFloorsToVisitElevatorID = 1;
+
+		int minStops = 999999999;
 		for (Integer id : this.allElevatorSpecificSchedulers.keySet()) {
-			if (this.allElevatorSpecificSchedulers.get(id).getActiveNumberOfStopsCount() <= this.allElevatorSpecificSchedulers.get(minFloorsToVisitElevatorID).getActiveNumberOfStopsCount()) {
-				minFloorsToVisitElevatorID = id;
+			if (this.allElevatorSpecificSchedulers.get(id).getCurrentState()!= ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE && this.allElevatorSpecificSchedulers.get(id).getActiveNumberOfStopsCount() <= minStops) {
+				minStops = this.allElevatorSpecificSchedulers.get(id).getActiveNumberOfStopsCount();
 			}
 		}
-		return minFloorsToVisitElevatorID;
+		LinkedList<Integer> minFloorElevatorIDs = new LinkedList<Integer>();
+		for (Integer id : this.allElevatorSpecificSchedulers.keySet()) {
+			if (this.allElevatorSpecificSchedulers.get(id).getCurrentState()!= ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE && this.allElevatorSpecificSchedulers.get(id).getActiveNumberOfStopsCount() == minStops) {
+				minFloorElevatorIDs.add(id);
+			}
+		}
+		Collections.shuffle(minFloorElevatorIDs);
+		return minFloorElevatorIDs.pop();
 	}
 	
 	/**

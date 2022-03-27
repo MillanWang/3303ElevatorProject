@@ -16,7 +16,7 @@ import java.util.*;
 
 import javax.swing.JFileChooser;
 
-import app.FloorSubsystem.FloorSubsystemThreads.SchedulerPacketReceiver;
+import app.FloorSubsystem.FloorSubsystemThreads.FloorSubsystem_SchedulerPacketReceiver;
 import app.Logger;
 import app.Config.Config;
 import app.ElevatorSubsystem.ElevatorSubsystem;
@@ -167,8 +167,8 @@ public class FloorSubsystem extends Thread{
 		
 		addInputRequests(this.inputFileLocation); 
 		this.sendRequestToScheduler();
-		SchedulerPacketReceiver sReceiver = new SchedulerPacketReceiver( this, config.getInt("floor.schedulerReceivePort"));
-		(new Thread(sReceiver, "SchedulerPacketReceiver")).start();
+		FloorSubsystem_SchedulerPacketReceiver sReceiver = new FloorSubsystem_SchedulerPacketReceiver( this, config.getInt("floor.schedulerReceivePort"));
+		(new Thread(sReceiver, "FloorSubsystem_SchedulerPacketReceiver")).start();
 		runCommandLineUI(sc); //, scheduler from runCommandLineUI	
 	}
 	
