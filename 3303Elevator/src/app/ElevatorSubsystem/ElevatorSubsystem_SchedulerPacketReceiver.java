@@ -10,7 +10,9 @@ import app.UDP.Util;
 public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 
 	ElevatorSubsystem ess;
-	
+
+	HashMap<Integer, Integer> nextFloorHashMap;
+
 	protected ElevatorSubsystem_SchedulerPacketReceiver(String name, int port, ElevatorSubsystem ess) {
 		super(name, port);
 		this.ess = ess;
@@ -19,7 +21,6 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
 		System.out.println("\n\n\n***************MADE IT INTO THE ELEVATOR SCHEDULER RECEIVER****************\n\n\n");
-		HashMap<Integer, Integer> nextFloorHashMap  = null;
 		try {
 			Object obj = Util.deserialize(requestPacket.getData());
 			nextFloorHashMap  = (HashMap<Integer, Integer>) obj;
@@ -28,16 +29,21 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 		}catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
-		//TODO : Call something in the ESS areas to handle this new incoming Hashmap
-		System.out.println(nextFloorHashMap);
 
-		
-		
 		//Create packet to reply with. Then send
         byte[] replyData = "200 OK".getBytes();
         DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, requestPacket.getAddress(), requestPacket.getPort());
 		return replyPacket;
 	}
 
+	@Override
+	public void run(){
+		System.out.println("Starting " + this.name + "...");
+		while (true) {
+			this.sendReply(this.createReplyPacketGivenRequestPacket(this.receiveNextPacket()));
+			this.ess.updateElevators(nextFloorRequests);
+			nextFloorHashMap = null;
+			this.ess.sendUpdateToScheduler();
+		}
+	}
 }
