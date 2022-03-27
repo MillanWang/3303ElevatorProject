@@ -2,7 +2,8 @@ package app.ElevatorSubsystem.Elevator;
 
 import app.Scheduler.TimeManagementSystem;
 import app.Logger;
-import app.ElevatorSubsystem.ElevatorBuffer;
+import app.ElevatorSubsystem.ElevatorNextFloorBuffer;
+import app.ElevatorSubsystem.ElevatorStatusBuffer;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.StateMachine.*;
 import java.util.ArrayList;
@@ -24,7 +25,8 @@ public class Elevator implements Runnable {
 	private ElevatorState state;
 	private TimeManagementSystem tms;
 	private Logger logger;
-	private ElevatorBuffer buf;
+	private ElevatorNextFloorBuffer nextFloorBuf;
+	private ElevatorStatusBuffer statusBuf;
 	private Direction last;
 
 	/**
@@ -32,7 +34,7 @@ public class Elevator implements Runnable {
 	 */
 	private int maxFloorCount;
 
-	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms, ElevatorBuffer buf) {
+	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms, ElevatorNextFloorBuffer nextFloorBuf, ElevatorStatusBuffer statusBuf) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
 		this.floorsMoved = 0;
@@ -42,7 +44,8 @@ public class Elevator implements Runnable {
 		this.door = new ElevatorDoor(this.tms);
 		this.logger = logger;
 		this.id = id;
-		this.buf = buf;
+		this.nextFloorBuf = nextFloorBuf;
+		this.statusBuf = statusBuf;
 		this.last= Direction.UP;
 	}
 
@@ -212,12 +215,16 @@ public class Elevator implements Runnable {
 	public void run() {
 
 		this.log("is online");
-		this.buf.addStatus(this.getInfo());
+		this.statusBuf.addStatus(this.getInfo());
 
 		while(!exit) {
 
-			int nextFloor = buf.getNextFloor(this.id);
-
+			int nextFloor = nextFloorBuf.getNextFloor(this.id);
+			
+			while(nextFloor == 0) {
+				nextFloor = nextFloorBuf.getNextFloor(this.id);
+			}
+	
 			//  Next Floor speciel cases
 			// -1: No next stop
 			// -2: temporary out of service
@@ -231,12 +238,12 @@ public class Elevator implements Runnable {
 			if(nextFloor == -3){
 				this.log("has permanently been stopped");
 				this.currentFloor = nextFloor;
-				this.buf.addStatus(this.getInfo());
+				this.statusBuf.addStatus(this.getInfo());
 				return;
 			}
 
 
-			while(!this.checkFloor(nextFloor) && !(nextFloor < 1 || nextFloor > this.maxFloorCount)) {
+			while((nextFloor != -1) && !this.checkFloor(nextFloor) && !(nextFloor < 1 || nextFloor > this.maxFloorCount)) {
 				this.log(" :" + this.currentFloor + " :" + nextFloor);
 				if(nextFloor > this.currentFloor) {
 					this.setDirection(Direction.UP);
@@ -249,8 +256,7 @@ public class Elevator implements Runnable {
 				this.waitTransit(nextFloor);
 				this.nextState();
 			}
-			//this.setDirection(Direction.AWAITING_NEXT_REQUEST);
-			this.buf.addStatus(this.getInfo());
+			this.statusBuf.addStatus(this.getInfo());
 			this.last = Direction.AWAITING_NEXT_REQUEST;
 		}
 		this.log("is offline");
