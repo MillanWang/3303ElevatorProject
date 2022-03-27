@@ -41,7 +41,15 @@ public class ElevatorInfo implements Serializable{
 		return this.mostRecent;
 	}
 	
-	
-	
-	
+	@Override
+	public String toString() {
+		String outline = "*********************************************";
+		String returnString = outline + "\n";
+		returnString+= "[Elevator "+this.id+" - Elevator Info]\n";
+		returnString+= "\tState                 : " + this.state + "\n";
+		returnString+= "\tMost recent floor     : " + this.floor + "\n";
+		returnString+= "\tMost recent direction : " + this.mostRecent + "\n";
+		returnString+= outline;
+		return returnString;
+	}
 }

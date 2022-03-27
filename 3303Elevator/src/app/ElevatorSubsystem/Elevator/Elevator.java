@@ -244,7 +244,7 @@ public class Elevator implements Runnable {
 
 
 			while((nextFloor != -1) && !this.checkFloor(nextFloor) && !(nextFloor < 1 || nextFloor > this.maxFloorCount)) {
-				this.log(" :" + this.currentFloor + " :" + nextFloor);
+				//this.log(" :" + this.currentFloor + " :" + nextFloor);
 				if(nextFloor > this.currentFloor) {
 					this.setDirection(Direction.UP);
 					this.last = Direction.UP;
@@ -256,7 +256,13 @@ public class Elevator implements Runnable {
 				this.waitTransit(nextFloor);
 				this.nextState();
 			}
-			this.statusBuf.addStatus(this.getInfo());
+			ElevatorInfo ei = this.getInfo();
+			
+			if(nextFloor > 0) {
+				System.out.println(ei);
+			}
+			
+			this.statusBuf.addStatus(ei);
 			this.last = Direction.AWAITING_NEXT_REQUEST;
 		}
 		this.log("is offline");
