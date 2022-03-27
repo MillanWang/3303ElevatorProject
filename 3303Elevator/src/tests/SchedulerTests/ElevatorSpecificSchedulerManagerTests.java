@@ -4,6 +4,18 @@ import org.junit.Test;
 
 import app.Scheduler.ElevatorSpecificSchedulerManager;
 
+/**
+ * ElevatorSpecificSchedulerManager Testing
+ * These tests show how requests get distributed to 
+ * the different elevators managed by ElevatorSpecificSchedulerManager
+ * 
+ * See how each ElevatorSpecificScheduler handles elevator movements 
+ * in ElevatorSpecificSchedulerTests
+ * 
+ * 
+ * @author Millan Wang
+ *
+ */
 public class ElevatorSpecificSchedulerManagerTests {
 	//TODO : Make test to show the assignment of requests to elevators along algorithm
 	//
