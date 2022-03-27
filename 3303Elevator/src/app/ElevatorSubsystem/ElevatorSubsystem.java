@@ -86,30 +86,23 @@ public class ElevatorSubsystem implements Runnable{
 
 	public void updateElevators(HashMap<Integer, Integer> nextFloorRequests){
 		this.log("adding elevator requests");
-		int elevatorCountDecrease = 0;
 		// Filling in the elevator requests if not present
 		for(int i = 0; i < this.numElevators; i++) {
 			if(!nextFloorRequests.containsKey(i+1)) {
 				nextFloorRequests.put(i+1, -1);
 			}else if(nextFloorRequests.get(i+1) == -3){
-				// if an elevator is permentially disable used to
-				// decrease elevators
-				elevatorCountDecrease++;
+				nextFloorRequests.remove(i+1);
 			}
 		}
 		
 		String msg = " ";
 		for(int i = 0; i < this.numElevators; i++) {
-			msg += (i + 1) + ":" + nextFloorRequests.get(i+1) + " ";
+			if(nextFloorRequests.containsKey(i+1)) {
+				msg += (i + 1) + ":" + nextFloorRequests.get(i+1) + " ";
+			}
 		}
 		this.log(msg);
-		
-		this.numElevators -= elevatorCountDecrease;
 		this.nextFloorBuf.addReq(nextFloorRequests);
-
-		if(this.numElevators == 0){
-			System.exit(0);
-		}
 	}
 
 	public void sendUpdateToScheduler(){

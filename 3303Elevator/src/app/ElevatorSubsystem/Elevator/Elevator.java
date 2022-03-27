@@ -230,7 +230,8 @@ public class Elevator implements Runnable {
 
 			if(nextFloor == -2){
 				this.log("is temporary out of service");
-				this.currentFloor = nextFloor;
+				this.statusBuf.addStatus(this.getInfo());
+				continue;
 			}
 
 			if(nextFloor == -3){
@@ -254,6 +255,7 @@ public class Elevator implements Runnable {
 				this.waitTransit(nextFloor);
 				this.nextState();
 			}
+			
 			ElevatorInfo ei = this.getInfo();
 			
 			if(nextFloor > 0) {
