@@ -72,6 +72,11 @@ public abstract class PacketReceiver implements Runnable {
 		}
 	}
 
+	
+	protected void closeSocket() {
+		this.receiveSocket.close();
+	}
+	
 	/**
 	 * Creates a reply packet given a request packet
 	 */
