@@ -126,7 +126,7 @@ public class Scheduler implements Runnable{
 		if (requestReceiverElevatorID<=0) {
 			this.logger.logSchedulerEvent("Unable to schedule floor request "+startFloor+"->"+destinationFloor);
 		}else {
-			this.logger.logSchedulerEvent("Elevator "+requestReceiverElevatorID+" has been scheduled go handle floor request "+startFloor+"->"+destinationFloor);
+			this.logger.logSchedulerEvent("Elevator "+requestReceiverElevatorID+" has been scheduled go handle floor request "+startFloor+"->"+destinationFloor+ ". This is a " +(requestType==0?"Normal":((requestType==1?"Temporary Error":"PERMANENT ERROR")))+" request");
 		}
 		this.logger.logSchedulerEvent(this.elevatorSpecificSchedulerManager.toString());
 	}
@@ -171,8 +171,13 @@ public class Scheduler implements Runnable{
         //Create packet to reply with. Then send
         byte[] replyData = packetMessageOutputStream.toByteArray();
         DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, elevatorSubsystemInetAddress, elevatorSubsystemSendPort);
-		System.out.println("[Scheduler] : About to send nextFloorToVisitHashMap : " + currentNextFloorsHashMap.toString());
-		Util.sendRequest_ReturnReply(replyPacket);
+        
+        
+        this.logger.logSchedulerEvent(this.elevatorSpecificSchedulerManager.toString());
+        this.logger.logSchedulerEvent("[Scheduler] : About to send nextFloorToVisitHashMap : " + currentNextFloorsHashMap.toString());
+		
+        
+        Util.sendRequest_ReturnReply(replyPacket);
 	}
 	
 	/**

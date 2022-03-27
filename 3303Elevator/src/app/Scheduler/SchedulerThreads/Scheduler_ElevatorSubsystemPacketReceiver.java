@@ -48,18 +48,6 @@ public class Scheduler_ElevatorSubsystemPacketReceiver extends PacketReceiver {
         try {
         	mostRecentElevatorInfo = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
 		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
-       
-        
-
-        
-//        //Create byte array to build reply packet contents more easily
-//        ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
-//        
-//        //Write serialized response object to packet
-//        try {
-//			packetMessageOutputStream.write(Util.serialize(allElevatorsAllFloorsToVisit));
-//		} catch (IOException e) {e.printStackTrace();}
-//        
 
         //Create packet to reply with. Then send
         byte[] replyData = "200 OK".getBytes();//packetMessageOutputStream.toByteArray();//
