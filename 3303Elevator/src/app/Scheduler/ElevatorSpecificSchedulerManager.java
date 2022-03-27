@@ -10,7 +10,7 @@ import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 
 public class ElevatorSpecificSchedulerManager {
 	private HashMap<Integer, ElevatorSpecificScheduler> allElevatorSpecificSchedulers;
-	private LinkedList<ElevatorInfo> allElevatorInfo;
+	private LinkedList<ElevatorInfo> mostRecentAllElevatorInfo;
 	private ElevatorSpecificSchedulerManagerState currentState;
 	private boolean useSimpleLeastLoadAlgorithm;
 	
@@ -31,8 +31,8 @@ public class ElevatorSpecificSchedulerManager {
 	 * Getter for most recent list of ElevatorInfo
 	 * @return the allElevatorInfo
 	 */
-	public LinkedList<ElevatorInfo> getAllElevatorInfo() {
-		return allElevatorInfo;
+	public LinkedList<ElevatorInfo> getMostRecentAllElevatorInfo() {
+		return mostRecentAllElevatorInfo;
 	}
 
 	/**
@@ -102,8 +102,8 @@ public class ElevatorSpecificSchedulerManager {
 				return this.findClosestElevatorBelowWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
 			} else {
 				//No upwards or parked elevators below start floor. Randomly select one
-				Collections.shuffle(this.allElevatorInfo);
-				return this.allElevatorInfo.get(0).getId();
+				Collections.shuffle(this.mostRecentAllElevatorInfo);
+				return this.mostRecentAllElevatorInfo.get(0).getId();
 			}
 		} else {
 			//Downwards. First check if there are any downwards or packed elevators above us
@@ -113,8 +113,8 @@ public class ElevatorSpecificSchedulerManager {
 				return this.findClosestElevatorAboveWithState(startFloor, Direction.AWAITING_NEXT_REQUEST);
 			} else {
 				//No downwards or parked elevators above start floor. Randomly select one
-				Collections.shuffle(this.allElevatorInfo);
-				return this.allElevatorInfo.get(0).getId();
+				Collections.shuffle(this.mostRecentAllElevatorInfo);
+				return this.mostRecentAllElevatorInfo.get(0).getId();
 			}
 		}
 	}
@@ -130,7 +130,7 @@ public class ElevatorSpecificSchedulerManager {
 		
 		LinkedList<Integer[]> belowElevators = new LinkedList<Integer[]>();
 		//Identify elevators below
-		for (ElevatorInfo eInfo : this.allElevatorInfo) {
+		for (ElevatorInfo eInfo : this.mostRecentAllElevatorInfo) {
 			
 			if (eInfo.getFloor()<=floor && eInfo.getMostRecentDirection().equals(direction)) {
 				belowElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
@@ -162,7 +162,7 @@ public class ElevatorSpecificSchedulerManager {
 		if (direction==null) return -1;
 		LinkedList<Integer[]> aboveElevators = new LinkedList<Integer[]>();
 		//Identify above elevators 
-		for (ElevatorInfo eInfo : this.allElevatorInfo) {
+		for (ElevatorInfo eInfo : this.mostRecentAllElevatorInfo) {
 			if (eInfo.getFloor()>=floor && eInfo.getMostRecentDirection().equals(direction)) { 
 				aboveElevators.add(new Integer[] {eInfo.getId(), eInfo.getFloor()});
 			}
@@ -184,12 +184,14 @@ public class ElevatorSpecificSchedulerManager {
 	}
 
 	public HashMap<Integer, Integer> getAllElevatorsNextFloorToVisit(LinkedList<ElevatorInfo> allElevatorInfos){
+		this.mostRecentAllElevatorInfo= allElevatorInfos;
 		HashMap<Integer, Integer> elevatorID_nextFloorMapping = new HashMap<Integer, Integer>();
 		for (ElevatorInfo eInfo : allElevatorInfos) {
 			elevatorID_nextFloorMapping.put(eInfo.getId(), 
 											this.allElevatorSpecificSchedulers.get(eInfo.getId())
 												.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		}
+		System.out.println(elevatorID_nextFloorMapping);
 		return elevatorID_nextFloorMapping;
 	} 
 	

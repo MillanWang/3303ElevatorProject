@@ -114,6 +114,7 @@ public class Scheduler implements Runnable{
 		}else {
 			this.logger.logSchedulerEvent("Elevator "+requestReceiverElevatorID+" has been scheduled go handle floor request "+startFloor+"->"+destinationFloor);
 		}
+		this.logger.logSchedulerEvent(this.elevatorSpecificSchedulerManager.toString());
 	}
 
 	/**
@@ -125,7 +126,7 @@ public class Scheduler implements Runnable{
 	private synchronized void sendUpdateToFloorSubsystem() {
 		byte[] serializedListOfElevatorInfo = null;
 		try {
-			serializedListOfElevatorInfo = Util.serialize(this.elevatorSpecificSchedulerManager.getAllElevatorInfo());
+			serializedListOfElevatorInfo = Util.serialize(this.elevatorSpecificSchedulerManager.getMostRecentAllElevatorInfo());
 		} catch (IOException e) {}
 		DatagramPacket packetToSend = new DatagramPacket(serializedListOfElevatorInfo, serializedListOfElevatorInfo.length, this.floorInetAddress, this.floorSubsystemSendPort);
 		Util.sendRequest_ReturnReply(packetToSend);
