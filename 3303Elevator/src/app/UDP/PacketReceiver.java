@@ -17,12 +17,12 @@ public abstract class PacketReceiver implements Runnable {
 	 * Name of the packet receiver
 	 */
 	protected String name;
-	
+
 	/**
-	 * The socket to receive packets on 
+	 * The socket to receive packets on
 	 */
 	protected DatagramSocket receiveSocket;
-	
+
 	/**
 	 * Abstract Constructor for PacketReceivers
 	 * @param name Name of the packet receiver
@@ -36,16 +36,16 @@ public abstract class PacketReceiver implements Runnable {
 		}
 		this.name=name;
 	}
-	
+
 	/**
 	 * Receives and returns the next incoming packet on the current receiveSocket
 	 * @return The incoming receive packet
 	 */
-	private DatagramPacket receiveNextPacket() {
+	protected receiveNextPacket() {
 		//Create a packet to receive next packet
         byte[] data = new byte[(new Config("multi.properties")).getInt("udp.buffer.size")];
         DatagramPacket receivedPacket = new DatagramPacket(data, data.length);
-        
+
         //Receive the packet
         try {
         	this.receiveSocket.receive(receivedPacket);
@@ -55,12 +55,12 @@ public abstract class PacketReceiver implements Runnable {
 		}
         return receivedPacket;
 	}
-	
+
 	/**
 	 * Sends reply packet on a temporary DatagramSocket
 	 * @param replyPacket the packet to reply with
 	 */
-	private void sendReply(DatagramPacket replyPacket) {
+	protected sendReply(DatagramPacket replyPacket) {
 		//Create socket to send the reply packet and then close
 		try {
 			DatagramSocket responseSocket = new DatagramSocket();
@@ -76,7 +76,7 @@ public abstract class PacketReceiver implements Runnable {
 	 * Creates a reply packet given a request packet
 	 */
 	abstract protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket);
-	
+
 	@Override
 	public void run() {
 		System.out.println("Starting " + name + "...");
