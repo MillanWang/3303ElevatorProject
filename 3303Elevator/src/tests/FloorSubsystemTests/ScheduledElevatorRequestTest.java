@@ -33,7 +33,7 @@ public class ScheduledElevatorRequestTest {
 		assertEquals(5, req.getDestinationFloor());
 		assertTrue(req.isUpwards());
 		assertNotNull(req.getTime());
-		
+		assertEquals(req.getRequestType(), 0); 
 	}
 	@Test
 	/*
@@ -44,6 +44,7 @@ public class ScheduledElevatorRequestTest {
 		assertEquals(2, reqTwo.getDestinationFloor());
 		assertFalse(reqTwo.isUpwards());
 		assertNotNull(reqTwo.getTime());
+		assertEquals(reqTwo.getRequestType(), 1); 
 		
 	}
 	@Test
@@ -55,7 +56,7 @@ public class ScheduledElevatorRequestTest {
 		assertEquals(4, reqThree.getDestinationFloor());
 		assertTrue(reqThree.isUpwards());
 		assertNull(reqThree.getTime());
-		
+		assertEquals(reqThree.getRequestType(), 2); 
 	}
 	
 }
