@@ -3,6 +3,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import app.Scheduler.ElevatorSpecificSchedulerManager;
+import app.Scheduler.ElevatorSpecificSchedulerManagerState;
 
 /**
  * ElevatorSpecificSchedulerManager Testing
@@ -40,6 +41,7 @@ public class ElevatorSpecificSchedulerManagerTests {
 		essm.scheduleFloorRequest(1, 4, 2); //Schedule a permanent error request
 
 		Assert.assertTrue(essm.toString().contains("State : PERMANENT_OUT_OF_SERVICE"));
+		Assert.assertEquals( ElevatorSpecificSchedulerManagerState.AWAITING_NEXT_ELEVATOR_REQUEST, essm.getCurrentState());
 		
 		essm.scheduleFloorRequest(3, 4, 2); //Schedule another permanent error request
 		essm.scheduleFloorRequest(5, 4, 2); //Schedule another permanent error request
@@ -51,5 +53,6 @@ public class ElevatorSpecificSchedulerManagerTests {
 		Assert.assertEquals(4, occurances);
 		
 		essm.scheduleFloorRequest(1, 3,2);//Schedule another permanent error request. This will get discarded
+		Assert.assertEquals( ElevatorSpecificSchedulerManagerState.ALL_ELEVATORS_OUT_OF_SERVICE, essm.getCurrentState());
 	}
 }
