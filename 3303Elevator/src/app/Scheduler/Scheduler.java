@@ -1,5 +1,6 @@
 package app.Scheduler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -13,12 +14,14 @@ import java.util.TreeSet;
 import app.Logger;
 import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
+import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
+import app.ElevatorSubsystem.StateMachine.ElevatorState;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.FloorSubsystem.*;
 import app.Scheduler.SchedulerThreads.DelayedRequest;
-import app.Scheduler.SchedulerThreads.ElevatorSubsystemPacketReceiver;
-import app.Scheduler.SchedulerThreads.FloorSubsystemPacketReceiver;
+import app.Scheduler.SchedulerThreads.Scheduler_ElevatorSubsystemPacketReceiver;
+import app.Scheduler.SchedulerThreads.Scheduler_FloorSubsystemPacketReceiver;
 import app.UDP.Util;
 
 /**
@@ -39,9 +42,11 @@ public class Scheduler implements Runnable{
 	private int floorSubsystemReceivePort;
 	private InetAddress floorInetAddress;
 	private int floorSubsystemSendPort;
-
+	private InetAddress elevatorInetAddress;
+	private int elevatorSubsystemSendPort;
 	
 	private Logger logger;
+	private Config config;
 	
 
 	/**
@@ -52,20 +57,23 @@ public class Scheduler implements Runnable{
 	 * @param floorSubsys Reference to the floor subsystem dependency
 	 */
 	public Scheduler(Logger logger, Config config) {
-		this.highestFloorNumber= config.getInt("floor.highestFloorNumber"); 
+		this.config=config;
+		this.highestFloorNumber= this.config.getInt("floor.highestFloorNumber"); 
 		this.elevatorSpecificSchedulerManager = new ElevatorSpecificSchedulerManager(USE_SIMPLE_LEAST_LOAD_ALGORITHM); 
-		this.elevatorSubsystemReceivePort = config.getInt("scheduler.elevatorReceivePort");
-		this.floorSubsystemReceivePort = config.getInt("scheduler.floorReceivePort");
+		this.elevatorSubsystemReceivePort = this.config.getInt("scheduler.elevatorReceivePort");
+		this.floorSubsystemReceivePort = this.config.getInt("scheduler.floorReceivePort");
+		this.elevatorSubsystemSendPort = this.config.getInt("elevator.port");
 		
 		try {
-			this.floorInetAddress = InetAddress.getByName(config.getString("floor.schedulerReceivePort"));
+			this.floorInetAddress = InetAddress.getByName(this.config.getString("floor.schedulerReceivePort"));
+			this.elevatorInetAddress = InetAddress.getByName(this.config.getString("elevator.address"));
 		} catch (UnknownHostException e) {e.printStackTrace();}
-		this.floorSubsystemSendPort = config.getInt("scheduler.elevatorReceivePort");
+		this.floorSubsystemSendPort = this.config.getInt("scheduler.elevatorReceivePort");
 		
 		
 		this.logger = logger;
 		
-		this.skipDelaysOnFloorInputs= config.getInt("scheduler.skipDelaysOnFloorInputs")==1; 
+		this.skipDelaysOnFloorInputs= this.config.getInt("scheduler.skipDelaysOnFloorInputs")==1; 
 	}
 	
 	
@@ -97,6 +105,16 @@ public class Scheduler implements Runnable{
 			}
 			
 		}
+		LinkedList<ElevatorInfo> allElevatorInfos = this.elevatorSpecificSchedulerManager.getMostRecentAllElevatorInfo();
+		//First request, need to initialize elevators
+		if (allElevatorInfos==null) {
+			int numElevators = this.config.getInt("elevator.total.number");
+			allElevatorInfos= new LinkedList<ElevatorInfo>();
+			for(int i = 0; i < numElevators; i++) {
+				allElevatorInfos.add(new ElevatorInfo(i+1, 1,  null, Direction.UP));
+			}
+		}
+		this.sendNextPacket_elevatorSpecificNextFloor(allElevatorInfos);
 	}
 	
 
@@ -132,6 +150,21 @@ public class Scheduler implements Runnable{
 		Util.sendRequest_ReturnReply(packetToSend);
 	}
 
+	
+	
+	
+	public synchronized void sendNextPacket_elevatorSpecificNextFloor(LinkedList<ElevatorInfo> allElevatorInfos) {
+        //Create byte array to build reply packet contents more easily
+        ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
+		try {
+			packetMessageOutputStream.write(Util.serialize(getNextFloorsToVisit(allElevatorInfos)));
+		} catch (IOException e) {e.printStackTrace();}
+        //Create packet to reply with. Then send
+        byte[] replyData = packetMessageOutputStream.toByteArray();
+        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, elevatorInetAddress, elevatorSubsystemSendPort);
+		Util.sendRequest_ReturnReply(replyPacket);
+	}
+	
 	/**
 	 * Returns a HashMap of ElevatorID:nextFloorToVisit for each elevator
 	 * 
@@ -142,14 +175,14 @@ public class Scheduler implements Runnable{
 		return this.elevatorSpecificSchedulerManager.getAllElevatorsNextFloorToVisit(allElevatorInfos);
 	}
 	
-
+	
 	@Override
 	public void run() {
 		// Create message receiver threads for messages from floor subsystem and elevator subsystem
-		FloorSubsystemPacketReceiver fssReceiver = new FloorSubsystemPacketReceiver( this.floorSubsystemReceivePort, this);
-		ElevatorSubsystemPacketReceiver essReceiver = new ElevatorSubsystemPacketReceiver(this.elevatorSubsystemReceivePort, this);
-		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
-		(new Thread(essReceiver, "ElevatorSubsystemPacketReceiver")).start();
+		Scheduler_FloorSubsystemPacketReceiver fssReceiver = new Scheduler_FloorSubsystemPacketReceiver( this.floorSubsystemReceivePort, this);
+		Scheduler_ElevatorSubsystemPacketReceiver essReceiver = new Scheduler_ElevatorSubsystemPacketReceiver(this.elevatorSubsystemReceivePort, this);
+		(new Thread(fssReceiver, "Scheduler_FloorSubsystemPacketReceiver")).start();
+		(new Thread(essReceiver, "Scheduler_ElevatorSubsystemPacketReceiver")).start();
 	}
 	
 	public static void main(String[] args) {

@@ -16,7 +16,7 @@ import app.UDP.Util;
  * @author Millan Wang
  *
  */
-public class FloorSubsystemPacketReceiver extends PacketReceiver {
+public class Scheduler_FloorSubsystemPacketReceiver extends PacketReceiver {
 	/**
 	 * The scheduler to get next instructions
 	 */
@@ -27,7 +27,7 @@ public class FloorSubsystemPacketReceiver extends PacketReceiver {
 	 * @param port The port to be used to receive on the DatagramSocket
 	 * @param scheduler The scheduler to send requests to 
 	 */
-	public FloorSubsystemPacketReceiver(int port, Scheduler scheduler) {
+	public Scheduler_FloorSubsystemPacketReceiver(int port, Scheduler scheduler) {
 		super("FloorSubsystemPacketReceiver", port);
 		this.scheduler = scheduler;
 	}
@@ -44,7 +44,7 @@ public class FloorSubsystemPacketReceiver extends PacketReceiver {
         try {
         	ArrayList<ScheduledElevatorRequest> requestObj = (ArrayList<ScheduledElevatorRequest>) Util.deserialize(requestPacket.getData());
 			//Deserialization successful. Add to scheduler
-        	this.scheduler.floorSystemScheduleRequest(requestObj); //SWAP WITH DESERIALIZED VERSION ASAP
+        	this.scheduler.floorSystemScheduleRequest(requestObj);
         	try {
 				packetMessageOutputStream.write("200 OK".getBytes());
 			} catch (IOException e) {e.printStackTrace();}

@@ -19,7 +19,7 @@ import app.UDP.Util;
  * @author Millan Wang
  *
  */
-public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
+public class Scheduler_ElevatorSubsystemPacketReceiver extends PacketReceiver {
 
 	/**
 	 * The scheduler to get next instructions
@@ -31,7 +31,7 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
 	 * @param port Port to be used as the receive port
 	 * @param scheduler to contact to get instructions
 	 */
-	public ElevatorSubsystemPacketReceiver(int port, Scheduler scheduler) {
+	public Scheduler_ElevatorSubsystemPacketReceiver(int port, Scheduler scheduler) {
 		super("ElevatorSubsystemPacketReceiver", port);
 		this.scheduler = scheduler;
 	}
@@ -60,9 +60,8 @@ public class ElevatorSubsystemPacketReceiver extends PacketReceiver {
 		} catch (IOException e) {e.printStackTrace();}
         
 
-        
         //Create packet to reply with. Then send
-        byte[] replyData = packetMessageOutputStream.toByteArray();
+        byte[] replyData = packetMessageOutputStream.toByteArray();//"200 OK".getBytes();
         DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, requestPacket.getAddress(), requestPacket.getPort());
 		return replyPacket;
 	}
