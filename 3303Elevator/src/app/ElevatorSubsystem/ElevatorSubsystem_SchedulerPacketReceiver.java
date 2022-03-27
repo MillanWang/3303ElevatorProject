@@ -17,9 +17,10 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 		this.ess = ess;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
-		System.out.println("\n\n\n***************MADE IT INTO THE ELEVATOR SCHEDULER RECEIVER****************\n\n\n");
+		//System.out.println("\n\n\n***************MADE IT INTO THE ELEVATOR SCHEDULER RECEIVER****************\n\n\n");
 		try {
 			Object obj = Util.deserialize(requestPacket.getData());
 			nextFloorHashMap  = (HashMap<Integer, Integer>) obj;
@@ -39,6 +40,7 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 	public void run(){
 		System.out.println("Starting " + this.name + "...");
 		while (true) {
+			this.ess.log("waiting for next request");
 			this.sendReply(this.createReplyPacketGivenRequestPacket(this.receiveNextPacket()));
 			this.ess.updateElevators(this.nextFloorHashMap);
 			nextFloorHashMap = null;
