@@ -213,9 +213,7 @@ public class Elevator implements Runnable {
 	}
 
 	public void run() {
-
 		this.log("is online");
-		this.statusBuf.addStatus(this.getInfo());
 
 		while(!exit) {
 

@@ -31,11 +31,12 @@ public class ElevatorSubsystemTests {
 		req.put(1, 4);
 		
 		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 	}
 	
 	@Test
 	public void testMultiElevator() {
-		
+		assertTrue(true);
 	}
 	
 	public boolean checkIfSame(int count, LinkedList<ElevatorInfo> res, HashMap<Integer, Integer> req) {
@@ -43,6 +44,7 @@ public class ElevatorSubsystemTests {
 			int id = res.get(i).getId();
 			if(req.containsKey(id)) {
 				if(req.get(id) != res.get(i).getFloor()) {
+					System.out.println(id + " " + req.get(id) + " " + res.get(id).getFloor());
 					return false;
 				}
 			}
@@ -103,7 +105,22 @@ class FakeScheduler {
 			e.printStackTrace();
 			System.exit(1);
 		}
+        
+        data = "200 OK".getBytes();
+        this.sendReply(new DatagramPacket(data, data.length, receivedPacket.getAddress(), receivedPacket.getPort()));
         return receivedPacket;
+	}
+	
+	protected void sendReply(DatagramPacket packet) {
+		//Create socket to send the reply packet and then close
+		try {
+			DatagramSocket responseSocket = new DatagramSocket();
+			responseSocket.send(packet);
+			responseSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
