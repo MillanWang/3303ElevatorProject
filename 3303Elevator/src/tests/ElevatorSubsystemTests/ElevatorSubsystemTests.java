@@ -50,6 +50,33 @@ public class ElevatorSubsystemTests {
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
 	}
+
+	/*
+	@Test
+	public void testPermErrorThreads() {
+		Config c = new Config("test.properties");
+		ElevatorSubsystem e = new ElevatorSubsystem(c);
+		FakeScheduler f = new FakeScheduler(c);
+		(new Thread(e)).start();
+		
+		HashMap<Integer, Integer> req = new HashMap<>();
+		req.put(1, -3);
+		
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		
+		 req = new HashMap<>();
+		req.put(2, -3);
+		
+		res = f.fakeNextFloorRequest(req);
+		
+		req = new HashMap<>();
+		req.put(3, -3);
+		
+		res = f.fakeNextFloorRequest(req);
+		
+		//assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		this.closeElevatorSubsystemSockets(e, f);
+	}*/
 	
 	public boolean checkIfSame(int count, LinkedList<ElevatorInfo> res, HashMap<Integer, Integer> req) {
 		for(int i = 0; i < count; i++ ) {

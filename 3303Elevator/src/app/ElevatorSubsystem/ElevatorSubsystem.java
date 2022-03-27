@@ -93,7 +93,9 @@ public class ElevatorSubsystem implements Runnable{
 		// Filling in the elevator requests if not present
 		for(int i = 0; i < this.numElevators; i++) {
 			if(!nextFloorRequests.containsKey(i+1)) {
-				nextFloorRequests.put(i+1, -1);
+				if(!this.permErrors.contains(i+1)) {
+					nextFloorRequests.put(i+1, -1);	
+				}
 			}else if(nextFloorRequests.get(i+1) == -3){
 				if(this.permErrors.contains(i+1)) {
 					nextFloorRequests.remove(i+1);	
