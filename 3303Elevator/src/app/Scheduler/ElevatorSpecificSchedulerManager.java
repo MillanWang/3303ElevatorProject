@@ -50,7 +50,7 @@ public class ElevatorSpecificSchedulerManager {
 	 * @return
 	 */
 	public int scheduleFloorRequest(int startFloor, int destinationFloor, int requestType) {
-		if (currentState==ElevatorSpecificSchedulerManagerState.ALL_ELEVATORS_OUT_OF_SERVICE||checkIfAllElevatorsArePermanentError()) {
+		if (checkIfAllElevatorsArePermanentError()) {
 			return -1;
 		}
 		int elevatorID_toSchedule=-1;
