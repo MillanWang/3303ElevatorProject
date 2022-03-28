@@ -75,22 +75,24 @@ Source Code File Breakdown:
 		-inputfile.txt -> Default input file
 
 	-Floor Subsystem Threads
-		- FloorSubsystem_SchedulerPacketREceiver.java -> Millan
+		- FloorSubsystem_SchedulerPacketReceiver.java -> [WORK IN PROGRESS - Redesign possibly needed] to receive updates about the system. Planned for GUI operations
 
     -Scheduler:
-		-ElevatorSpecificScheduler.java -> Millan
-		-ElevatorSpecificSchedulerManager.java -> Millan
-		-ElevatorSpecificSchedulerManagerState.java -> Millan
+		-ElevatorSpecificScheduler.java -> To track the scheduling of a particular elevator
+		-ElevatorSpecificSchedulerState.java -> Enum for the state of a ElevatorSpecificScheduler
+		-ElevatorSpecificSchedulerManager.java -> To distribute requests to elevators along an algorithm. 
+		-ElevatorSpecificSchedulerManagerState.java -> Enum for the state of an ElevatorSpecificSchedulerManager
       	-Scheduler.java -> Coordinates requests from floor subsystem to movements in the elevator subsystem
       	-TimeManagementSystem.java -> Generator for delay times for elevator movements and elevator loading
 
 	-Scheduler Threads
       	-DelayedRequest.java -> Delays the execution of requests to match request time
-		-Scheduler_ElevatorSubsystemPacketReceiver.java -> Millan
-		-Scheduler_FloorSubsystemPacketReceiver.java -> Millan
+		-Scheduler_ElevatorSubsystemPacketReceiver.java -> For receiving packets from the elevator subsystem to update known elevator positions
+		-Scheduler_FloorSubsystemPacketReceiver.java -> For receiving packets from the floor subsystem to make new floor requests
+		-TemporaryErrorSelfRevive.java -> For getting elevators out of the temporary error state after a specified period of time
 
 	-UDP
-		-PacketReceiver.java -> Millan
+		-PacketReceiver.java -> Abstract class that offers base functionality for packet communications. Can be run with an implementation of the packet handling and response generation
 		-Util.java -> Common udp util functionality that was made static to the project
 
     -Test files:
@@ -113,13 +115,21 @@ Source Code File Breakdown:
 Roles and Division of Responsibilities for iteration 4:
 *Refer to git history for a more detailed breakdown of code contributions*
 
-    -Abdelrahim Karaja:
+
+-Abdelrahim Karaja:
+	-Time Management System
+		-Testing
+		-Update methods to work with ElevatorSubsystem
+	-ServerLogger
+		-Create server logger class
+	-Logger
+		-Update methods to call on server logger
 	-GUI
 		-Added blueprint for GUI class to display elevator information - WIP**
 	-UML Class Diagram
 	-Debugging/Testing of code
 
-    -Ben Kittilsen:
+-Ben Kittilsen:
 	-Elevator Subsystem
 		-Receiving next floor packets from scheduler
 		-Sending elevator status packets
@@ -134,7 +144,7 @@ Roles and Division of Responsibilities for iteration 4:
 	-VPN Configuration
 	-UML Class Diagram
 
-    -Peter Tanyous:
+-Peter Tanyous:
 	-Floor Subsystem
 		-Testing
 		-commandline UI new handler
@@ -144,13 +154,22 @@ Roles and Division of Responsibilities for iteration 4:
 		-Testing
 	-UML Class Diagram
 
-    -Millan Wang:
-	-Scheduler
+-Millan Wang:
+	-Scheduler Areas
+		-Planning, design, Redesign
+		-Addressing edge cases
+		-Implementation
+		-Temporary error self revive process
 		-Testing
-		-State machine diagram
+		-State machine diagrams
+		-Algorithm flow charts
 	-MainProgramRunner
 		-Testing
 		-State machine diagram
+	-UDP Comms 
+		-Designed and implemented abstract PacketReceiver class
 	-UML Class Diagram
 	-UML Sequence Diagram
+	-Integration Testing
+
 
