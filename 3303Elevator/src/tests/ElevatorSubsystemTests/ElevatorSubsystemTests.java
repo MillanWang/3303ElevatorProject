@@ -22,6 +22,7 @@ public class ElevatorSubsystemTests {
 	
 	@Test
 	public void testSingleElevator() {
+		//Testing a single request moving up then down
 		Config c = new Config("test.properties");
 		ElevatorSubsystem e = new ElevatorSubsystem(c);
 		FakeScheduler f = new FakeScheduler(c);
@@ -31,6 +32,11 @@ public class ElevatorSubsystemTests {
 		req.put(1, 4);
 		
 		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		
+		req = new HashMap<>();
+		req.put(1, 2);
+		res = f.fakeNextFloorRequest(req);
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
 	}
@@ -50,8 +56,51 @@ public class ElevatorSubsystemTests {
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
 	}
-
-	/*
+	
+	@Test
+	public void testMultiElevatorMultiTimes() {
+		Config c = new Config("test.properties");
+		ElevatorSubsystem e = new ElevatorSubsystem(c);
+		FakeScheduler f = new FakeScheduler(c);
+		(new Thread(e)).start();
+		
+		HashMap<Integer, Integer> req = new HashMap<>();
+		req.put(1, 4);
+		req.put(3, 5);
+		
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		
+		req = new HashMap<>();
+		req.put(1, 2);
+		req.put(3, 15);
+		req.put(4, 20);
+		
+		res = f.fakeNextFloorRequest(req);
+		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		this.closeElevatorSubsystemSockets(e, f);
+	}
+	
+	@Test
+	public void testOutOfBondsFloor() {
+		Config c = new Config("test.properties");
+		ElevatorSubsystem e = new ElevatorSubsystem(c);
+		FakeScheduler f = new FakeScheduler(c);
+		(new Thread(e)).start();
+		
+		HashMap<Integer, Integer> req = new HashMap<>();
+		req.put(1, -5);
+		req.put(3, 1000);
+		
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		
+		// update the required requests to 
+		req.put(3, 1);
+		req.put(1, 1);
+		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		this.closeElevatorSubsystemSockets(e, f);
+	}
+	
 	@Test
 	public void testPermErrorThreads() {
 		Config c = new Config("test.properties");
@@ -64,7 +113,7 @@ public class ElevatorSubsystemTests {
 		
 		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
 		
-		 req = new HashMap<>();
+		req = new HashMap<>();
 		req.put(2, -3);
 		
 		res = f.fakeNextFloorRequest(req);
@@ -74,12 +123,16 @@ public class ElevatorSubsystemTests {
 		
 		res = f.fakeNextFloorRequest(req);
 		
-		//assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
+		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
-	}*/
+	}
 	
 	public boolean checkIfSame(int count, LinkedList<ElevatorInfo> res, HashMap<Integer, Integer> req) {
 		for(int i = 0; i < count; i++ ) {
+			if(!res.contains(i)) {
+				continue;
+			}
+			
 			int id = res.get(i).getId();
 			if(req.containsKey(id)) {
 				if(req.get(id) != res.get(i).getFloor()) {
