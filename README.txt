@@ -146,13 +146,19 @@ Roles and Division of Responsibilities for iteration 4:
 
 -Peter Tanyous:
 	-Floor Subsystem
-		-Testing
-		-commandline UI new handler
-		-floorSubsystem sequence diagram
-	-SchedulerPacketReceiver
-	-Logger
-		-Testing
+		-Testing packetreceiver on floorSubsystem 
+		-requestType updates 
+		-new requestType handling in cmd UI
+	-ScheduledElevatorRequset
+		-requestType updates
+		-tests updated
+	-TextFileReader
+		-reads requestType from txt file 
+	
+	-Server Logger
+		-writes logger output to new text file to keep track 
 	-UML Class Diagram
+		-updated 
 
 -Millan Wang:
 	-Scheduler Areas
