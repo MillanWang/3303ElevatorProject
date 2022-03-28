@@ -78,7 +78,7 @@ public class ElevatorSubsystem implements Runnable{
 		this.logger.logElevatorEvents("[Elevator Subsystem] "+msg);
 	}
 
-	public void createElevators() {
+	private void createElevators() {
 		this.log("creating elevators");
 		for(int i = 0; i < this.numElevators; i++) {
 			Elevator e = new Elevator(i+1, this.maxFloor, this.logger, this.tms, this.nextFloorBuf, this.statusBuf);
