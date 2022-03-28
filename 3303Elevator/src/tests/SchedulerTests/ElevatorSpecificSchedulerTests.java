@@ -299,7 +299,7 @@ public class ElevatorSpecificSchedulerTests {
 	}
 	
 	@Test
-	public void test_TemporaryOutOfService() {
+	public void test_TemporaryErrorWithRevival() {
 		this.esScheduler = new ElevatorSpecificScheduler(ELEVATOR_ID);
 		//Awaiting elevator requests
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
@@ -317,22 +317,23 @@ public class ElevatorSpecificSchedulerTests {
 		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
 		Assert.assertEquals(7,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		
-		//TODO SHOW THE TEMP ERROR REVIVAL
 		//Now schedule a temporary error request
-//		esScheduler.addRequest(6, 9, 1);
-//		Assert.assertEquals(ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE, esScheduler.getCurrentState());
-//		//Next floor to visit with temporary error is -2
-//		Assert.assertEquals(-2,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
-//		//Add 2 floors to visit which will be dealt with once back online
-//		Assert.assertEquals(5, esScheduler.getActiveNumberOfStopsCount());
-//		
-//		
-//
-//		// Getting next floor to visit after elevator revival with ElevatorInfo.
-//		// Resume scheduled plan with next floor=7
-//		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
-//		Assert.assertEquals(7,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));//TODO CHECK THAT NEXT FLOOR IS 7 WHEN TEMP ERROR DONE
-//		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState()); //TODO Uncomment out when elevator is back online
+		esScheduler.addRequest(6, 9, 1);
+		Assert.assertEquals(ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE, esScheduler.getCurrentState());
+		//Next floor to visit with temporary error is -2
+		Assert.assertEquals(-2,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+		//Add 2 floors to visit which will be dealt with once back online
+		Assert.assertEquals(5, esScheduler.getActiveNumberOfStopsCount());
+		
+		//Revive the elevator. Normally this is done after a delay via a side thread
+		esScheduler.reviveFromTempError();
+		
+		
+		// Getting next floor to visit after elevator revival with ElevatorInfo.
+		// Resume scheduled plan with next floor=7
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
+		Assert.assertEquals(6,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));//TODO CHECK THAT NEXT FLOOR IS 7 WHEN TEMP ERROR DONE
+		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState()); //TODO Uncomment out when elevator is back online
 	}
 	
 	/**
@@ -365,14 +366,18 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(-3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		//The permanent error request does not get scheduled to add new floors to visit cause this elevator is dead
 		Assert.assertEquals(3, esScheduler.getActiveNumberOfStopsCount());
-		
-		//TODO Show that the process for reviving from temp errors does not work for permanent errors
 
 		
 		//Even if the elevator somehow moves, it will still always have -3 for next floor to visit in the PERMANENT_OUT_OF_SERVICE state
 		moveBetweenFloorsWithoutStopping(21,7,ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE);
 		eInfo = new ElevatorInfo(ELEVATOR_ID, 5, null, Direction.UP);
 		Assert.assertEquals(-3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+		
+		//Reviving from temp error will not work for permanent errors
+		esScheduler.reviveFromTempError();
+		Assert.assertEquals(-3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+		Assert.assertEquals(ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE, esScheduler.getCurrentState());
+		
 	}
 	
 	

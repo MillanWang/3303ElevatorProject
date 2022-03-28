@@ -1,11 +1,14 @@
 package app.Scheduler;
 
+
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
 import app.Config.Config;
-import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
+import app.Scheduler.SchedulerThreads.TemporaryErrorSelfRevive;
+
 
 /**
  * Class to be an elevator specific to visit list to be sent from the scheduler to the elevator subsystem
@@ -95,6 +98,13 @@ public class ElevatorSpecificScheduler {
 	}
 
 	/**
+	 * @return the mostRecentFloor
+	 */
+	public int getMostRecentFloor() {
+		return mostRecentFloor;
+	}
+
+	/**
 	 * Returns the number of active number of remaining stops on the current elevator
 	 * @return the number of active number of remaining stops on the current elevator
 	 */
@@ -140,6 +150,7 @@ public class ElevatorSpecificScheduler {
 			// Temporary error request type. Schedule incoming request to be dealt with when back online
 			this.previousStateBeforeTempError = currentState; 
 			this.currentState = ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE;
+			(new Thread(new TemporaryErrorSelfRevive(this),"TempErrorSelfRevive_"+(new Date().getTime()))).start();
 		} else if (requestType==2) {
 			//Permanent error request type. Discard incoming request
 			this.currentState = ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE;
@@ -340,11 +351,7 @@ public class ElevatorSpecificScheduler {
 		if (elevatorInfo.getFloor()==-3) return-3;
 		if (elevatorInfo.getFloor()==-2) return-2;
 		
-		//TEMPORARY ERROR REVIVAL - When a valid current floor is returned instead of the out of service negatives
-		if (currentState == ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE && elevatorInfo.getFloor()>=-1) {
-			this.currentState = this.previousStateBeforeTempError;
-			this.previousStateBeforeTempError = null;
-		}
+		
 		
 		if (this.isUpwards) {
 			this.upwardsFloorIsVisited(elevatorInfo.getFloor());
@@ -356,6 +363,16 @@ public class ElevatorSpecificScheduler {
 		}
 		this.mostRecentFloor = elevatorInfo.getFloor();
 		return this.getNextFloorToVisit(this.mostRecentFloor);//, elevatorInfo.getMostRecentDirection()); //TODO: REVIEW IF NEEDED??
+	}
+	
+	/**
+	 * Revives the current ElevatorSpecificScheduler from it's temporary out of service state and sends it next floor to visit to elevatorSubsystem
+	 */
+	public void reviveFromTempError() {
+		if (currentState == ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE) {
+			this.currentState = this.previousStateBeforeTempError;
+			this.previousStateBeforeTempError = null;
+		}
 	}
 	
 	/**
