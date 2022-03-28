@@ -115,6 +115,7 @@ Source Code File Breakdown:
 Roles and Division of Responsibilities for iteration 4:
 *Refer to git history for a more detailed breakdown of code contributions*
 
+
 -Abdelrahim Karaja:
 	-Time Management System
 		-Testing
@@ -123,7 +124,10 @@ Roles and Division of Responsibilities for iteration 4:
 		-Create server logger class
 	-Logger
 		-Update methods to call on server logger
+	-GUI
+		-Added blueprint for GUI class to display elevator information - WIP**
 	-UML Class Diagram
+	-Debugging/Testing of code
 
 -Ben Kittilsen:
 	-Elevator Subsystem
