@@ -94,7 +94,7 @@ public class ElevatorSubsystem implements Runnable{
 	}
 
 	public void updateElevators(HashMap<Integer, Integer> nextFloorRequests){
-		gui.updateElevatorInfo();
+		//gui.updateElevatorInfo();
 		this.log("adding elevator requests");
 		// Filling in the elevator requests if not present
 		for(int i = 0; i < this.numElevators; i++) {
