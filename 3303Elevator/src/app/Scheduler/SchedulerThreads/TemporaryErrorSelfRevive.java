@@ -10,20 +10,19 @@ import app.Scheduler.ElevatorSpecificScheduler;
  *
  */
 public class TemporaryErrorSelfRevive implements Runnable {
-	public static final int TEMPORARY_ERROR_SELF_REVIVE_TIME = 10*1000;
-	ElevatorSpecificScheduler eScheduler;
-	Config config;
+	public static final int TEMPORARY_ERROR_SELF_REVIVE_TIME = 20*1000;
+	ElevatorSpecificScheduler elevatorSpecificScheduler;
 	
-	public TemporaryErrorSelfRevive(ElevatorSpecificScheduler eScheduler) {
-		this.eScheduler = eScheduler;
+	public TemporaryErrorSelfRevive(ElevatorSpecificScheduler elevatorSpecificScheduler) {
+		this.elevatorSpecificScheduler = elevatorSpecificScheduler;
 	}
 	
 	
 	@Override
 	public void run() {
 		try {Thread.sleep(TEMPORARY_ERROR_SELF_REVIVE_TIME);} catch (InterruptedException e) {}
-		this.eScheduler.reviveFromTempError();
-		System.out.println("\n\nTEMPORARY ERROR EXPIRED - Elevator: "+this.eScheduler.getElevatorID()+" is back online\n\n");
+		this.elevatorSpecificScheduler.reviveFromTempError();
+		System.out.println("\n\nTEMPORARY ERROR EXPIRED - Elevator: "+this.elevatorSpecificScheduler.getElevatorID()+" is back online\n\n");
 	}
 
 }
