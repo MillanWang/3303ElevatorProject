@@ -155,22 +155,7 @@ public class FloorSubsystem extends Thread{
 		
 	}
 	
-	/**
-	 * Runs the floorSubsystem thread
-	 */
-	public synchronized void run() {
-		Config config = new Config("local.properties");
-		//Don't schedule anything with blank input file
-		this.inputFileLocation = this.askToChooseFileOrUseDefault(sc);//System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
-		if (this.inputFileLocation.equals("")) return;
-		
-		
-		addInputRequests(this.inputFileLocation); 
-		this.sendRequestToScheduler();
-		FloorSubsystem_SchedulerPacketReceiver sReceiver = new FloorSubsystem_SchedulerPacketReceiver( this, config.getInt("floor.schedulerReceivePort"));
-		(new Thread(sReceiver, "FloorSubsystem_SchedulerPacketReceiver")).start();
-		runCommandLineUI(sc); //, scheduler from runCommandLineUI	
-	}
+
 	
 	/**
 	 * Asks the user if they would like to specify an input file.
@@ -399,6 +384,23 @@ public class FloorSubsystem extends Thread{
 	    	 }
 	    	 System.out.println(UI_COMMAND_EXPLAIN_STRING);
 	     }
+	}
+
+	/**
+	 * Runs the floorSubsystem thread
+	 */
+	public synchronized void run() {
+		Config config = new Config("local.properties");
+		//Don't schedule anything with blank input file
+		this.inputFileLocation = this.askToChooseFileOrUseDefault(sc);//System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
+		if (this.inputFileLocation.equals("")) return;
+		
+		
+		addInputRequests(this.inputFileLocation); 
+		this.sendRequestToScheduler();
+		FloorSubsystem_SchedulerPacketReceiver sReceiver = new FloorSubsystem_SchedulerPacketReceiver( this, config.getInt("floor.schedulerReceivePort"));
+		(new Thread(sReceiver, "FloorSubsystem_SchedulerPacketReceiver")).start();
+		runCommandLineUI(sc); //, scheduler from runCommandLineUI	
 	}
 	
 	public static void main(String[] args) {
