@@ -108,7 +108,7 @@ public class ElevatorSpecificScheduler {
 	 * Returns the number of active number of remaining stops on the current elevator
 	 * @return the number of active number of remaining stops on the current elevator
 	 */
-	public int getActiveNumberOfStopsCount() {
+	public synchronized int getActiveNumberOfStopsCount() {
 		TreeSet<Integer> upDestinationsSet = new TreeSet<Integer>();
 		TreeSet<Integer> downDestinationsSet = new TreeSet<Integer>();
 		for (TreeSet<Integer> dests : this.downwardsDestinationsPerFloor) {
@@ -145,7 +145,7 @@ public class ElevatorSpecificScheduler {
 	 * @param startFloor starting floor of the request
 	 * @param destinationFloor destination floor of the request
 	 */
-	public void addRequest(int startFloor, int destinationFloor, int requestType) {
+	public synchronized void addRequest(int startFloor, int destinationFloor, int requestType) {
 		if (requestType==1) {
 			// Temporary error request type. Schedule incoming request to be dealt with when back online
 			this.previousStateBeforeTempError = currentState; 
@@ -347,7 +347,7 @@ public class ElevatorSpecificScheduler {
 	 * @param elevatorInfo
 	 * @return
 	 */
-	public int handleElevatorInfoChange_returnNextFloorToVisit(ElevatorInfo elevatorInfo) {
+	public synchronized int handleElevatorInfoChange_returnNextFloorToVisit(ElevatorInfo elevatorInfo) {
 		if (elevatorInfo.getFloor()==-3) return-3;
 		if (elevatorInfo.getFloor()==-2) return-2;
 		
@@ -368,7 +368,7 @@ public class ElevatorSpecificScheduler {
 	/**
 	 * Revives the current ElevatorSpecificScheduler from it's temporary out of service state and sends it next floor to visit to elevatorSubsystem
 	 */
-	public void reviveFromTempError() {
+	public synchronized void reviveFromTempError() {
 		if (currentState == ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE) {
 			this.currentState = this.previousStateBeforeTempError;
 			this.previousStateBeforeTempError = null;
