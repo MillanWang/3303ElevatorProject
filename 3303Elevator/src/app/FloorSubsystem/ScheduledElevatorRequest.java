@@ -84,6 +84,7 @@ public class ScheduledElevatorRequest implements Serializable{
 		return this.requestType;
 	}
 	
+	
 	/**
 	 * Calculates the time in milliseconds to delay between now and the given the LocalTime execution time
 	 * @param time

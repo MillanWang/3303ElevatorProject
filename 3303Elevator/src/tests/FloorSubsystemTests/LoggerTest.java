@@ -55,7 +55,7 @@ public class LoggerTest {
 	public void logFloorEventTest() {
 		ScheduledElevatorRequest request = new ScheduledElevatorRequest(10000, 2, true, 6,0);
 		log.logFloorEvent(request);
-		assertTrue(outputStreamCaptor.toString().trim().contains("floor number " +  request.getStartFloor() + " logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor()));
+		assertTrue(outputStreamCaptor.toString().trim().contains(" logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor()));
 	}
 	
 	@Test

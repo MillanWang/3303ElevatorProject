@@ -74,7 +74,7 @@ public class Logger extends Util{
 	 */
 	public void logFloorEvent(ScheduledElevatorRequest request) {
 		if(printFloorEvents == true) {
-			String m = getDateTime()+ "[Floor Num " +  request.getStartFloor() + "] logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor();
+			String m = getDateTime()+ "[Floor Num " +  request.getStartFloor() + "] logged a floor request at time " +request.getTime() + "  to floor " +request.getDestinationFloor() + " RequestType is " + request.getRequestType() ;
 			System.out.println(m);
 			if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 				DatagramPacket packet = buildLoggerPacket(m);
