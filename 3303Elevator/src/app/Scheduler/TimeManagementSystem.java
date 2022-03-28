@@ -28,7 +28,7 @@ public class TimeManagementSystem {
 	* @param logger Logger object used to track class activity
 	*/
 	public TimeManagementSystem(float multiplier, Logger logger){
-		this.timeMultiplier = 1/Math.abs(multiplier);
+		this.timeMultiplier = multiplier == 0 ? 0 : 1/Math.abs(multiplier);
 		this.logger = logger;
 	}
 	
