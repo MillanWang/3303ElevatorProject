@@ -121,7 +121,7 @@ public class Logger extends Util{
 	 * @param  string to be printed from the subsystem that has measured the time of a process 
 	 */
 	public void logTimeMeasurements(String time) {
-		String m = getDateTime() + "\n******" + time + "******\n";
+		String m = getDateTime() + "\n*********************\n" + time + "\n*********************\n";
 		System.out.println(m);
 		if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
 			DatagramPacket packet = buildLoggerPacket(m);

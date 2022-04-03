@@ -81,7 +81,8 @@ public class LoggerTest {
 	 */
 	public void logTimeMeasurmentTest() {
 		log.logTimeMeasurements("System took 97 seconds to handle all requests on the input file");
-		assertTrue(outputStreamCaptor.toString().trim().contains("******"+"System took 97 seconds to handle all requests on the input file"+"******"));
+		assertTrue(outputStreamCaptor.toString().trim().contains("System took 97 seconds to handle all requests on the input file"));
+		assertTrue(outputStreamCaptor.toString().trim().contains("*********************"));
 	}
 }
 
