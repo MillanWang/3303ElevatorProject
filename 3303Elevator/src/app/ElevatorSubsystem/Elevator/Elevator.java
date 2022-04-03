@@ -28,6 +28,7 @@ public class Elevator implements Runnable {
 	private ElevatorNextFloorBuffer nextFloorBuf;
 	private ElevatorStatusBuffer statusBuf;
 	private Direction last;
+	private boolean tempError;
 
 	/**
 	 * Maximum number of floors
@@ -47,6 +48,7 @@ public class Elevator implements Runnable {
 		this.nextFloorBuf = nextFloorBuf;
 		this.statusBuf = statusBuf;
 		this.last= Direction.UP;
+		this.tempError = false;
 	}
 
 	public int getId() {
@@ -200,6 +202,19 @@ public class Elevator implements Runnable {
 			this.log("doors starting to open");
 			this.nextState();//open door
 			this.loadElevator();
+			
+			if(this.tempError) {
+				this.log("temporary error doors stuck open");
+				
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				this.log("doors are unstuck");
+			}
+			
 			this.nextState();//door closing
 			this.nextState();
 			this.log("doors finished closing");
@@ -234,9 +249,7 @@ public class Elevator implements Runnable {
 			// -3: Permanents
 
 			if(error == -2){
-				this.log("is temporary out of service");
-				this.statusBuf.addStatus(this.getInfo());
-				continue;
+				this.tempError = true;
 			}
 
 			if(error == -3){
@@ -261,6 +274,7 @@ public class Elevator implements Runnable {
 				this.nextState();
 			}
 			
+			this.tempError = false;
 			ElevatorInfo ei = this.getInfo();
 			
 			if(nextFloor > 0) {
