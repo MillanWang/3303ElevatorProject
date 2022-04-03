@@ -218,25 +218,30 @@ public class Elevator implements Runnable {
 		while(!exit) {
 
 			int nextFloor = nextFloorBuf.getNextFloor(this.id);
+			int error = nextFloorBuf.getError(this.id);
 			
 			while(nextFloor == 0) {
 				nextFloor = nextFloorBuf.getNextFloor(this.id);
 			}
 	
+			while(error == 0) {
+				error = nextFloorBuf.getError(this.id);
+			}
+			
 			//  Next Floor speciel cases
 			// -1: No next stop
 			// -2: temporary out of service
 			// -3: Permanents
 
-			if(nextFloor == -2){
+			if(error == -2){
 				this.log("is temporary out of service");
 				this.statusBuf.addStatus(this.getInfo());
 				continue;
 			}
 
-			if(nextFloor == -3){
+			if(error == -3){
 				this.log("has permanently been stopped");
-				this.currentFloor = nextFloor;
+				this.currentFloor = error;
 				this.statusBuf.addStatus(this.getInfo());
 				return;
 			}

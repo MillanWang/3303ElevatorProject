@@ -11,7 +11,7 @@ import app.Logger;
 import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-import app.GUI.GUI;
+//import app.GUI.GUI;
 import app.Scheduler.*;
 import app.UDP.Util;
 
@@ -93,9 +93,13 @@ public class ElevatorSubsystem implements Runnable{
 
 	}
 
-	public void updateElevators(HashMap<Integer, Integer> nextFloorRequests){
+	public void updateElevators(SchedulerInfo info){
 		//gui.updateElevatorInfo();
+		HashMap<Integer, Integer> nextFloorRequests = info.getNextFloorsToVisit();
+		HashMap<Integer, Integer> errors = info.getErrors();
+		
 		this.log("adding elevator requests");
+		
 		// Filling in the elevator requests if not present
 		for(int i = 0; i < this.numElevators; i++) {
 			int id = i + 1;
@@ -103,25 +107,38 @@ public class ElevatorSubsystem implements Runnable{
 				if(!this.permErrors.contains(id)) {
 					nextFloorRequests.put(id, -1);	
 				}
-			}else if(nextFloorRequests.get(id) == -3){
+			}
+		}
+		
+		
+		for(int i = 0; i < this.numElevators; i++) {
+			int id = i + 1;
+			if(!errors.containsKey(id)) {
+				if(!this.permErrors.contains(id)) {
+					errors.put(id, -1);	
+				}
+			}else if(errors.get(id) == -3){
 				if(this.permErrors.contains(id)) {
-					nextFloorRequests.remove(id);	
+					errors.remove(id);	
 				}else {
 					this.permErrors.add(id);
 				}
 			}else if(this.permErrors.contains(id)) {
-				nextFloorRequests.remove(id);
+				errors.remove(id);
 			}
 		}
 		
-		String msg = " ";
+		String msg1 = "next floors ";
+		String msg2 = "errors ";
 		for(int i = 0; i < this.numElevators; i++) {
 			if(nextFloorRequests.containsKey(i+1)) {
-				msg += (i + 1) + ":" + nextFloorRequests.get(i+1) + " ";
+				msg1 += (i + 1) + ":" + nextFloorRequests.get(i+1) + " ";
+				msg2 += (i + 1) + ":" + errors.get(i+1) + " ";
 			}
 		}
-		this.log(msg);
-		this.nextFloorBuf.addReq(nextFloorRequests);
+		this.log(msg1);
+		this.log(msg2);
+		this.nextFloorBuf.addReq(nextFloorRequests, errors);
 	}
 
 	public void sendUpdateToScheduler(){

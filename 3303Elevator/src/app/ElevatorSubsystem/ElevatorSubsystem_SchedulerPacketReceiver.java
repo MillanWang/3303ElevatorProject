@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.HashMap;
 
+import app.Scheduler.SchedulerInfo;
 import app.UDP.PacketReceiver;
 import app.UDP.Util;
 
 public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 
 	ElevatorSubsystem ess;
-	HashMap<Integer, Integer> nextFloorHashMap;
+	SchedulerInfo nextFloorHashMap;
 	boolean exit; 
 
 	protected ElevatorSubsystem_SchedulerPacketReceiver(String name, int port, ElevatorSubsystem ess) {
@@ -25,7 +26,7 @@ public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 		//System.out.println("\n\n\n***************MADE IT INTO THE ELEVATOR SCHEDULER RECEIVER****************\n\n\n");
 		try {
 			Object obj = Util.deserialize(requestPacket.getData());
-			nextFloorHashMap  = (HashMap<Integer, Integer>) obj;
+			nextFloorHashMap  = (SchedulerInfo) obj;
 		}catch(IOException e) {
 			e.printStackTrace();
 		}catch (ClassNotFoundException e) {

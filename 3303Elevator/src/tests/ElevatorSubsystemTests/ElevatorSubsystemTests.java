@@ -16,6 +16,7 @@ import org.junit.Test;
 import app.Config.Config;
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
+import app.Scheduler.SchedulerInfo;
 import app.UDP.Util;
 
 public class ElevatorSubsystemTests {
@@ -29,14 +30,19 @@ public class ElevatorSubsystemTests {
 		(new Thread(e)).start();
 		
 		HashMap<Integer, Integer> req = new HashMap<>();
+		HashMap<Integer, Integer> errors = new HashMap<>();
 		req.put(1, 4);
 		
-		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		SchedulerInfo info = new SchedulerInfo(req, errors);
+		
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(info);
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		
 		req = new HashMap<>();
+		errors = new HashMap<>();
 		req.put(1, 2);
-		res = f.fakeNextFloorRequest(req);
+		info = new SchedulerInfo(req, errors);
+		res = f.fakeNextFloorRequest(info);
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
 	}
@@ -49,10 +55,13 @@ public class ElevatorSubsystemTests {
 		(new Thread(e)).start();
 		
 		HashMap<Integer, Integer> req = new HashMap<>();
+		HashMap<Integer, Integer> errors = new HashMap<>();
 		req.put(1, 4);
 		req.put(3, 5);
 		
-		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		SchedulerInfo info = new SchedulerInfo(req, errors);
+		
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(info);
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
 	}
@@ -65,18 +74,23 @@ public class ElevatorSubsystemTests {
 		(new Thread(e)).start();
 		
 		HashMap<Integer, Integer> req = new HashMap<>();
+		HashMap<Integer, Integer> errors = new HashMap<>();
 		req.put(1, 4);
 		req.put(3, 5);
 		
-		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		SchedulerInfo info = new SchedulerInfo(req, errors);
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(info);
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		
 		req = new HashMap<>();
+		errors = new HashMap<>();
+		
 		req.put(1, 2);
 		req.put(3, 15);
 		req.put(4, 20);
 		
-		res = f.fakeNextFloorRequest(req);
+		info = new SchedulerInfo(req, errors);
+		res = f.fakeNextFloorRequest(info);
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
 	}
@@ -89,10 +103,14 @@ public class ElevatorSubsystemTests {
 		(new Thread(e)).start();
 		
 		HashMap<Integer, Integer> req = new HashMap<>();
+		HashMap<Integer, Integer> errors = new HashMap<>();
+		
 		req.put(1, -5);
 		req.put(3, 1000);
 		
-		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
+		SchedulerInfo info = new SchedulerInfo(req, errors);
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(info);
+		
 		
 		// update the required requests to 
 		req.put(3, 1);
@@ -109,19 +127,25 @@ public class ElevatorSubsystemTests {
 		(new Thread(e)).start();
 		
 		HashMap<Integer, Integer> req = new HashMap<>();
-		req.put(1, -3);
+		HashMap<Integer, Integer> errors = new HashMap<>();
+		errors.put(1, -3);
 		
-		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(req);
-		
-		req = new HashMap<>();
-		req.put(2, -3);
-		
-		res = f.fakeNextFloorRequest(req);
+		SchedulerInfo info = new SchedulerInfo(req, errors); 
+		LinkedList<ElevatorInfo> res = f.fakeNextFloorRequest(info);
 		
 		req = new HashMap<>();
-		req.put(3, -3);
+		errors = new HashMap<>();
+		errors.put(2, -3);
 		
-		res = f.fakeNextFloorRequest(req);
+		info = new SchedulerInfo(req, errors); 
+		res = f.fakeNextFloorRequest(info);
+		
+		req = new HashMap<>();
+		errors = new HashMap<>();
+		errors.put(3, -3);
+		
+		info = new SchedulerInfo(req, errors); 
+		res = f.fakeNextFloorRequest(info);
 		
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
@@ -148,11 +172,15 @@ public class ElevatorSubsystemTests {
 	private void closeElevatorSubsystemSockets(ElevatorSubsystem e, FakeScheduler f) {
 		e.exit();
 		HashMap<Integer, Integer>req = new HashMap<>();
-		req.put(1, -3); 
-		req.put(2, -3);
-		req.put(3, -3); 
-		req.put(4, -3);
-		f.fakeNextFloorRequest(req);
+		HashMap<Integer, Integer>errors = new HashMap<>();
+		errors.put(1, -3); 
+		errors.put(2, -3);
+		errors.put(3, -3); 
+		errors.put(4, -3);
+		
+		SchedulerInfo info = new SchedulerInfo(req, errors);
+		
+		f.fakeNextFloorRequest(info);
 		f.closeSocket();
 	}
 
@@ -178,11 +206,11 @@ class FakeScheduler {
 		}
 	}
 	
-	private DatagramPacket buildNextFloorPacket(HashMap<Integer, Integer> nextFloorReq) {
+	private DatagramPacket buildNextFloorPacket(SchedulerInfo info) {
 		byte[] data = {};
 		
 		try {
-			data = Util.serialize(nextFloorReq);
+			data = Util.serialize(info);
 		}catch(IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -227,7 +255,7 @@ class FakeScheduler {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public LinkedList<ElevatorInfo> fakeNextFloorRequest(HashMap<Integer, Integer> nextFloorReq){
+	public LinkedList<ElevatorInfo> fakeNextFloorRequest(SchedulerInfo nextFloorReq){
 		LinkedList<ElevatorInfo> elevatorInfoRes = null;
 		DatagramPacket sendPacket = this.buildNextFloorPacket(nextFloorReq);
 		DatagramPacket res = Util.sendRequest_ReturnReply(sendPacket);
