@@ -11,7 +11,7 @@ import app.Logger;
 import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-//import app.GUI.GUI;
+import app.GUI.GUI;
 import app.Scheduler.*;
 import app.UDP.Util;
 
@@ -33,7 +33,7 @@ public class ElevatorSubsystem implements Runnable{
 	private ElevatorStatusBuffer statusBuf;
 	private Config config;
 	private ElevatorSubsystem_SchedulerPacketReceiver esspr;
-	//private GUI gui;
+	private GUI gui;
 	/**
 	 * Constructor used to create elevator subsystem
 	 *
@@ -53,7 +53,7 @@ public class ElevatorSubsystem implements Runnable{
 		this.logger = new Logger(config);
 		this.tms =  new TimeManagementSystem(config.getInt("time.multiplier"), this.logger);
 		this.permErrors = new ArrayList<>();
-		//this.gui = new GUI(numElevators);
+		this.gui = new GUI(config);
 	}
 
  	private DatagramPacket buildSchedulerPacket(){
@@ -84,13 +84,10 @@ public class ElevatorSubsystem implements Runnable{
 		this.log("creating elevators");
 		for(int i = 0; i < this.numElevators; i++) {
 			Elevator e = new Elevator(i+1, this.maxFloor, this.logger, this.tms, this.nextFloorBuf, this.statusBuf);
-			//gui.addElevator(e);
-			Thread t = new Thread(e);
+			gui.addElevator(e);
+			Thread t = new Thread(e, "Elevator "+ i);
 			t.start();
 		}
-		//gui.updateElevatorInfo();
-		//gui.addPanel();
-
 	}
 
 	public void updateElevators(SchedulerInfo info){
