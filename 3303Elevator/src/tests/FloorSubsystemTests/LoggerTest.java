@@ -75,5 +75,13 @@ public class LoggerTest {
 		log.logTimeManagementSystemEvent("New wait time is set");
 		assertTrue(outputStreamCaptor.toString().trim().contains("New wait time is set"));
 	}
+	@Test
+	/*
+	 * tests the time measurement logger message 
+	 */
+	public void logTimeMeasurmentTest() {
+		log.logTimeMeasurements("System took 97 seconds to handle all requests on the input file");
+		assertTrue(outputStreamCaptor.toString().trim().contains("******"+"System took 97 seconds to handle all requests on the input file"+"******"));
+	}
 }
 
