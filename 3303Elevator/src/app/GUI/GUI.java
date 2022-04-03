@@ -102,9 +102,6 @@ public class GUI implements Runnable {
 	@Override
 	public void run() {
 		(new Thread(new GUI_PacketReceiver("GUI_PacketReceiver", this.config.getInt("gui.port"), this), "GUI_PacketReceiver")).start();
-		
-
-		
 	}
 	
 	/**
