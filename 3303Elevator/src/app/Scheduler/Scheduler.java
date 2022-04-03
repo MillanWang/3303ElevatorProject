@@ -33,6 +33,8 @@ public class Scheduler implements Runnable{
 	private ElevatorSpecificSchedulerManager elevatorSpecificSchedulerManager;
 	private int highestFloorNumber;
 	
+	private int currentlyActiveRequests;
+	
 	private int elevatorSubsystemReceivePort;
 	public int floorSubsystemReceivePort;
 	private InetAddress floorSubsystemInetAddress;
@@ -59,6 +61,7 @@ public class Scheduler implements Runnable{
 		this.elevatorSubsystemReceivePort = this.config.getInt("scheduler.elevatorReceivePort");
 		this.floorSubsystemReceivePort = this.config.getInt("scheduler.floorReceivePort");
 		this.elevatorSubsystemSendPort = this.config.getInt("elevator.port");
+		this.currentlyActiveRequests=0;
 		
 		try {
 			this.floorSubsystemInetAddress = InetAddress.getByName(this.config.getString("floor.schedulerReceivePort"));
@@ -79,6 +82,8 @@ public class Scheduler implements Runnable{
 	 */
 	public synchronized void floorSystemScheduleRequest(List<ScheduledElevatorRequest> floorSystemRequests) {
 		this.logger.logSchedulerEvent("Scheduler received request(s) from floor system");
+		
+		this.currentlyActiveRequests += floorSystemRequests.size();
 		
 		for (ScheduledElevatorRequest ser : floorSystemRequests) {
 			
@@ -151,7 +156,7 @@ public class Scheduler implements Runnable{
 	
 	
 	/**
-	 * Sends 
+	 * Sends next communication object to the elevator subsystem
 	 * @param allElevatorInfos
 	 */
 	public synchronized void sendNextPacket_elevatorSpecificNextFloor(LinkedList<ElevatorInfo> allElevatorInfos) {

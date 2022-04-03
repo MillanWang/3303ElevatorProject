@@ -70,8 +70,7 @@ public class ElevatorSpecificSchedulerManager {
 	private boolean checkIfAllElevatorsArePermanentError() {
 		//Iterate through all ElevatorSpecificScheduler states. Return false if any are not out of service
 		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
-			if (this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE&&
-				this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE) {
+			if (this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE) {
 				this.currentState = ElevatorSpecificSchedulerManagerState.AWAITING_NEXT_ELEVATOR_REQUEST;
 				return false;
 			}
@@ -199,6 +198,11 @@ public class ElevatorSpecificSchedulerManager {
 		return currentMin[0];
 	}
 
+	/**
+	 * Gets the next floor to visit from all ElevatorSpecificSchedulers given a collection of ElevatorInfoObjects
+	 * @param allElevatorInfos Collection of ElevatorInfo objects representing the elevators in the system
+	 * @return Hashmap of elevatorID:NextFloorToVisit
+	 */
 	public HashMap<Integer, Integer> getAllElevatorsNextFloorToVisit(LinkedList<ElevatorInfo> allElevatorInfos){
 		this.mostRecentAllElevatorInfo= allElevatorInfos;
 		HashMap<Integer, Integer> elevatorID_nextFloorMapping = new HashMap<Integer, Integer>();
@@ -208,7 +212,24 @@ public class ElevatorSpecificSchedulerManager {
 												.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		}
 		return elevatorID_nextFloorMapping;
-	} 
+	}
+	
+	/**
+	 * Returns the total number of active stops to visit across all elevators, excluding permanently down ones
+	 * 
+	 * @return Number of active stops across all elevators.
+	 */
+	public int getTotalActiveNumberOfStopsCount() {
+		//Iterate through all ElevatorSpecificScheduler states. Return false if any are not out of service
+		int totalStopCount = 0;
+		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
+			if (this.allElevatorSpecificSchedulers.get(i).getCurrentState()!=ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE) {
+				totalStopCount += this.allElevatorSpecificSchedulers.get(i).getActiveNumberOfStopsCount();
+			}
+		}
+		return totalStopCount;
+		
+	}
 	
 	@Override
 	public String toString() {

@@ -45,6 +45,9 @@ public class GUI implements Runnable {
 		elevatorInfo = new ArrayList<ElevatorInfo>();
 		elevators = new ArrayList<Elevator>();
 		panels = new ArrayList<JPanel>();
+		
+		frame.setVisible(true);
+		frame.add(new JLabel("JLabel in the frame no problem"));
 	}
 	
 	/**
