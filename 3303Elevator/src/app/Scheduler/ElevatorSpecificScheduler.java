@@ -7,7 +7,6 @@ import java.util.TreeSet;
 
 import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-import app.Scheduler.SchedulerThreads.TemporaryErrorSelfRevive;
 
 
 /**
@@ -150,7 +149,6 @@ public class ElevatorSpecificScheduler {
 			// Temporary error request type. Schedule incoming request to be dealt with when back online
 			this.previousStateBeforeTempError = currentState; 
 			this.currentState = ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE;
-			(new Thread(new TemporaryErrorSelfRevive(this),"TempErrorSelfRevive_"+(new Date().getTime()))).start();
 		} else if (requestType==2) {
 			//Permanent error request type. Discard incoming request
 			this.currentState = ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE;

@@ -1,34 +1,45 @@
-package app;
+package app.GUI;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import java.awt.GridLayout;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.*;
+import app.UDP.Util;
 
 /**
  * GUI class to display each elevator status and make new requests
  * @author Abdelrahim Karaja
  *
  */
-public class GUI{
+public class GUI implements Runnable {
 	private ArrayList<ElevatorInfo> elevatorInfo;
 	private ArrayList<JPanel> panels;
 	private ArrayList<Elevator> elevators;
 	private JFrame frame;
 	private JPanel panel;
+	private Config config;
 	
 	/**
 	 * Constructor for GUI class
 	 * @param numElevators - number of elevators in system
 	 */
-	public GUI(int numElevators) {
+	public GUI(Config config) {
 		frame = new JFrame();
 		frame.setTitle("Elevator Information");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(750,750);
+		
+		this.config = config;
+		int numElevators = config.getInt("elevator.total.number");
 		
 		panel = new JPanel(new GridLayout((numElevators-numElevators % 4)/4, 4, 10, 10));
 		elevatorInfo = new ArrayList<ElevatorInfo>();
@@ -52,7 +63,7 @@ public class GUI{
 		for(int i = 0; i < elevators.size(); i++) {
 			elevatorInfo.add(elevators.get(i).getInfo());
 		}
-		updateView();
+		updateView(null);
 	}
 	
 	/**
@@ -80,8 +91,30 @@ public class GUI{
 	/**
 	 * Updates the information displayed when changes occur
 	 */
-	public void updateView() {
+	public void updateView(Object o) { 
+		//TODO: Make sure that this is updated with the new comms object
+		System.out.println("Gotta update the view my dude");
 	}
 	
+	/**
+	 * Run method for starting the necessary threads associated with the GUI subsystem
+	 */
+	@Override
+	public void run() {
+		(new Thread(new GUI_PacketReceiver("GUI_PacketReceiver", this.config.getInt("gui.port"), this), "GUI_PacketReceiver")).start();
+		
+
+		
+	}
+	
+	/**
+	 * Main method for starting the GUI subsystem
+	 * @param args
+	 */
+	public static void main(String[] args) {
+//		Config config = new Config("multi.properties");
+		Config config = new Config("local.properties");
+		(new Thread(new GUI(config), "GUI")).start();
+	}
 	
 }

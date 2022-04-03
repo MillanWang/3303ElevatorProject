@@ -46,6 +46,22 @@ public class Util {
         return receivedPacket;
     }
     
+    /**
+     * Sends given packet via a temporary socket
+     * @param packet DatagramPacket to be sent
+     */
+    public static void sendRequest_NoReply(DatagramPacket packet) {
+    	//Create socket instance to send request
+        try {
+        	DatagramSocket socket = new DatagramSocket();
+            socket.send(packet);
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+    
     /***
      * Given an object that can be serialized returns the bytes for that object
      * 
