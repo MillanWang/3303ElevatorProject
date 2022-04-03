@@ -103,7 +103,7 @@ public class Logger extends Util{
 	/**
 	 * logTimeManagementEvent is used to print the Time Management System events logged
 	 * 
-	 * @param temp string to be printed from the Time Management System (Temp)
+	 * @param string to be printed from the Time Management System (Temp)
 	 */
 	public void logTimeManagementSystemEvent(String timeManagementLogString) {
 		if(printTimeManagementSystemEvent == true) {
@@ -113,6 +113,19 @@ public class Logger extends Util{
 				DatagramPacket packet = buildLoggerPacket(m);
 				Util.sendRequest_ReturnReply(packet);
 			}
+		}
+	}
+	/**
+	 * logTimeMeasurements is used to print the Time Measured for a particular process
+	 * 
+	 * @param  string to be printed from the subsystem that has measured the time of a process 
+	 */
+	public void logTimeMeasurements(String time) {
+		String m = getDateTime() + "\n*********************\n" + time + "\n*********************\n";
+		System.out.println(m);
+		if(!sLoggerAddr.getAddress().toString().contains("localhost")) { //if live, send to server logger
+			DatagramPacket packet = buildLoggerPacket(m);
+			Util.sendRequest_ReturnReply(packet);
 		}
 	}
 	
