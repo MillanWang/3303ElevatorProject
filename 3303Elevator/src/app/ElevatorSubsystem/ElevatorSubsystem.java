@@ -11,9 +11,9 @@ import app.Logger;
 import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
+import app.GUI.GUI;
 import app.Scheduler.*;
 import app.UDP.Util;
-import app.GUI;
 
 /**
  * SYSC 3303, Final Project

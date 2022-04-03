@@ -122,6 +122,8 @@ public class Scheduler implements Runnable{
 	 * @param destinationFloor destination floor of the request
 	 */
 	public synchronized void addElevatorRequest(Integer startFloor, Integer destinationFloor, Integer requestType) {
+		//TODO : Need a field for a set of elevator numbers experiencing temp errors. If temp error, add the assigned elevator to the set. Next send to elevator will contain the list and then it gets cleared there
+		
 		int requestReceiverElevatorID = this.elevatorSpecificSchedulerManager.scheduleFloorRequest(startFloor, destinationFloor, requestType);
 		if (requestReceiverElevatorID<=0) {
 			this.logger.logSchedulerEvent("Unable to schedule floor request "+startFloor+"->"+destinationFloor);
