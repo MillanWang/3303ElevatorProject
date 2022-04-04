@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -30,6 +31,19 @@ public class GUI implements Runnable {
 	private JPanel panel;
 	private Config config;
 	
+	private ElevatorInfo elevator1Info;
+	private ElevatorInfo elevator2Info;
+	private ElevatorInfo elevator3Info;
+	private ElevatorInfo elevator4Info;
+	private TreeSet<Integer> elevator1Destinations;
+	private TreeSet<Integer> elevator2Destinations;
+	private TreeSet<Integer> elevator3Destinations;
+	private TreeSet<Integer> elevator4Destinations;
+	private TreeSet<Integer> allUpwardsFloorButtons;
+	private TreeSet<Integer> allDownwardsFloorButtons;
+	
+	
+	
 	/**
 	 * Constructor for GUI class
 	 * @param numElevators - number of elevators in system
@@ -39,6 +53,7 @@ public class GUI implements Runnable {
 		frame.setTitle("Elevator Information");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(750,750);
+		frame.setLayout(new FlowLayout());
 		
 		this.config = config;
 		int numElevators = config.getInt("elevator.total.number");
@@ -49,7 +64,73 @@ public class GUI implements Runnable {
 		panels = new ArrayList<JPanel>();
 		
 		frame.setVisible(true);
-		frame.add(new JLabel("JLabel in the frame no problem"));
+		
+		
+		/*
+		
+		TreeSet<Integer> up = new TreeSet<>();
+		up.add(1);
+		up.add(5);
+		up.add(6);
+		
+		TreeSet<Integer> down = new TreeSet<>();
+		down.add(3);
+		down.add(15);
+		frame.add(new FloorSubsystemGUI(up, down));
+		frame.pack();
+		
+		frame.add(new FloorSubsystemGUI(down, up));
+		
+		
+		
+		
+		
+		
+		   frame = new JFrame();
+        frame.setTitle("Elevator Information");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(750,750);
+        frame.setLayout(new FlowLayout());
+
+        this.config = config;
+        int numElevators = config.getInt("elevator.total.number");
+        
+        panel = new JPanel(new GridLayout((numElevators-numElevators % 4)/4, 4, 10, 10));
+        elevatorInfo = new ArrayList<ElevatorInfo>();
+        elevators = new ArrayList<Elevator>();
+        panels = new ArrayList<JPanel>();
+        *
+
+        frame.setVisible(true);
+        //frame.add(new JLabel("JLabel in the frame no problem"));
+        //Creating treesets TEST
+        TreeSet<Integer> up = new TreeSet<>();
+        up.add(1);
+        up.add(5);
+        up.add(6);
+
+        TreeSet<Integer> down = new TreeSet<>();
+        down.add(3);
+        down.add(15);
+
+        frame.setVisible(true);
+        FSSPanel = new JPanel();
+        FSSPanel.add(new FloorSubsystemGUI(up, down));
+        frame.add(FSSPanel);
+        FSSPanel.removeAll();
+
+        //FSSPanel2 = new JPanel();
+        FSSPanel.add(new FloorSubsystemGUI(down, up));
+        frame.add(FSSPanel);
+        frame.pack();
+		
+		
+		
+		
+		*/
+		
+		
+		
 	}
 	
 	/**
