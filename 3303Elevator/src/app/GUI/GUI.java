@@ -6,6 +6,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import java.awt.FlowLayout;
@@ -49,6 +50,7 @@ public class GUI implements Runnable {
 	private TreeSet<Integer> allUpwardsFloorButtons;
 	private TreeSet<Integer> allDownwardsFloorButtons;
 	
+	private JTextArea elevator1Text,elevator2Text,elevator3Text,elevator4Text;
 	
 	
 	/**
@@ -104,8 +106,19 @@ public class GUI implements Runnable {
         frame.add(this.e3Panel);
         frame.add(this.e4Panel);
 		
+        elevator1Text = new JTextArea();
+        elevator2Text = new JTextArea();
+        elevator3Text = new JTextArea();
+        elevator4Text = new JTextArea();
 
+        frame.add(this.elevator1Text);
+        frame.add(this.elevator2Text);
+        frame.add(this.elevator3Text);
+        frame.add(this.elevator4Text);
+        
+        
         frame.pack();
+
 	}
 	
 	
@@ -120,15 +133,15 @@ public class GUI implements Runnable {
 		
 		HashMap<Integer, ElevatorInfo> elevatorInfos = guiUpdateInfo.getAllElevatorInfoObject();
 		if(elevatorInfos != null) {
-			for(Map.Entry<Integer, ElevatorInfo> entry : elevatorInfos.entrySet()) {
-				if(entry.getKey() == 1) {
-					this.elevator1Info = entry.getValue();
-				}else if(entry.getKey() == 2) {
-					this.elevator2Info = entry.getValue();
-				}else if(entry.getKey() == 3) {
-					this.elevator3Info = entry.getValue();
-				}else if(entry.getKey() == 4) {
-					this.elevator4Info = entry.getValue();
+			for(Integer id : elevatorInfos.keySet()) {
+				if(id == 1) {
+					this.elevator1Info = elevatorInfos.get(id);
+				}else if(id == 2) {
+					this.elevator2Info = elevatorInfos.get(id);
+				}else if(id == 3) {
+					this.elevator3Info = elevatorInfos.get(id);
+				}else if(id == 4) {
+					this.elevator4Info = elevatorInfos.get(id);
 				}
 			}
 		}
@@ -179,6 +192,12 @@ public class GUI implements Runnable {
         
         this.e4Panel.removeAll();
         this.e4Panel.add(new ElevatorSubsystemGUI(this.elevator4Info, elevator4Destinations));
+        
+        
+        elevator1Text.setText(elevator1Info.toString() + "\nPressed Elevator Buttons : " + elevator1Destinations);
+        elevator2Text.setText(elevator2Info.toString() + "\nPressed Elevator Buttons : " + elevator2Destinations);
+        elevator3Text.setText(elevator3Info.toString() + "\nPressed Elevator Buttons : " + elevator3Destinations);
+        elevator4Text.setText(elevator4Info.toString() + "\nPressed Elevator Buttons : " + elevator4Destinations);
         
         this.frame.pack();
 		
