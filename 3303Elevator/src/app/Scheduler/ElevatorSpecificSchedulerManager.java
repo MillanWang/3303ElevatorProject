@@ -244,9 +244,9 @@ public class ElevatorSpecificSchedulerManager {
 			elevatorID_nextFloorMapping.put(eInfo.getId(), 
 											this.allElevatorSpecificSchedulers.get(eInfo.getId())
 												.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
-			if (eInfo.getMostRecentDirection()==Direction.UP) {
+			if (this.allElevatorSpecificSchedulers.get(eInfo.getId()).getCurrentState()==ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT || this.allElevatorSpecificSchedulers.get(eInfo.getId()).getCurrentState()==ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT) {
 				this.allUpwardsStartFloors.remove(eInfo.getFloor());
-			} else if (eInfo.getMostRecentDirection()==Direction.DOWN) {
+			} else if (this.allElevatorSpecificSchedulers.get(eInfo.getId()).getCurrentState()==ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT || this.allElevatorSpecificSchedulers.get(eInfo.getId()).getCurrentState()==ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT  ) {
 				this.allDownwardsStartFloors.remove(eInfo.getFloor());
 			}
 		}

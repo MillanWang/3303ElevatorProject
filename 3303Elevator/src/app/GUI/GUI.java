@@ -59,72 +59,7 @@ public class GUI implements Runnable {
 		this.config = config;
 		int numElevators = config.getInt("elevator.total.number");
 		
-//		panel = new JPanel(new GridLayout((numElevators-numElevators % 4)/4, 4, 10, 10));
-//		elevatorInfo = new ArrayList<ElevatorInfo>();
-//		elevators = new ArrayList<Elevator>();
-//		panels = new ArrayList<JPanel>();
-		
 		frame.setVisible(true);
-		
-		
-		
-		
-//		TreeSet<Integer> up = new TreeSet<>();
-//		up.add(1);
-//		up.add(5);
-//		up.add(6);
-//		
-//		TreeSet<Integer> down = new TreeSet<>();
-//		down.add(3);
-//		down.add(15);
-//		frame.add(new FloorSubsystemGUI(up, down));
-//		frame.pack();
-//		
-//		frame.add(new FloorSubsystemGUI(down, up));
-//		
-//		
-//		
-//		
-//		
-//		
-//		   frame = new JFrame();
-//        frame.setTitle("Elevator Information");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.setSize(750,750);
-//        frame.setLayout(new FlowLayout());
-//
-//        this.config = config;
-//        int numElevators = config.getInt("elevator.total.number");
-//        
-//        panel = new JPanel(new GridLayout((numElevators-numElevators % 4)/4, 4, 10, 10));
-//        elevatorInfo = new ArrayList<ElevatorInfo>();
-//        elevators = new ArrayList<Elevator>();
-//        panels = new ArrayList<JPanel>();
-//        
-//
-//        frame.setVisible(true);
-//        //frame.add(new JLabel("JLabel in the frame no problem"));
-//        //Creating treesets TEST
-//        TreeSet<Integer> up = new TreeSet<>();
-//        up.add(1);
-//        up.add(5);
-//        up.add(6);
-//
-//        TreeSet<Integer> down = new TreeSet<>();
-//        down.add(3);
-//        down.add(15);
-//
-//        frame.setVisible(true);
-//        FSSPanel = new JPanel();
-//        FSSPanel.add(new FloorSubsystemGUI(up, down));
-//        frame.add(FSSPanel);
-//        FSSPanel.removeAll();
-//
-//        //FSSPanel2 = new JPanel();
-//        FSSPanel.add(new FloorSubsystemGUI(down, up));
-//        frame.add(FSSPanel);
-//        frame.pack();
-		
 		
         this.floorPanel= new JPanel();
         this.floorPanel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
@@ -151,46 +86,6 @@ public class GUI implements Runnable {
         frame.pack();
 	}
 	
-//	/**
-//	 * Function to add elevator to GUI class for continuous updates
-//	 * @param e - elevator
-//	 */
-//	public void addElevator(Elevator e) {
-//		elevators.add(e);
-//	}
-//	
-//	/**
-//	 * Update elevator information continuously
-//	 */
-//	public void updateElevatorInfo() {
-//		elevatorInfo.clear();
-//		for(int i = 0; i < elevators.size(); i++) {
-//			elevatorInfo.add(elevators.get(i).getInfo());
-//		}
-//		updateView(null);
-//	}
-	
-//	/**
-//	 * Initializes the panels for each elevator and info at 0s
-//	 */
-//	public void addPanel() {
-//		for(int i = 0; i < elevatorInfo.size(); i++) {
-//			JPanel p = new JPanel(new GridLayout(3, 1, 10, 10));
-//			JLabel id = new JLabel("Elevator " + elevatorInfo.get(i).getId());
-//			JLabel currFloor = new JLabel("Current Floor: " + elevatorInfo.get(i).getFloor());
-//			JLabel state = new JLabel("State: " + elevatorInfo.get(i).getState());
-//			
-//			p.add(id);
-//			p.add(currFloor);
-//			p.add(state);
-//			
-//			panels.add(p);
-//			panel.add(p);
-//		}
-//		frame.add(panel);
-//		frame.pack();
-//		frame.setVisible(true);
-//	}
 	
 	public void log(String msg) {
 		System.out.println("[GUI_PacketReceiver]" + msg);
