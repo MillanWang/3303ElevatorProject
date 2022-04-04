@@ -14,6 +14,7 @@ import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.FloorSubsystem.*;
+import app.GUI.GUIUpdateInfo;
 import app.Scheduler.SchedulerThreads.DelayedRequest;
 import app.Scheduler.SchedulerThreads.Scheduler_ElevatorSubsystemPacketReceiver;
 import app.Scheduler.SchedulerThreads.Scheduler_FloorSubsystemPacketReceiver;
@@ -41,6 +42,9 @@ public class Scheduler implements Runnable{
 	private InetAddress elevatorSubsystemInetAddress;
 	private int elevatorSubsystemSendPort;
 	private HashMap<Integer,Integer> previousNextFloorHashMap;
+	private InetAddress guiSubsystemInetAddress;
+	private int guiSubsystemSendPort;
+	
 	
 	private Logger logger;
 	private Config config;
@@ -62,10 +66,12 @@ public class Scheduler implements Runnable{
 		this.elevatorSubsystemReceivePort = this.config.getInt("scheduler.elevatorReceivePort");
 		this.floorSubsystemReceivePort = this.config.getInt("scheduler.floorReceivePort");
 		this.elevatorSubsystemSendPort = this.config.getInt("elevator.port");
+		this.guiSubsystemSendPort = this.config.getInt("gui.port");
 		
 		try {
 			this.floorSubsystemInetAddress = InetAddress.getByName(this.config.getString("floor.schedulerReceivePort"));
 			this.elevatorSubsystemInetAddress = InetAddress.getByName(this.config.getString("elevator.address"));
+			this.guiSubsystemInetAddress = InetAddress.getByName(this.config.getString("gui.address"));
 		} catch (UnknownHostException e) {e.printStackTrace();}
 		this.floorSubsystemSendPort = this.config.getInt("scheduler.elevatorReceivePort");
 		
@@ -83,7 +89,7 @@ public class Scheduler implements Runnable{
 	public synchronized void floorSystemScheduleRequest(List<ScheduledElevatorRequest> floorSystemRequests) {
 		this.logger.logSchedulerEvent("Scheduler received request(s) from floor system");
 		
-//TIME START
+		//Start time measurement
 		if(startTime == 0) {
 			startTime = System.currentTimeMillis();
 		}
@@ -117,7 +123,8 @@ public class Scheduler implements Runnable{
 				allElevatorInfos.add(new ElevatorInfo(i+1, 1,  null, Direction.UP));
 			}
 		}
-		this.sendNextPacket_elevatorSpecificNextFloor(allElevatorInfos);
+		
+		this.sendNextPacket_elevatorSpecificNextFloor(allElevatorInfos);	
 	}
 	
 
@@ -198,7 +205,22 @@ public class Scheduler implements Runnable{
 		
         
         Util.sendRequest_ReturnReply(replyPacket);
+        sendNextPacket_UpdateGUI();
 	}
+	
+	private synchronized void sendNextPacket_UpdateGUI() {
+		GUIUpdateInfo guiInfo = this.elevatorSpecificSchedulerManager.createGUIUpdate();
+		 //Create byte array to build reply packet contents more easily
+        ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
+		try {
+			packetMessageOutputStream.write(Util.serialize(guiInfo));
+		} catch (IOException e) {e.printStackTrace();}
+        //Create packet to reply with. Then send
+        byte[] replyData = packetMessageOutputStream.toByteArray();
+        DatagramPacket packet = new DatagramPacket(replyData, replyData.length,this.guiSubsystemInetAddress, this.guiSubsystemSendPort);
+        Util.sendRequest_NoReply(packet);
+	}
+	
 	
 	/**
 	 * Returns a HashMap of ElevatorID:nextFloorToVisit for each elevator
@@ -206,7 +228,7 @@ public class Scheduler implements Runnable{
 	 * @param allElevatorInfo Linked list of all ElevatorInfo objects
 	 * @return TreeSet of the remaining floors to visit in this direction
 	 */
-	public synchronized HashMap<Integer,Integer> getNextFloorsToVisit(LinkedList<ElevatorInfo> allElevatorInfos) {
+	private synchronized HashMap<Integer,Integer> getNextFloorsToVisit(LinkedList<ElevatorInfo> allElevatorInfos) {
 		return this.elevatorSpecificSchedulerManager.getAllElevatorsNextFloorToVisit(allElevatorInfos);
 	}
 	
