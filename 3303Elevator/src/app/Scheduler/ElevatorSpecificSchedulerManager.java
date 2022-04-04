@@ -91,6 +91,16 @@ public class ElevatorSpecificSchedulerManager {
 			}
 		}
 		
+		//If perma-error, remove all the floors associated with it
+		if (requestType==3) {
+			TreeSet<Integer> downs = this.allElevatorSpecificSchedulers.get(elevatorID_toSchedule).getDownwardsFloorsToVisit();
+			TreeSet<Integer> ups = this.allElevatorSpecificSchedulers.get(elevatorID_toSchedule).getUpwardsFloorsToVisit();
+			this.allUpwardsStartFloors.removeAll(downs);
+			this.allUpwardsStartFloors.removeAll(ups);
+			
+			this.allElevatorSpecificSchedulers.get(elevatorID_toSchedule).clearAllFloorsToVisit();
+		}
+		
 		
 		
 		this.allElevatorSpecificSchedulers.get(elevatorID_toSchedule).addRequest(startFloor, destinationFloor, requestType);
@@ -289,6 +299,11 @@ public class ElevatorSpecificSchedulerManager {
 		HashMap<Integer, TreeSet<Integer>> allElevatorDestinations = new HashMap<Integer, TreeSet<Integer>>();
 		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
 			allElevatorDestinations.put(i, this.allElevatorSpecificSchedulers.get(i).getPressedButtons());
+		}
+		
+		if (this.getTotalActiveNumberOfStopsCount()==0) {
+			this.allUpwardsStartFloors.clear();
+			this.allDownwardsStartFloors.clear();
 		}
 		
 		GUIUpdateInfo guiInfo = new GUIUpdateInfo(null/*ElevatorInfo is only for elevator to send*/, 
