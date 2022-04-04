@@ -27,7 +27,7 @@ public class Elevator implements Runnable {
 	private final int id;
 
 	private ElevatorDoor door;
-	private int currentFloor, floorsMoved, reqFloor;
+	private int currentFloor, floorsMoved, reqFloor, error;
 	private boolean exit, tempError, guiEnabled;
 	private ElevatorState state;
 	private TimeManagementSystem tms;
@@ -70,7 +70,7 @@ public class Elevator implements Runnable {
 	 * @return a new elevator info object
 	 */
 	public ElevatorInfo getInfo() {
-		return new ElevatorInfo(this.id, this.currentFloor, this.state.getState(), this.last);
+		return new ElevatorInfo(this.id, this.currentFloor,this.error, this.state.getState(), this.last);
 	}
 
 	/**
@@ -274,6 +274,7 @@ public class Elevator implements Runnable {
 			}
 			
 			this.reqFloor = nextFloor; 
+			this.error = error;
 			//  Next Floor speciel cases
 			// -1: No next stop
 			// -2: temporary out of service
