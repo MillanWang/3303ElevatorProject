@@ -120,7 +120,7 @@ public class Scheduler implements Runnable{
 			int numElevators = this.config.getInt("elevator.total.number");
 			allElevatorInfos= new LinkedList<ElevatorInfo>();
 			for(int i = 0; i < numElevators; i++) {
-				allElevatorInfos.add(new ElevatorInfo(i+1, 1,  null, Direction.UP));
+				allElevatorInfos.add(new ElevatorInfo(i+1, 1, -1, null, Direction.UP));
 			}
 		}
 		

@@ -66,10 +66,10 @@ public class GUI implements Runnable {
 		int numElevators = config.getInt("elevator.total.number");
 
 		
-		this.elevator1Info = new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP);
-		this.elevator2Info= new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP) ;
-		this.elevator3Info= new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP) ;
-		this.elevator4Info= new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP) ;
+		this.elevator1Info = new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP);
+		this.elevator2Info= new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP) ;
+		this.elevator3Info= new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP) ;
+		this.elevator4Info= new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP) ;
 
 		
 		frame.setVisible(true);
