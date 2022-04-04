@@ -26,19 +26,7 @@ import app.UDP.Util;
  *
  */
 public class Scheduler implements Runnable{
-//	In scheduler, start the time measurement near the top of floorSubsystemScheduleRequest
-//	-Start the time measurement only iff there isn't already a start time measurement 
-//
-//
-//	End the time measurement in sendNextPacket_elevatorSpecificNextFloor. In the if statement for .equals(previousNextFloorHashmap),
-	//add a nested if that calls elevatorSpecificSchedulerManager.getTotalActiveNumberOfStopsCount
-//	If the result of that call is zero, then you take the end time measurement, calculate the total time, and log it
-//	Scheduler already has a ref to logger so call that new thing you made
-//	
-//	long start = System.currentTimeMillis();
-//	// ...
-//	long finish = System.currentTimeMillis();
-//	long timeElapsed = finish - start;
+
 	public static final boolean USE_SIMPLE_LEAST_LOAD_ALGORITHM = true;
 	
 	private boolean skipDelaysOnFloorInputs;
@@ -57,8 +45,9 @@ public class Scheduler implements Runnable{
 	private Logger logger;
 	private Config config;
 	
-	private long start; 
-
+	private long startTime; //long is 0 by default, no initialization needed  
+	private long endTime; //long is 0 by default, no initialization needed 
+	private long timeElapsed; //long is 0 by default, no initialization needed 
 	/**
 	 * Constructor for scheduler class
 	 * 
@@ -95,7 +84,9 @@ public class Scheduler implements Runnable{
 		this.logger.logSchedulerEvent("Scheduler received request(s) from floor system");
 		
 //TIME START
-		
+		if(startTime == 0) {
+			startTime = System.currentTimeMillis();
+		}
 		for (ScheduledElevatorRequest ser : floorSystemRequests) {
 			
 			//Assuming sanitized inputs
@@ -174,6 +165,15 @@ public class Scheduler implements Runnable{
 		
 		HashMap<Integer,Integer> currentNextFloorsHashMap = getNextFloorsToVisit(allElevatorInfos);
 		if (currentNextFloorsHashMap.equals(previousNextFloorHashMap)) {
+			if(elevatorSpecificSchedulerManager.getTotalActiveNumberOfStopsCount() == 0 && startTime != 0) {
+				endTime = System.currentTimeMillis();
+				timeElapsed = endTime - startTime;
+				logger.logTimeMeasurements("System took "+ timeElapsed + " milliseconds to handle all requests on the input file");
+				startTime = 0;
+				endTime = 0;
+				timeElapsed = 0;
+				
+			}
 			//Don't send repeats more than once
 			return;
 		} else {
