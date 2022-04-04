@@ -138,6 +138,13 @@ public class ElevatorSpecificScheduler {
 		return downwardsFloorsToVisit;
 	}
 	
+	public void clearAllFloorsToVisit() {
+		this.upwardsFloorsToVisit.clear();
+		this.downwardsFloorsToVisit.clear();
+		this.upwardsDestinationsPerFloor.clear();
+		this.downwardsDestinationsPerFloor.clear();
+	}
+	
 	/**
 	 * @return the pressedButtons
 	 */
@@ -193,6 +200,7 @@ public class ElevatorSpecificScheduler {
 	 * @param floor that elevator just arrived to
 	 */
 	private void upwardsFloorIsVisited(Integer floor) {
+		if (currentState==ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE)return;
 		if (currentState==ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT) {
 			if (floor>this.mostRecentNextFloor) return;
 		}
@@ -208,6 +216,7 @@ public class ElevatorSpecificScheduler {
 	 * @param floor that elevator just arrived to
 	 */
 	private void downwardsFloorIsVisited(Integer floor) {
+		if (currentState==ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE)return;
 		if (currentState==ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT) {
 			if (floor<this.mostRecentNextFloor) return;
 		}

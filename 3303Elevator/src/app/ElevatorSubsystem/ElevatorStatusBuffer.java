@@ -33,7 +33,7 @@ public class ElevatorStatusBuffer {
 		}
 		
 		// If the elevator has been permenatly disabled
-		if(req.getFloor() == -3){
+		if(req.getError() == -3){ //USED TO BE GET FLOOR
 			this.dec++;
 		}
 

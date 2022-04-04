@@ -70,7 +70,13 @@ public class Elevator implements Runnable {
 	 * @return a new elevator info object
 	 */
 	public ElevatorInfo getInfo() {
-		return new ElevatorInfo(this.id, this.currentFloor,this.error, this.state.getState(), this.last);
+		int tempError = this.error;
+		if (this.error==-2) {
+			if (this.reqFloor!=this.currentFloor) {
+				tempError=-1;
+			}
+		}
+		return new ElevatorInfo(this.id, this.currentFloor, tempError, this.state.getState(), this.last);
 	}
 
 	/**
@@ -286,8 +292,9 @@ public class Elevator implements Runnable {
 
 			if(error == -3){
 				this.log("has permanently been stopped");
-				this.currentFloor = error;
+//				this.currentFloor = error;
 				this.statusBuf.addStatus(this.getInfo());
+				this.sendGUIUpdate();
 				return;
 			}
 
