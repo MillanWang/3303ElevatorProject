@@ -40,7 +40,6 @@ public class FloorSubsystemGUI extends JPanel{
 			
 			public Component prepareRenderer(TableCellRenderer r, int data, int columns) {
 				Component c = super.prepareRenderer(r, data, columns);
-				c.setName(String.valueOf(columns) + ", " + String.valueOf(data));
 				if (allUpwardsFloorButtons.contains(floors[data+1]) && columns == 0 || allDownwardsFloorButtons.contains(floors[data+1]) && columns == 1 ) {
 					c.setBackground(Color.GREEN);
 				}
