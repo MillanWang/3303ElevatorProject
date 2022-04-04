@@ -12,6 +12,7 @@ import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.Elevator;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.GUI.GUI;
+//import app.GUI.GUI;
 import app.Scheduler.*;
 import app.UDP.Util;
 
@@ -25,8 +26,10 @@ import app.UDP.Util;
 public class ElevatorSubsystem implements Runnable{
 
 	private int maxFloor, numElevators;
+	private boolean guiEnabled; 
 	private ArrayList<Integer> permErrors;
 	private InetSocketAddress schedulerAddr;
+	private InetSocketAddress guiAddr;
 	private Logger logger;
 	private TimeManagementSystem tms;
 	private ElevatorNextFloorBuffer nextFloorBuf;
@@ -42,12 +45,14 @@ public class ElevatorSubsystem implements Runnable{
 	public ElevatorSubsystem(Config config){
 		try {
 			this.schedulerAddr = new InetSocketAddress(config.getString("scheduler.address"), config.getInt("scheduler.elevatorReceivePort"));
+			this.guiAddr = new InetSocketAddress(config.getString("gui.address"), config.getInt("gui.port"));
 		}catch(Exception e) {
 			System.exit(1);
 		}
 		this.config = config;
 		this.maxFloor = config.getInt("floor.highestFloorNumber");
 		this.numElevators = config.getInt("elevator.total.number");
+		this.guiEnabled = config.getBoolean("elevator.gui");
 		this.nextFloorBuf = new ElevatorNextFloorBuffer();
 		this.statusBuf = new ElevatorStatusBuffer(numElevators);
 		this.logger = new Logger(config);
@@ -82,7 +87,7 @@ public class ElevatorSubsystem implements Runnable{
 	private void createElevators() {
 		this.log("creating elevators");
 		for(int i = 1; i <= this.numElevators; i++) {
-			Elevator e = new Elevator(i, this.maxFloor, this.logger, this.tms, this.nextFloorBuf, this.statusBuf);
+			Elevator e = new Elevator(i, this.maxFloor, this.logger, this.guiAddr, this.guiEnabled, this.tms, this.nextFloorBuf, this.statusBuf);
 			Thread t = new Thread(e, "Elevator " + i);
 			t.start();
 		}
@@ -155,6 +160,12 @@ public class ElevatorSubsystem implements Runnable{
 			this.esspr,
 			"ElevatorSubsystem_SchedulerPacketReceiver")
 		).start();
+		
+		if(this.guiEnabled) {
+			Config config = new Config("local.properties");
+			(new Thread(new GUI(config), "GUI")).start();
+		}
+		
 		this.createElevators();
 	}
 

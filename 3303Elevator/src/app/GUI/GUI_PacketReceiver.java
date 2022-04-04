@@ -68,7 +68,7 @@ public class GUI_PacketReceiver implements Runnable{
 	
 	
 	private void handlePacket(DatagramPacket requestPacket) {
-		System.out.println("[GUI_PacketReceiver] : Received packet");
+		this.gui.log("received packet");
         //De-serialize packet contents to become input for scheduler's next floors to visit
 		GUIUpdateInfo guiUpdate = null;
         try {
