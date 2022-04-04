@@ -64,7 +64,7 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(3,esScheduler.getActiveNumberOfStopsCount());
 		
 		//Pickup at floor 2, next floor to visit should be 3
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 2, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 2,-1, null, Direction.UP);
 		Assert.assertEquals(3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		//Now 4 should have been added to the getUpwardsFloorsToVisit
@@ -72,17 +72,17 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertTrue(esScheduler.getUpwardsFloorsToVisit().contains(4));
 		
 		//Still at floor 2 in a different elevator state. Next floor still 3
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 2, ElevatorStateMachine.Stopping, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 2, -1, ElevatorStateMachine.Stopping, Direction.UP);
 		Assert.assertEquals(3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
 		//Arrive at floor 3, next floor to visit should be 4
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 3, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 3,-1, null, Direction.UP);
 		Assert.assertEquals(4,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
 		//Arrive at floor 4, no next floor to visit meaning -1 next floor
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 4, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 4,-1, null, Direction.UP);
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
 		
@@ -99,7 +99,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(4,6,ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT);
 
 		//Floor 7 - Pickup 
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 7, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 7,-1, null, Direction.UP);
 		Assert.assertEquals(9,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		Assert.assertTrue(esScheduler.getUpwardsFloorsToVisit().contains(9)); //Destination 9 is now known
@@ -108,7 +108,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(7,8,ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT);
 
 		//Floor 9 - Drop off. Only active request now is 3->10. Going downwards to lowest up floor=3 which is only known up floor
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 9, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 9,-1, null, Direction.UP);
 		Assert.assertEquals(3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 		Assert.assertTrue(esScheduler.getUpwardsFloorsToVisit().contains(3)); 
@@ -118,7 +118,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(8,4,ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT);
 		
 		//Pickup at floor 3 - Next floor to visit should be 10 moving upwards
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 3, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 3,-1, null, Direction.DOWN);
 		Assert.assertEquals(10,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -126,11 +126,11 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(3,9,ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT);
 		
 		//Drop off at floor 10 - No more requests to -1 next floor
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 10, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 10,-1, null, Direction.UP);
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		
 		//If elevator somehow moves without scheduler instruction, still no next floor to visit
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 11, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 11,-1, null, Direction.UP);
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));	
 	}
 	
@@ -152,7 +152,7 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(4,esScheduler.getActiveNumberOfStopsCount());
 		
 		//Note that elevator is currently at floor 1 and that the next floor is the highest down to visit, 21
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.DOWN);
 		Assert.assertEquals(21,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -160,7 +160,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(1,20,ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT);
 		
 		//Stop at floor 21 to start going down to 13
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 21, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 21,-1, null, Direction.DOWN);
 		Assert.assertEquals(13,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -168,7 +168,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(21,14,ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT);
 		
 		//Pick up at 13, next floor to visit is 11
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 13, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 13,-1, null, Direction.DOWN);
 		Assert.assertEquals(11,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -176,7 +176,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(13,12,ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT);
 		
 		//pickup at 11, next stop is 4
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 11, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 11,-1, null, Direction.DOWN);
 		Assert.assertEquals(4,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -184,7 +184,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(11,5,ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT);
 		
 		//Drop off at 4, No more stops and -1 next floor
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 4, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 4,-1, null, Direction.DOWN);
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
 		
@@ -207,7 +207,7 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(2, esScheduler.getActiveNumberOfStopsCount());
 		
 		//Note that elevator is currently at floor 1 and that the next floor is the highest down to visit, 21
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.DOWN);
 		Assert.assertEquals(22,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -218,7 +218,7 @@ public class ElevatorSpecificSchedulerTests {
 		esScheduler.addRequest(1, 22, 0);
 		
 		//Drop off at floor 22
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 22, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 22,-1, null, Direction.DOWN);
 		Assert.assertEquals(1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -230,12 +230,12 @@ public class ElevatorSpecificSchedulerTests {
 		esScheduler.addRequest(19, 1, 0);
 		
 		//Next stop should still be the 9 and we will service downwards to get there
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 10, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 10,-1, null, Direction.DOWN);
 		Assert.assertEquals(9,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
 		//Pickup at 9 to get there
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 9, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 9,-1, null, Direction.DOWN);
 		Assert.assertEquals(1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -244,7 +244,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(9,2,ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT);
 		
 		//Drop off and pick up at floor 1
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.DOWN);
 		Assert.assertEquals(19,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -252,7 +252,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(1,18,ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT);
 		
 		//Pick up at 19
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 19, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 19,-1, null, Direction.DOWN);
 		Assert.assertEquals(1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -260,7 +260,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(19,2,ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT);
 		
 		//Drop off at 1, no more requests to deal with
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.DOWN);
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
 	}
@@ -282,7 +282,7 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(2,esScheduler.getActiveNumberOfStopsCount());
 		
 		//Note that elevator is currently at floor 1 and that the next floor is the highest down to visit, 21
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.DOWN);
 		Assert.assertEquals(21,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -291,17 +291,17 @@ public class ElevatorSpecificSchedulerTests {
 		
 		//Add an up request above the current floor. Should start to service upwards floors to visit
 		esScheduler.addRequest(11, 12, 0);
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 10, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 10,-1, null, Direction.DOWN);
 		Assert.assertEquals(11,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
 		//Pickup and go to next stop is destination
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 11, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 11,-1, null, Direction.DOWN);
 		Assert.assertEquals(12,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
 		//Drop off and resume going up to start servicing downs
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 12, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 12,-1, null, Direction.DOWN);
 		Assert.assertEquals(21,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -311,14 +311,14 @@ public class ElevatorSpecificSchedulerTests {
 		
 		//Schedule a new up request starting below current floor
 		esScheduler.addRequest(1, 20, 0);
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 15, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 15,-1, null, Direction.DOWN);
 		Assert.assertEquals(21,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 		moveBetweenFloorsWithoutStopping(15,20,ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT);
 		
 		
 		//Pickup at floor 21, then next stop if floor 4 to drop off
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 21, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 21,-1, null, Direction.DOWN);
 		Assert.assertEquals(4,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -326,7 +326,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(21,5,ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT);
 		
 		//Drop off at floor 4, now move down to floor 1 to pickup to go to 20
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 4, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 4,-1, null, Direction.UP);
 		Assert.assertEquals(1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT, esScheduler.getCurrentState());
 	
@@ -334,7 +334,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(4,2,ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT);
 		
 		//Pickup at floor 1. Now we're going to 20
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.UP);
 		Assert.assertEquals(20,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
@@ -342,7 +342,7 @@ public class ElevatorSpecificSchedulerTests {
 		moveBetweenFloorsWithoutStopping(1,19,ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT);
 		
 		//Drop off at 20. No more requests
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 20, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 20,-1, null, Direction.UP);
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
 	}
@@ -376,23 +376,23 @@ public class ElevatorSpecificSchedulerTests {
 
 		//Visit every floor on the way to the top floor while going upwards
 		for (int i = 1; i<floorCount; i++) {
-			eInfo = new ElevatorInfo(ELEVATOR_ID, i, null, Direction.UP);
+			eInfo = new ElevatorInfo(ELEVATOR_ID, i,-1, null, Direction.UP);
 			Assert.assertEquals(i+1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 			Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		}
 		//Reached top floor going up, next stop 2nd highest floor cause we're switching directions
-		eInfo = new ElevatorInfo(ELEVATOR_ID, floorCount, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, floorCount,-1, null, Direction.UP);
 		Assert.assertEquals(floorCount-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		
 		//Visit every floor on the way down to the bottom floor
 		for (int i = floorCount; i>1; i--) {
-			eInfo = new ElevatorInfo(ELEVATOR_ID, i, null, Direction.DOWN);
+			eInfo = new ElevatorInfo(ELEVATOR_ID, i,-1, null, Direction.DOWN);
 			Assert.assertEquals(i-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 			Assert.assertEquals(ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT, esScheduler.getCurrentState());
 		}
 		//Reached bottom floor going down, No more floors to visit so negative 1 next floor
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.DOWN);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.DOWN);
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
 	}
@@ -416,7 +416,7 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(4, esScheduler.getActiveNumberOfStopsCount());
 		
 		//Get next floor to visit. Should be 7 as default is to start at 1 going upwards
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 1, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 1,-1, null, Direction.UP);
 		Assert.assertEquals(7,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
 		
 		
@@ -431,7 +431,7 @@ public class ElevatorSpecificSchedulerTests {
 		
 		//Even if the elevator somehow moves, it will still always have -3 for next floor to visit in the PERMANENT_OUT_OF_SERVICE state
 		moveBetweenFloorsWithoutStopping(21,7,ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE);
-		eInfo = new ElevatorInfo(ELEVATOR_ID, 5, null, Direction.UP);
+		eInfo = new ElevatorInfo(ELEVATOR_ID, 5,-1, null, Direction.UP);
 		Assert.assertEquals(-3,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));		
 	}
 	
@@ -450,7 +450,7 @@ public class ElevatorSpecificSchedulerTests {
 		}
 		Direction direction = startFloor < endFloor ? Direction.UP : Direction.DOWN;
 		for (int i = startFloor;;) {
-			eInfo = new ElevatorInfo(ELEVATOR_ID, i, null, direction);
+			eInfo = new ElevatorInfo(ELEVATOR_ID, i,-1, null, direction);
 			if (direction == Direction.UP) {
 				//Upwards, next floor to visit must be above/greaterThan endFloor
 				Assert.assertTrue(endFloor < esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
