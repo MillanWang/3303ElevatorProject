@@ -1,9 +1,12 @@
 package app.GUI;
 
 import app.GUI.FloorSubsystemGUI;
+
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -77,15 +80,22 @@ public class GUI implements Runnable {
         
         this.e1Panel= new JPanel();
         this.e1Panel.add(new ElevatorSubsystemGUI(elevator1Info, new TreeSet<>()));
+        this.e1Panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Elevator 1", TitledBorder.CENTER, TitledBorder.TOP));
         
         this.e2Panel= new JPanel();
         this.e2Panel.add(new ElevatorSubsystemGUI(elevator2Info, new TreeSet<>()));
+        this.e2Panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Elevator 2", TitledBorder.CENTER, TitledBorder.TOP));
+
         
         this.e3Panel= new JPanel();
         this.e3Panel.add(new ElevatorSubsystemGUI(elevator3Info, new TreeSet<>()));
+        this.e3Panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Elevator 3", TitledBorder.CENTER, TitledBorder.TOP));
+
         
         this.e4Panel= new JPanel();
         this.e4Panel.add(new ElevatorSubsystemGUI(elevator4Info, new TreeSet<>()));
+        this.e4Panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Elevator 4", TitledBorder.CENTER, TitledBorder.TOP));
+
 		
 		
         frame.add(this.floorPanel);

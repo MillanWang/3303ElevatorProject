@@ -48,7 +48,7 @@ public class ElevatorSubsystemGUI extends JPanel{
 				Component c = super.prepareRenderer(r, data, columns);
 				
 				//Setting Elevator Location Colours
-				if (elevatorInfo.getFloor() == data && columns == 0) { //If elevator is on current floor
+				if (elevatorInfo.getFloor() == floors[data+1] && columns == 0) { //If elevator is on current floor
 					if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Idle
 						c.setBackground(Color.LIGHT_GRAY);
 					}
@@ -64,14 +64,12 @@ public class ElevatorSubsystemGUI extends JPanel{
 					else if(elevatorInfo.getState() == ElevatorStateMachine.DoorClosing) { //Doors Closing
 						c.setBackground(Color.ORANGE);
 					}
-					/*
-					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Temp Error
+					else if(elevatorInfo.getError() == 1) { //Temp Error
 						c.setBackground(Color.YELLOW);
 					}
-					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Permanent Error
+					else if(elevatorInfo.getError() == 2) { //Permanent Error
 						c.setBackground(Color.RED);
 					}
-					*/
 				}
 				else {
 					c.setBackground(Color.WHITE);
