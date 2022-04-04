@@ -70,11 +70,10 @@ public class GUI_PacketReceiver implements Runnable{
 	private void handlePacket(DatagramPacket requestPacket) {
 		System.out.println("[GUI_PacketReceiver] : Received packet");
         //De-serialize packet contents to become input for scheduler's next floors to visit
-		Object guiUpdate = null;
+		GUIUpdateInfo guiUpdate = null;
         try {
-        	guiUpdate = (Object) Util.deserialize(requestPacket.getData());
+        	guiUpdate = (GUIUpdateInfo) Util.deserialize(requestPacket.getData());
 		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();} 
-        //TODO Call something on GUI class to make sure it runs
         this.gui.updateView(guiUpdate);
 	}
 

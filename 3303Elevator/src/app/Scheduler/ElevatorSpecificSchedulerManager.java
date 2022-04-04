@@ -3,10 +3,12 @@ package app.Scheduler;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 import app.Config.Config;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
+import app.GUI.GUIUpdateInfo;
 
 public class ElevatorSpecificSchedulerManager {
 	private HashMap<Integer, ElevatorSpecificScheduler> allElevatorSpecificSchedulers;
@@ -15,12 +17,22 @@ public class ElevatorSpecificSchedulerManager {
 	private boolean useSimpleLeastLoadAlgorithm;
 	private HashMap<Integer, Integer> errorMapping;
 	
+	private TreeSet<Integer> allUpwardsStartFloors;
+	private TreeSet<Integer> allDownwardsStartFloors;
 	
 	
+	
+	/**
+	 * Constructor for the ElevatorSpecificSchedulerManager class
+	 * @param useSimpleLeastLoadAlgorithm Boolean to determine which request distribution algorithm to use
+	 */
 	public ElevatorSpecificSchedulerManager (boolean useSimpleLeastLoadAlgorithm) {
 		this.useSimpleLeastLoadAlgorithm=useSimpleLeastLoadAlgorithm;
 		this.currentState = ElevatorSpecificSchedulerManagerState.AWAITING_NEXT_ELEVATOR_REQUEST;
 		this.errorMapping = new HashMap<Integer, Integer>();
+		
+		this.allUpwardsStartFloors = new TreeSet<Integer>();
+		this.allDownwardsStartFloors = new TreeSet<Integer>();
 		
 		//Creating an elevator specific scheduler for each elevator
 		this.allElevatorSpecificSchedulers = new HashMap<Integer, ElevatorSpecificScheduler>();
@@ -68,6 +80,15 @@ public class ElevatorSpecificSchedulerManager {
 		//If the request is an error, then add it to the errorMapping
 		if (requestType!=0) {
 			this.errorMapping.put(elevatorID_toSchedule, requestType==1 ? -2 : -3); //-2:Temp error , -3:PermanentError
+		}
+		
+		//If the request is normal or temporary error, track the start floor
+		if (requestType!=2) {
+			if (startFloor<destinationFloor) {
+				this.allUpwardsStartFloors.add(startFloor);
+			} else { 
+				this.allDownwardsStartFloors.add(startFloor);
+			}
 		}
 		
 		
@@ -223,6 +244,11 @@ public class ElevatorSpecificSchedulerManager {
 			elevatorID_nextFloorMapping.put(eInfo.getId(), 
 											this.allElevatorSpecificSchedulers.get(eInfo.getId())
 												.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));
+			if (eInfo.getMostRecentDirection()==Direction.UP) {
+				this.allUpwardsStartFloors.remove(eInfo.getFloor());
+			} else if (eInfo.getMostRecentDirection()==Direction.DOWN) {
+				this.allDownwardsStartFloors.remove(eInfo.getFloor());
+			}
 		}
 		return elevatorID_nextFloorMapping;
 	}
@@ -249,6 +275,38 @@ public class ElevatorSpecificSchedulerManager {
 		this.errorMapping.clear();
 		return hm;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public GUIUpdateInfo createGUIUpdate() {
+		HashMap<Integer, TreeSet<Integer>> allElevatorDestinations = new HashMap<Integer, TreeSet<Integer>>();
+		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
+			allElevatorDestinations.put(i, this.allElevatorSpecificSchedulers.get(i).getPressedButtons());
+		}
+		
+		GUIUpdateInfo guiInfo = new GUIUpdateInfo(null/*ElevatorInfo is only for elevator to send*/, 
+												  allElevatorDestinations,
+												  this.allUpwardsStartFloors,
+												  this.allDownwardsStartFloors);
+		return guiInfo;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	@Override
 	public String toString() {

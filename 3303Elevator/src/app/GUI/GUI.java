@@ -94,7 +94,7 @@ public class GUI implements Runnable {
 	/**
 	 * Updates the information displayed when changes occur
 	 */
-	public void updateView(Object o) { 
+	public void updateView(GUIUpdateInfo guiUpdateInfo) { 
 		//TODO: Make sure that this is updated with the new comms object
 		System.out.println("Gotta update the view my dude");
 	}

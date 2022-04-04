@@ -51,6 +51,7 @@ public class ElevatorSpecificScheduler {
 	private LinkedList<TreeSet<Integer>> upwardsDestinationsPerFloor;
 	private LinkedList<TreeSet<Integer>> downwardsDestinationsPerFloor;
 	
+	private TreeSet<Integer> pressedButtons;
 
 	
 	/**
@@ -65,6 +66,7 @@ public class ElevatorSpecificScheduler {
 		this.isUpwards=true;
 		this.upwardsFloorsToVisit = new TreeSet<Integer>();
 		this.downwardsFloorsToVisit = new TreeSet<Integer>();
+		this.pressedButtons = new TreeSet<Integer>();
 		this.currentState = ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST;
 		
 		int highestFloorNumber= (new Config("local.properties")).getInt("floor.highestFloorNumber"); 
@@ -137,6 +139,13 @@ public class ElevatorSpecificScheduler {
 	}
 	
 	/**
+	 * @return the pressedButtons
+	 */
+	public TreeSet<Integer> getPressedButtons() {
+		return pressedButtons;
+	}
+
+	/**
 	 * Adds a request to the current elevator
 	 * @param startFloor starting floor of the request
 	 * @param destinationFloor destination floor of the request
@@ -187,8 +196,10 @@ public class ElevatorSpecificScheduler {
 		if (currentState==ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT) {
 			if (floor>this.mostRecentNextFloor) return;
 		}
+		this.pressedButtons.remove(floor);
 		this.upwardsFloorsToVisit.remove(floor);
 		this.upwardsFloorsToVisit.addAll(this.upwardsDestinationsPerFloor.get(floor-1));
+		this.pressedButtons.addAll(this.upwardsDestinationsPerFloor.get(floor-1));
 		this.upwardsDestinationsPerFloor.get(floor-1).clear();
 	}
 	
@@ -200,8 +211,10 @@ public class ElevatorSpecificScheduler {
 		if (currentState==ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT) {
 			if (floor<this.mostRecentNextFloor) return;
 		}
+		this.pressedButtons.remove(floor);
 		this.downwardsFloorsToVisit.remove(floor);
 		this.downwardsFloorsToVisit.addAll(this.downwardsDestinationsPerFloor.get(floor-1));
+		this.pressedButtons.addAll(this.downwardsDestinationsPerFloor.get(floor-1));
 		this.downwardsDestinationsPerFloor.get(floor-1).clear();
 	}
 
