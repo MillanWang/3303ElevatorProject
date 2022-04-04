@@ -13,12 +13,14 @@ public class ElevatorSpecificSchedulerManager {
 	private LinkedList<ElevatorInfo> mostRecentAllElevatorInfo;
 	private ElevatorSpecificSchedulerManagerState currentState;
 	private boolean useSimpleLeastLoadAlgorithm;
+	private HashMap<Integer, Integer> errorMapping;
 	
 	
 	
 	public ElevatorSpecificSchedulerManager (boolean useSimpleLeastLoadAlgorithm) {
 		this.useSimpleLeastLoadAlgorithm=useSimpleLeastLoadAlgorithm;
 		this.currentState = ElevatorSpecificSchedulerManagerState.AWAITING_NEXT_ELEVATOR_REQUEST;
+		this.errorMapping = new HashMap<Integer, Integer>();
 		
 		//Creating an elevator specific scheduler for each elevator
 		this.allElevatorSpecificSchedulers = new HashMap<Integer, ElevatorSpecificScheduler>();
@@ -53,12 +55,23 @@ public class ElevatorSpecificSchedulerManager {
 		if (checkIfAllElevatorsArePermanentError()) {
 			return -1;
 		}
+		
 		int elevatorID_toSchedule=-1;
+		
+		//Choose which algorithm to use to distribute the floor request
 		if (this.useSimpleLeastLoadAlgorithm) {
 			elevatorID_toSchedule=getBestElevatorId_SimpleLeastLoadAlgorithm();
 		} else {
 			elevatorID_toSchedule=getBestElevatorId_DirectionalPriorityAlgorithm(startFloor, startFloor<destinationFloor);
 		}
+		
+		//If the request is an error, then add it to the errorMapping
+		if (requestType!=0) {
+			this.errorMapping.put(elevatorID_toSchedule, requestType==1 ? -2 : -3); //-2:Temp error , -3:PermanentError
+		}
+		
+		
+		
 		this.allElevatorSpecificSchedulers.get(elevatorID_toSchedule).addRequest(startFloor, destinationFloor, requestType);
 		return elevatorID_toSchedule;
 	}
@@ -229,6 +242,12 @@ public class ElevatorSpecificSchedulerManager {
 		}
 		return totalStopCount;
 		
+	}
+	
+	public HashMap<Integer, Integer> getElevatorErrorMap(){
+		HashMap<Integer, Integer> hm = (HashMap<Integer, Integer>) this.errorMapping.clone();
+		this.errorMapping.clear();
+		return hm;
 	}
 	
 	@Override

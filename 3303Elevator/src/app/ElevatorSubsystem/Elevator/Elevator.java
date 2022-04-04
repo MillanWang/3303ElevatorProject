@@ -204,7 +204,7 @@ public class Elevator implements Runnable {
 			this.loadElevator();
 			
 			if(this.tempError) {
-				this.log("temporary error doors stuck open");
+				this.log("\n*******************************************************************\nTEMPORARY ERROR : Elevator "+this.id+" Doors stuck open\n*******************************************************************\n\n");
 				
 				try {
 					Thread.sleep(10000);
