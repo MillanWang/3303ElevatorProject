@@ -26,7 +26,7 @@ import app.UDP.Util;
 public class ElevatorSubsystem implements Runnable{
 
 	private int maxFloor, numElevators;
-	private boolean guiEnabled; 
+	private boolean guiEnabled;
 	private ArrayList<Integer> permErrors;
 	private InetSocketAddress schedulerAddr;
 	private InetSocketAddress guiAddr;
@@ -160,11 +160,6 @@ public class ElevatorSubsystem implements Runnable{
 			this.esspr,
 			"ElevatorSubsystem_SchedulerPacketReceiver")
 		).start();
-		
-		if(this.guiEnabled) {
-			Config config = new Config("local.properties");
-			(new Thread(new GUI(config), "GUI")).start();
-		}
 		
 		this.createElevators();
 	}
