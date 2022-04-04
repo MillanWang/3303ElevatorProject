@@ -1,5 +1,6 @@
 package app.GUI;
 
+import app.GUI.FloorSubsystemGUI;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -58,8 +59,15 @@ public class GUI implements Runnable {
 		
 		this.config = config;
 		int numElevators = config.getInt("elevator.total.number");
+
+		
+
+
+
+
 		
 		frame.setVisible(true);
+
 		
         this.floorPanel= new JPanel();
         this.floorPanel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
@@ -83,6 +91,7 @@ public class GUI implements Runnable {
         frame.add(this.e3Panel);
         frame.add(this.e4Panel);
 		
+
         frame.pack();
 	}
 	
