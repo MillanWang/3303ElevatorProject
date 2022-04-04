@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 import app.Config.Config;
@@ -185,8 +186,17 @@ public class GUI implements Runnable {
 		
 		HashMap<Integer, ElevatorInfo> elevatorInfos = guiUpdateInfo.getAllElevatorInfoObject();
 		if(elevatorInfos != null) {
-			//TODO Update the individual elevator GUI elements
-			System.out.println(elevatorInfos);
+			for(Map.Entry<Integer, ElevatorInfo> entry : elevatorInfos.entrySet()) {
+				if(entry.getKey() == 1) {
+					this.elevator1Info = entry.getValue();
+				}else if(entry.getKey() == 2) {
+					this.elevator2Info = entry.getValue();
+				}else if(entry.getKey() == 3) {
+					this.elevator3Info = entry.getValue();
+				}else if(entry.getKey() == 4) {
+					this.elevator4Info = entry.getValue();
+				}
+			}
 		}
 		
 		HashMap<Integer, TreeSet<Integer>> elevatorDestinations_pressedButtons = guiUpdateInfo.getAllElevatorDestinations();
