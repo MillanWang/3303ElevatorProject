@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.*;
@@ -100,21 +101,28 @@ public class GUI implements Runnable {
 	 * Updates the information displayed when changes occur
 	 */
 	public void updateView(GUIUpdateInfo guiUpdateInfo) { 
-		//TODO: Make sure that this is updated with the new comms object
-		//System.out.println("Gotta update the view my dude");
 		
-		GUIUpdateInfo info = null;
-		try {
-			info = (GUIUpdateInfo) o;
-		}catch(Exception e) {
-			System.out.print("");
+		HashMap<Integer, ElevatorInfo> elevatorInfos = guiUpdateInfo.getAllElevatorInfoObject();
+		if(elevatorInfos != null) {
+			//TODO Update the individual elevator GUI elements
+			System.out.println(elevatorInfos);
 		}
 		
-		if(info == null) return; 
+		HashMap<Integer, TreeSet<Integer>> elevatorDestinations_pressedButtons = guiUpdateInfo.getAllElevatorDestinations();
+		if (elevatorDestinations_pressedButtons!=null) {
+			//TODO : Update the proper elevator buttons
+			System.out.println(elevatorDestinations_pressedButtons);
+		}
 		
-		HashMap<Integer, ElevatorInfo> elevatorInfo = info.getAllElevatorInfoObject();
-		if(elevatorInfo != null) {
-			
+		TreeSet<Integer> upwardsFloorButtons = guiUpdateInfo.getAllUpwardsFloorButtons();
+		if (upwardsFloorButtons!=null) {
+			//TODO : Update upwards floor buttons
+			System.out.println(upwardsFloorButtons);
+		}
+		TreeSet<Integer> downwardsFloorButtons = guiUpdateInfo.getAllDownwardsFloorButton();
+		if (downwardsFloorButtons!=null) {
+			//TODO : Update downwards floor buttons
+			System.out.println(downwardsFloorButtons);
 		}
 	}
 	
