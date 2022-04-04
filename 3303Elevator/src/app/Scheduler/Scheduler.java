@@ -72,7 +72,7 @@ public class Scheduler implements Runnable{
 		
 		this.logger = logger;
 		
-		this.skipDelaysOnFloorInputs= this.config.getInt("scheduler.skipDelaysOnFloorInputs")==1; 
+		this.skipDelaysOnFloorInputs= this.config.getInt("scheduler.skipDelaysOnFloorInputs")==1;
 	}
 	
 	
@@ -180,11 +180,13 @@ public class Scheduler implements Runnable{
 			this.previousNextFloorHashMap=currentNextFloorsHashMap;
 		}
 		
+		SchedulerInfo schedulerInfo = new SchedulerInfo(currentNextFloorsHashMap, this.elevatorSpecificSchedulerManager.getElevatorErrorMap());
+		
 		
         //Create byte array to build reply packet contents more easily
         ByteArrayOutputStream packetMessageOutputStream = new ByteArrayOutputStream();
 		try {
-			packetMessageOutputStream.write(Util.serialize(currentNextFloorsHashMap));
+			packetMessageOutputStream.write(Util.serialize(schedulerInfo));
 		} catch (IOException e) {e.printStackTrace();}
         //Create packet to reply with. Then send
         byte[] replyData = packetMessageOutputStream.toByteArray();
