@@ -10,6 +10,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import app.Config.Config;
 import app.ElevatorSubsystem.Elevator.*;
@@ -91,12 +92,30 @@ public class GUI implements Runnable {
 		frame.setVisible(true);
 	}
 	
+	public void log(String msg) {
+		System.out.println("[GUI_PacketReceiver]" + msg);
+	}
+	
 	/**
 	 * Updates the information displayed when changes occur
 	 */
 	public void updateView(Object o) { 
 		//TODO: Make sure that this is updated with the new comms object
-		System.out.println("Gotta update the view my dude");
+		//System.out.println("Gotta update the view my dude");
+		
+		GUIUpdateInfo info = null;
+		try {
+			info = (GUIUpdateInfo) o;
+		}catch(Exception e) {
+			System.out.print("");
+		}
+		
+		if(info == null) return; 
+		
+		HashMap<Integer, ElevatorInfo> elevatorInfo = info.getAllElevatorInfoObject();
+		if(elevatorInfo != null) {
+			
+		}
 	}
 	
 	/**

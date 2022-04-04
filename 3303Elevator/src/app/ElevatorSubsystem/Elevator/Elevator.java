@@ -1,12 +1,19 @@
 package app.ElevatorSubsystem.Elevator;
 
 import app.Scheduler.TimeManagementSystem;
+import app.UDP.Util;
 import app.Logger;
 import app.ElevatorSubsystem.ElevatorNextFloorBuffer;
 import app.ElevatorSubsystem.ElevatorStatusBuffer;
 import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.StateMachine.*;
+import app.GUI.GUIUpdateInfo;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeSet;
 /**
  * SYSC 3303, Final Project
@@ -20,22 +27,22 @@ public class Elevator implements Runnable {
 	private final int id;
 
 	private ElevatorDoor door;
-	private int currentFloor, floorsMoved;
-	private boolean exit;
+	private int currentFloor, floorsMoved, reqFloor;
+	private boolean exit, tempError, guiEnabled;
 	private ElevatorState state;
 	private TimeManagementSystem tms;
 	private Logger logger;
 	private ElevatorNextFloorBuffer nextFloorBuf;
 	private ElevatorStatusBuffer statusBuf;
 	private Direction last;
-	private boolean tempError;
+	private InetSocketAddress guiAddr;
 
 	/**
 	 * Maximum number of floors
 	 */
 	private int maxFloorCount;
 
-	public Elevator(int id, int maxFloorCount,Logger logger, TimeManagementSystem tms, ElevatorNextFloorBuffer nextFloorBuf, ElevatorStatusBuffer statusBuf) {
+	public Elevator(int id, int maxFloorCount,Logger logger, InetSocketAddress guiAddr, boolean guiEnabled, TimeManagementSystem tms, ElevatorNextFloorBuffer nextFloorBuf, ElevatorStatusBuffer statusBuf) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
 		this.floorsMoved = 0;
@@ -49,6 +56,8 @@ public class Elevator implements Runnable {
 		this.statusBuf = statusBuf;
 		this.last= Direction.UP;
 		this.tempError = false;
+		this.guiEnabled = guiEnabled;
+		this.guiAddr = guiAddr;
 	}
 
 	public int getId() {
@@ -126,8 +135,25 @@ public class Elevator implements Runnable {
 		}else if(state.getState() == ElevatorStateMachine.MoveDown) {
 			currentFloor--;
 		}
+		
+		if(this.guiEnabled) {
+			this.sendGUIUpdate();
+		}
 	}
 
+	private void sendGUIUpdate() {
+		HashMap<Integer, ElevatorInfo> info = new HashMap<>();
+		info.put(this.id, this.getInfo());
+		GUIUpdateInfo req = new GUIUpdateInfo(info, null, null, null);
+		try {
+			byte[] data = Util.serialize(req);
+			DatagramPacket packet = new DatagramPacket(data,data.length, this.guiAddr.getAddress(), this.guiAddr.getPort());
+			Util.sendRequest_NoReply(packet);
+		}catch(IOException e) {
+			this.log("failed to send gui update");
+		}
+	}
+	
 	/**
 	 * Determines if the elevator is in a state that is moving
 	 * @return if the elevator is moving
@@ -222,7 +248,7 @@ public class Elevator implements Runnable {
 		}
 		return false;
 	}
-
+	
 	public void stop() {
 		this.exit = true;
 	}
@@ -232,10 +258,12 @@ public class Elevator implements Runnable {
 
 		while(!exit) {
 
+			this.reqFloor = 0;
 			int nextFloor = nextFloorBuf.getNextFloor(this.id);
 			int error = nextFloorBuf.getError(this.id);
-			this.log("" + nextFloor);
-			this.log("" + error);
+			//this.log("" + nextFloor);
+			//this.log("" + error);
+			
 			while(nextFloor == 0) {
 				nextFloor = nextFloorBuf.getNextFloor(this.id);
 			}
@@ -244,6 +272,7 @@ public class Elevator implements Runnable {
 				error = nextFloorBuf.getError(this.id);
 			}
 			
+			this.reqFloor = nextFloor; 
 			//  Next Floor speciel cases
 			// -1: No next stop
 			// -2: temporary out of service
