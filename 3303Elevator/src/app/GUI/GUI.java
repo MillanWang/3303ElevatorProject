@@ -191,19 +191,29 @@ public class GUI implements Runnable {
 		
 		HashMap<Integer, TreeSet<Integer>> elevatorDestinations_pressedButtons = guiUpdateInfo.getAllElevatorDestinations();
 		if (elevatorDestinations_pressedButtons!=null) {
-			//TODO : Update the proper elevator buttons
-			System.out.println(elevatorDestinations_pressedButtons);
+			//Safe to override if they are sent. All state tracking done on the scheduler side
+			for (Integer id : elevatorDestinations_pressedButtons.keySet()) {
+				if (id==1) {
+					this.elevator1Destinations = elevatorDestinations_pressedButtons.get(id);
+				} else if (id==2) {
+					this.elevator2Destinations = elevatorDestinations_pressedButtons.get(id);
+				} else if (id==3) {
+					this.elevator3Destinations = elevatorDestinations_pressedButtons.get(id);
+				} else if (id==4) {
+					this.elevator4Destinations = elevatorDestinations_pressedButtons.get(id);
+				}
+			}
 		}
 		
 		TreeSet<Integer> upwardsFloorButtons = guiUpdateInfo.getAllUpwardsFloorButtons();
 		if (upwardsFloorButtons!=null) {
-			//TODO : Update upwards floor buttons
-			System.out.println(upwardsFloorButtons);
+			//Safe to override every time. Should send the whole thing and not just the delta
+			this.allUpwardsFloorButtons = upwardsFloorButtons;
 		}
 		TreeSet<Integer> downwardsFloorButtons = guiUpdateInfo.getAllDownwardsFloorButton();
 		if (downwardsFloorButtons!=null) {
-			//TODO : Update downwards floor buttons
-			System.out.println(downwardsFloorButtons);
+			//Safe to override every time. Should send the whole thing and not just the delta
+			this.allDownwardsFloorButtons = downwardsFloorButtons;
 		}
 	}
 	
