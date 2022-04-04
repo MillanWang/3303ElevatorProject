@@ -82,8 +82,8 @@ public class ElevatorSubsystem implements Runnable{
 	private void createElevators() {
 		this.log("creating elevators");
 		for(int i = 1; i <= this.numElevators; i++) {
-			Elevator e = new Elevator(i+1, this.maxFloor, this.logger, this.tms, this.nextFloorBuf, this.statusBuf);
-			Thread t = new Thread(e, "Elevator "+ i);
+			Elevator e = new Elevator(i, this.maxFloor, this.logger, this.tms, this.nextFloorBuf, this.statusBuf);
+			Thread t = new Thread(e, "Elevator " + i);
 			t.start();
 		}
 	}
