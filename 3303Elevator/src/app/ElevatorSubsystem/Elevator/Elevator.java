@@ -234,7 +234,8 @@ public class Elevator implements Runnable {
 
 			int nextFloor = nextFloorBuf.getNextFloor(this.id);
 			int error = nextFloorBuf.getError(this.id);
-			
+			this.log("" + nextFloor);
+			this.log("" + error);
 			while(nextFloor == 0) {
 				nextFloor = nextFloorBuf.getNextFloor(this.id);
 			}
