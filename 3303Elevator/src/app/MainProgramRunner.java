@@ -3,6 +3,7 @@ package app;
 import app.Config.Config;
 import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.FloorSubsystem.FloorSubsystem;
+import app.GUI.GUI;
 import app.Scheduler.Scheduler;
 import app.Scheduler.TimeManagementSystem;
 
@@ -26,18 +27,24 @@ public class MainProgramRunner {
 
 	public static final String DEFAULT_INPUT_FILE_ABSOLUTE_PATH = System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt";
 	
-	
+	/**
+	 * Main method for running all subsystems
+	 * @param args Command line arguments
+	 */
 	public static void main(String[] args) {
 		Config config = new Config("local.properties");
 		Logger logger = new Logger(config); 
 		Scheduler scheduler = new Scheduler(logger, config);
 		FloorSubsystem floorSubsys = new FloorSubsystem(logger, config);
 		ElevatorSubsystem elevatorSubsys = new ElevatorSubsystem(config);
+		GUI gui = new GUI(config);
 		
 		Thread schedulerThread = new Thread(scheduler, "SchedulerThread");
 		Thread floorThread = new Thread(floorSubsys, "FloorSubsystemThread");
 		Thread elevatorThread = new Thread(elevatorSubsys, "ElevatorSubsystemThread");
-		
+		Thread guiThread = new Thread(gui, "StartGUI_Thread");
+
+		guiThread.start();
 		schedulerThread.start();
 		floorThread.start();
 		elevatorThread.start();
