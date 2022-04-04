@@ -17,7 +17,9 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import app.Config.Config;
+import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.*;
+import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 import app.UDP.Util;
 
 /**
@@ -61,9 +63,10 @@ public class GUI implements Runnable {
 		int numElevators = config.getInt("elevator.total.number");
 
 		
-
-
-
+		this.elevator1Info = new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP);
+		this.elevator2Info= new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP) ;
+		this.elevator3Info= new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP) ;
+		this.elevator4Info= new ElevatorInfo(1, 1, ElevatorStateMachine.Idle, Direction.UP) ;
 
 		
 		frame.setVisible(true);
@@ -73,16 +76,16 @@ public class GUI implements Runnable {
         this.floorPanel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
         
         this.e1Panel= new JPanel();
-        this.e1Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e1Panel.add(new ElevatorSubsystemGUI(elevator1Info, new TreeSet<>()));
         
         this.e2Panel= new JPanel();
-        this.e2Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e2Panel.add(new ElevatorSubsystemGUI(elevator2Info, new TreeSet<>()));
         
         this.e3Panel= new JPanel();
-        this.e3Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e3Panel.add(new ElevatorSubsystemGUI(elevator3Info, new TreeSet<>()));
         
         this.e4Panel= new JPanel();
-        this.e4Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e4Panel.add(new ElevatorSubsystemGUI(elevator4Info, new TreeSet<>()));
 		
 		
         frame.add(this.floorPanel);
@@ -156,16 +159,16 @@ public class GUI implements Runnable {
         this.floorPanel.add(new FloorSubsystemGUI(allUpwardsFloorButtons, allDownwardsFloorButtons));
         
         this.e1Panel.removeAll();
-        this.e1Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e1Panel.add(new ElevatorSubsystemGUI(this.elevator1Info, elevator1Destinations));
         
         this.e2Panel.removeAll();
-        this.e2Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e2Panel.add(new ElevatorSubsystemGUI(this.elevator2Info, elevator2Destinations));
         
         this.e3Panel.removeAll();
-        this.e3Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e3Panel.add(new ElevatorSubsystemGUI(this.elevator3Info, elevator3Destinations));
         
         this.e4Panel.removeAll();
-        this.e4Panel.add(new FloorSubsystemGUI(new TreeSet<>(), new TreeSet<>()));
+        this.e4Panel.add(new ElevatorSubsystemGUI(this.elevator4Info, elevator4Destinations));
         
         this.frame.pack();
 		
