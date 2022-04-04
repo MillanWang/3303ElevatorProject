@@ -6,6 +6,7 @@ import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.ElevatorSubsystem.StateMachine.ElevatorStateMachine;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Color;
 import java.awt.Component;
@@ -51,24 +52,26 @@ public class ElevatorSubsystemGUI extends JPanel{
 					if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Idle
 						c.setBackground(Color.LIGHT_GRAY);
 					}
-					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Moving
+					else if(elevatorInfo.getState() == ElevatorStateMachine.MoveUp || elevatorInfo.getState() == ElevatorStateMachine.MoveDown) { //Moving
 						c.setBackground(Color.DARK_GRAY);
 					}
-					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Doors Opening
+					else if(elevatorInfo.getState() == ElevatorStateMachine.DoorOpening) { //Doors Opening
 						c.setBackground(new Color(50,205,50));
 					}
-					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Doors Open
+					else if(elevatorInfo.getState() == ElevatorStateMachine.OpenDoor) { //Doors Open
 						c.setBackground(new Color(34,139,34));
 					}
-					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Doors Closing
+					else if(elevatorInfo.getState() == ElevatorStateMachine.DoorClosing) { //Doors Closing
 						c.setBackground(Color.ORANGE);
 					}
+					/*
 					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Temp Error
 						c.setBackground(Color.YELLOW);
 					}
 					else if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Permanent Error
 						c.setBackground(Color.RED);
 					}
+					*/
 				}
 				else {
 					c.setBackground(Color.WHITE);
@@ -85,12 +88,12 @@ public class ElevatorSubsystemGUI extends JPanel{
 				return c;
 			}
 		};
-		
 		table.setPreferredScrollableViewportSize(new Dimension(300,340));
 		table.setFillsViewportHeight(true);
 		
 		JScrollPane jps = new JScrollPane(table);
 		add(jps);
+		//this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Elevator " + elevatorInfo.getId(), TitledBorder.CENTER, TitledBorder.TOP));
 	}
 	
 	
