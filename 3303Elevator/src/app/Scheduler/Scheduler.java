@@ -26,7 +26,19 @@ import app.UDP.Util;
  *
  */
 public class Scheduler implements Runnable{
-	
+//	In scheduler, start the time measurement near the top of floorSubsystemScheduleRequest
+//	-Start the time measurement only iff there isn't already a start time measurement 
+//
+//
+//	End the time measurement in sendNextPacket_elevatorSpecificNextFloor. In the if statement for .equals(previousNextFloorHashmap),
+	//add a nested if that calls elevatorSpecificSchedulerManager.getTotalActiveNumberOfStopsCount
+//	If the result of that call is zero, then you take the end time measurement, calculate the total time, and log it
+//	Scheduler already has a ref to logger so call that new thing you made
+//	
+//	long start = System.currentTimeMillis();
+//	// ...
+//	long finish = System.currentTimeMillis();
+//	long timeElapsed = finish - start;
 	public static final boolean USE_SIMPLE_LEAST_LOAD_ALGORITHM = true;
 	
 	private boolean skipDelaysOnFloorInputs;
@@ -45,6 +57,7 @@ public class Scheduler implements Runnable{
 	private Logger logger;
 	private Config config;
 	
+	private long start; 
 
 	/**
 	 * Constructor for scheduler class
