@@ -134,6 +134,9 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(-1,esScheduler.handleElevatorInfoChange_returnNextFloorToVisit(eInfo));	
 	}
 	
+	/**
+	 * Simulates the elevator progression with a lot of incoming down requests
+	 */
 	@Test
 	public void test_DownRequestSeries() {
 		this.esScheduler = new ElevatorSpecificScheduler(ELEVATOR_ID);
@@ -190,6 +193,9 @@ public class ElevatorSpecificSchedulerTests {
 		
 	}
 	
+	/**
+	 * Tests the edge cases of an incoming down request while the elevator is in the moving down to lowest Up floor state
+	 */
 	@Test
 	public void test_IncomingDownRequestsWhenMovingDownToLowestUp() {
 		this.esScheduler = new ElevatorSpecificScheduler(ELEVATOR_ID);
@@ -265,6 +271,9 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
 	}
 	
+	/**
+	 * Tests the edge cases of an incoming up request while the elevator is in the Moving up to highest down floor state
+	 */
 	@Test
 	public void test_IncomingUpRequestsWhenMovingUpToHighestDown() {
 		this.esScheduler = new ElevatorSpecificScheduler(ELEVATOR_ID);
@@ -347,6 +356,9 @@ public class ElevatorSpecificSchedulerTests {
 		Assert.assertEquals(ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST, esScheduler.getCurrentState());
 	}
 	
+	/**
+	 * Test handles all possible floor requests made at the same time. Every possible start floor to every possible destination floor
+	 */
 	@Test
 	public void test_ManyRequestsToStart() {
 		this.esScheduler = new ElevatorSpecificScheduler(ELEVATOR_ID);

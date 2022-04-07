@@ -10,13 +10,42 @@ import app.ElevatorSubsystem.Direction.Direction;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.GUI.GUIUpdateInfo;
 
+/**
+ * Class for ElevatorSpecificSchedulerManager object which manages multiple 
+ * instances of ElevatorSpecificScheduler objects
+ * 
+ * @author Millan Wang
+ *
+ */
 public class ElevatorSpecificSchedulerManager {
+	/**
+	 * Collection of ElevatorSpecificScheduler objects with the Key being the ID
+	 */
 	private HashMap<Integer, ElevatorSpecificScheduler> allElevatorSpecificSchedulers;
+	
+	/**
+	 * Most recent ElevatorInfo objects received from the elevator subsystem
+	 */
 	private LinkedList<ElevatorInfo> mostRecentAllElevatorInfo;
+	
+	/**
+	 * The current state of the ElevatorSpecificSchedulerManager object
+	 */
 	private ElevatorSpecificSchedulerManagerState currentState;
+	
+	/**
+	 * Feature flag to determine which algorithm to use for request distribution (Always using simple one due to time budget)
+	 */
 	private boolean useSimpleLeastLoadAlgorithm;
+	
+	/**
+	 * Mapping of elevaor IDs to error type
+	 */
 	private HashMap<Integer, Integer> errorMapping;
 	
+	/**
+	 * Sets of directional start floors to indicate the floor buttons on the GUI
+	 */
 	private TreeSet<Integer> allUpwardsStartFloors;
 	private TreeSet<Integer> allDownwardsStartFloors;
 	
@@ -50,6 +79,7 @@ public class ElevatorSpecificSchedulerManager {
 	}
 
 	/**
+	 * Returns the current state of the ElevatorSpecificSchedulerManager
 	 * @return the currentState
 	 */
 	public ElevatorSpecificSchedulerManagerState getCurrentState() {
@@ -280,21 +310,20 @@ public class ElevatorSpecificSchedulerManager {
 		
 	}
 	
+	/**
+	 * Returns the elevatorErrorMap field
+	 * @return the current elevatorErrorMap
+	 */
 	public HashMap<Integer, Integer> getElevatorErrorMap(){
 		HashMap<Integer, Integer> hm = (HashMap<Integer, Integer>) this.errorMapping.clone();
 		this.errorMapping.clear();
 		return hm;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	/**
+	 * Creates a GUIUpdateInfo object to be sent to the GUI subsystem
+	 * @return
+	 */
 	public GUIUpdateInfo createGUIUpdate() {
 		HashMap<Integer, TreeSet<Integer>> allElevatorDestinations = new HashMap<Integer, TreeSet<Integer>>();
 		for (Integer i : this.allElevatorSpecificSchedulers.keySet()) {
@@ -313,16 +342,9 @@ public class ElevatorSpecificSchedulerManager {
 		return guiInfo;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	/**
+	 * Gets a string detailing the current state of the ElevatorSpecificSchedulerManager and all of the contained ElevatorSpecificScheduler
+	 */
 	@Override
 	public String toString() {
 		String returnString = "";
