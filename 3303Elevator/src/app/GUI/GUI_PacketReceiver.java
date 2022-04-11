@@ -12,7 +12,7 @@ import app.UDP.Util;
 
 /**
  * Class for receiving one way UDP Communication for the GUI system
- * @author Milla
+ * @author Millan Wang
  *
  */
 public class GUI_PacketReceiver implements Runnable{
@@ -66,18 +66,23 @@ public class GUI_PacketReceiver implements Runnable{
         return receivedPacket;
 	}
 	
-	
+	/**
+	 * Handles the received packet
+	 * @param requestPacket incoming GUI update packet
+	 */
 	private void handlePacket(DatagramPacket requestPacket) {
         //De-serialize packet contents to become input for scheduler's next floors to visit
 		GUIUpdateInfo guiUpdate = null;
         try {
         	guiUpdate = (GUIUpdateInfo) Util.deserialize(requestPacket.getData());
-		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();} 
+		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace(); return;} 
         this.gui.updateView(guiUpdate);
 	}
 
 	
-	
+	/**
+	 * Run method to run this packet receiver as a thread
+	 */
 	@Override
 	public void run() {
 		System.out.println("Starting " + name + "...");

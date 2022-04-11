@@ -136,7 +136,10 @@ public class ElevatorSubsystemGUI extends JPanel{
 		//this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Elevator " + elevatorInfo.getId(), TitledBorder.CENTER, TitledBorder.TOP));
 	}
 	
-	
+	/**
+	 * Main method for testing this component individually
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		JFrame frame = new JFrame();
 		frame.setTitle("Elevator Subsystem GUI");

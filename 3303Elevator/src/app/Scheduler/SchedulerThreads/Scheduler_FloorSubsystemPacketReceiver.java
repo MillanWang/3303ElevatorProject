@@ -42,7 +42,8 @@ public class Scheduler_FloorSubsystemPacketReceiver extends PacketReceiver {
 
         //Set the appropriate reply message in the packet based on the deserialization attempt
         try {
-        	ArrayList<ScheduledElevatorRequest> requestObj = (ArrayList<ScheduledElevatorRequest>) Util.deserialize(requestPacket.getData());
+        	@SuppressWarnings("unchecked")
+			ArrayList<ScheduledElevatorRequest> requestObj = (ArrayList<ScheduledElevatorRequest>) Util.deserialize(requestPacket.getData());
 			//Deserialization successful. Add to scheduler
         	this.scheduler.floorSystemScheduleRequest(requestObj);
         	try {
