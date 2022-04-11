@@ -27,31 +27,59 @@ import app.UDP.Util;
  *
  */
 public class Scheduler implements Runnable{
-
+	/**
+	 * Feature flag to choose which algorithm to use for distributing floor requests
+	 */
 	public static final boolean USE_SIMPLE_LEAST_LOAD_ALGORITHM = true;
 	
+	/**
+	 * Feature flag for instantly scheduling all incoming floor requests
+	 */
 	private boolean skipDelaysOnFloorInputs;
+	
+	/**
+	 * ElevatorSpecificSchedulerManager that manages the individual elevator scheduling
+	 */
 	private ElevatorSpecificSchedulerManager elevatorSpecificSchedulerManager;
+	
+	/**
+	 * The highest floor number represented by the system
+	 */
 	private int highestFloorNumber;
 	
+	/**
+	 * The previous nextFloorHashMap used to make sure that repeat hashmaps are not sent
+	 */
+	private HashMap<Integer,Integer> previousNextFloorHashMap;
 	
+	/**
+	 * UDP Communication connection fields
+	 */
 	private int elevatorSubsystemReceivePort;
 	public int floorSubsystemReceivePort;
-	private InetAddress floorSubsystemInetAddress;
-	private int floorSubsystemSendPort;
 	private InetAddress elevatorSubsystemInetAddress;
 	private int elevatorSubsystemSendPort;
-	private HashMap<Integer,Integer> previousNextFloorHashMap;
 	private InetAddress guiSubsystemInetAddress;
 	private int guiSubsystemSendPort;
 	
-	
+	/**
+	 * Local logger reference to track updates
+	 */
 	private Logger logger;
+	
+	/**
+	 * Launch context dependent configuration data
+	 */
 	private Config config;
 	
+	/**
+	 * Fields used to track execution time for addressing all floor requests
+	 */
 	private long startTime; //long is 0 by default, no initialization needed  
 	private long endTime; //long is 0 by default, no initialization needed 
 	private long timeElapsed; //long is 0 by default, no initialization needed 
+	
+	
 	/**
 	 * Constructor for scheduler class
 	 * 
@@ -69,11 +97,9 @@ public class Scheduler implements Runnable{
 		this.guiSubsystemSendPort = this.config.getInt("gui.port");
 		
 		try {
-			this.floorSubsystemInetAddress = InetAddress.getByName(this.config.getString("floor.schedulerReceivePort"));
 			this.elevatorSubsystemInetAddress = InetAddress.getByName(this.config.getString("elevator.address"));
 			this.guiSubsystemInetAddress = InetAddress.getByName(this.config.getString("gui.address"));
 		} catch (UnknownHostException e) {e.printStackTrace();}
-		this.floorSubsystemSendPort = this.config.getInt("scheduler.elevatorReceivePort");
 		
 		
 		this.logger = logger;
@@ -136,8 +162,7 @@ public class Scheduler implements Runnable{
 	 * @param destinationFloor destination floor of the request
 	 */
 	public synchronized void addElevatorRequest(Integer startFloor, Integer destinationFloor, Integer requestType) {
-		//TODO : Need a field for a set of elevator numbers experiencing temp errors. If temp error, add the assigned elevator to the set. Next send to elevator will contain the list and then it gets cleared there
-		
+				
 		int requestReceiverElevatorID = this.elevatorSpecificSchedulerManager.scheduleFloorRequest(startFloor, destinationFloor, requestType);
 		if (requestReceiverElevatorID<=0) {
 			this.logger.logSchedulerEvent("Unable to schedule floor request "+startFloor+"->"+destinationFloor);
@@ -146,22 +171,6 @@ public class Scheduler implements Runnable{
 		}
 		this.logger.logSchedulerEvent(this.elevatorSpecificSchedulerManager.toString());
 	}
-
-	/**
-	 * TODO : Assess if this is needed. With the future GUI interfacing, it'll make more sense to send comms there instead of to floor
-	 * Sends all elevator's info to the floor subsystem via UDP packet
-	 * 
-	 * @param listOfElevatorInfo
-	 */
-	private synchronized void sendUpdateToFloorSubsystem() {
-		byte[] serializedListOfElevatorInfo = null;
-		try {
-			serializedListOfElevatorInfo = Util.serialize(this.elevatorSpecificSchedulerManager.getMostRecentAllElevatorInfo());
-		} catch (IOException e) {}
-		DatagramPacket packetToSend = new DatagramPacket(serializedListOfElevatorInfo, serializedListOfElevatorInfo.length, this.floorSubsystemInetAddress, this.floorSubsystemSendPort);
-		Util.sendRequest_ReturnReply(packetToSend);
-	}
-
 	
 	
 	/**
@@ -232,7 +241,9 @@ public class Scheduler implements Runnable{
 		return this.elevatorSpecificSchedulerManager.getAllElevatorsNextFloorToVisit(allElevatorInfos);
 	}
 	
-	
+	/**
+	 * Run method to start the scheduler subsystem as a thread
+	 */
 	@Override
 	public void run() {
 		// Create message receiver threads for messages from floor subsystem and elevator subsystem
@@ -242,6 +253,10 @@ public class Scheduler implements Runnable{
 		(new Thread(essReceiver, "Scheduler_ElevatorSubsystemPacketReceiver")).start();
 	}
 	
+	/**
+	 * Main method for starting the scheduler subsystem as a standalone 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Config config = new Config("multi.properties");
 //		Config config = new Config("local.properties");

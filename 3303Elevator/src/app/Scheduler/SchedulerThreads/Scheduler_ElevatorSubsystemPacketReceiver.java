@@ -1,14 +1,9 @@
 package app.Scheduler.SchedulerThreads;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
-import app.Scheduler.ElevatorSpecificScheduler;
 import app.Scheduler.Scheduler;
 import app.UDP.PacketReceiver;
 import app.UDP.Util;
@@ -40,21 +35,24 @@ public class Scheduler_ElevatorSubsystemPacketReceiver extends PacketReceiver {
 	/**
 	 * Creates a reply packet given a request packet
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
 		System.out.println("[Scheduler_ElevatorSubsystemPacketReceiver] : Received packet from elevator subsystem");
         //De-serialize packet contents to become input for scheduler's next floors to visit
-		LinkedList<ElevatorInfo> elevatorSubsystemComms = null;
         try {
         	mostRecentElevatorInfo = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
 		} catch (ClassNotFoundException | IOException e1) {e1.printStackTrace();}
 
         //Create packet to reply with. Then send
-        byte[] replyData = "200 OK".getBytes();//packetMessageOutputStream.toByteArray();//
+        byte[] replyData = "200 OK".getBytes();
         DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, requestPacket.getAddress(), requestPacket.getPort());
 		return replyPacket;
 	}
 	
+	/**
+	 * Runs the Scheduler_ElevatorSubsystemPacketReceiver thread
+	 */
 	@Override
 	public void run(){
 		System.out.println("Starting " + this.name + "...");
