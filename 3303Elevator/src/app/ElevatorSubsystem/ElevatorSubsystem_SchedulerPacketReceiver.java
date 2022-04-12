@@ -8,6 +8,14 @@ import app.Scheduler.SchedulerInfo;
 import app.UDP.PacketReceiver;
 import app.UDP.Util;
 
+/***
+ * This class is used to receive packets from scheduler as to
+ * determine the next floors and errors each elevator has to deal 
+ * with as reply to the scheduler with updates about each elevator.
+ * 
+ * @author benki
+ *
+ */
 public class ElevatorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 
 	ElevatorSubsystem ess;

@@ -8,9 +8,6 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Objects;
-
-import org.junit.Before;
 import org.junit.Test;
 
 import app.Config.Config;
@@ -32,7 +29,6 @@ public class ElevatorSubsystemTests {
 		HashMap<Integer, Integer> req = new HashMap<>();
 		HashMap<Integer, Integer> errors = new HashMap<>();
 		req.put(1, 4);
-		errors.put(1, -2);
 		
 		SchedulerInfo info = new SchedulerInfo(req, errors);
 		
@@ -47,7 +43,7 @@ public class ElevatorSubsystemTests {
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
 	}
-	/*
+
 	@Test
 	public void testMultiElevator() {
 		Config c = new Config("test.properties");
@@ -150,7 +146,7 @@ public class ElevatorSubsystemTests {
 		
 		assertTrue(this.checkIfSame(c.getInt("elevator.total.number"), res, req));
 		this.closeElevatorSubsystemSockets(e, f);
-	}*/
+	}
 	
 	public boolean checkIfSame(int count, LinkedList<ElevatorInfo> res, HashMap<Integer, Integer> req) {
 		for(int i = 0; i < count; i++ ) {

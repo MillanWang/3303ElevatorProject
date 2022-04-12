@@ -7,6 +7,12 @@ import java.net.SocketAddress;
 
 import app.Config.Config;
 
+/***
+ * class that has some common UDP methods
+ * 
+ * @author benki
+ *
+ */
 public class Util {
 	
 	private static Config config = new Config("local.properties");

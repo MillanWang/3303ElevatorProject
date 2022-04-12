@@ -60,6 +60,10 @@ public class ElevatorSubsystem implements Runnable{
 		this.permErrors = new ArrayList<>();
 	}
 
+	/***
+	 * building packets that are to be sent to the elevator
+	 * @return datagram packet to be sent to scheduler
+	 */
  	private DatagramPacket buildSchedulerPacket(){
  		LinkedList<ElevatorInfo> list = this.statusBuf.getAllStatus();
 
@@ -80,10 +84,18 @@ public class ElevatorSubsystem implements Runnable{
  		);
  	}
 
+ 	/***
+ 	 * Logs a message using the logger class
+ 	 * 
+ 	 * @param msg
+ 	 */
 	public void log(String msg) {
 		this.logger.logElevatorEvents("[Elevator Subsystem] "+msg);
 	}
 
+	/***
+	 * Creates the elevators on there own thread
+	 */
 	private void createElevators() {
 		this.log("creating elevators");
 		for(int i = 1; i <= this.numElevators; i++) {
@@ -93,6 +105,11 @@ public class ElevatorSubsystem implements Runnable{
 		}
 	}
 
+	/***
+	 * Given the scheduler info object updates the elevator nextFloor buffer
+	 * such that each elevator can determine there next job
+	 * @param info
+	 */
 	public void updateElevators(SchedulerInfo info){
 		//gui.updateElevatorInfo();
 		HashMap<Integer, Integer> nextFloorRequests = info.getNextFloorsToVisit();
@@ -141,6 +158,12 @@ public class ElevatorSubsystem implements Runnable{
 		this.nextFloorBuf.addReq(nextFloorRequests, errors);
 	}
 
+	
+	/***
+	 * Sends an update to the scheduler
+	 * the Data gram Packet is build using the class
+	 * above 
+	 */
 	public void sendUpdateToScheduler(){
 		DatagramPacket sendPacket = this.buildSchedulerPacket();
 		this.log("sending all elevator update to scheduler");
@@ -148,6 +171,10 @@ public class ElevatorSubsystem implements Runnable{
 		this.log("scheduler succesfully receieved elevators status");
 	}
 
+	/***
+	 * The main run method for elevator subsystem, creates the packet receiver
+	 * used to updates the elevators as well as creates the elevators
+	 */
 	@Override
 	public void run(){
 		this.esspr = new ElevatorSubsystem_SchedulerPacketReceiver(
@@ -164,10 +191,20 @@ public class ElevatorSubsystem implements Runnable{
 		this.createElevators();
 	}
 
+	/***
+	 * This method is only in testing it is used to shutdown the 
+	 * elevator subsystem, so it can be restarted.
+	 */
 	public void exit() {
 		this.esspr.exit();
 	}
 	
+	/***
+	 * Main method to start the elevator subsystem
+	 * changing the Config file will change the setup for the elevator system
+	 * see documentation for clear instructions
+	 * @param args
+	 */
 	public static void main(String[] args){
 		//Config config = new Config("multi.properties");
 		Config config = new Config("local.properties");
