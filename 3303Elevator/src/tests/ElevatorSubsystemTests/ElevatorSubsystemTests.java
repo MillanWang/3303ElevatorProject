@@ -15,7 +15,14 @@ import app.ElevatorSubsystem.ElevatorSubsystem;
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 import app.Scheduler.SchedulerInfo;
 import app.UDP.Util;
-
+/***
+ * NOTE: Elevator subsystem testing can be buggy when trying to run all the test
+ * 		 this is due to fact it is trying to test the full system and the next test can 
+ * 		some times run before the last test finished. Best is to test one case at a time. 
+ * 
+ * @author benki
+ *
+ */
 public class ElevatorSubsystemTests {
 	
 	@Test
