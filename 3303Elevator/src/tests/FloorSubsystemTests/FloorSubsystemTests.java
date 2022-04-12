@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.net.DatagramPacket;
 import java.time.LocalTime;
 
 import org.junit.After;
@@ -25,6 +26,7 @@ import app.FloorSubsystem.FloorSubsystemThreads.FloorSubsystem_SchedulerPacketRe
 import app.Scheduler.Scheduler;
 import app.Scheduler.SchedulerThreads.Scheduler_ElevatorSubsystemPacketReceiver;
 import app.Scheduler.SchedulerThreads.Scheduler_FloorSubsystemPacketReceiver;
+import app.UDP.PacketReceiver;
 
 public class FloorSubsystemTests {
 	Config config = new Config("test.properties");
@@ -51,8 +53,8 @@ public class FloorSubsystemTests {
 	 */
 	public void addInputRequeststest() {
 		
-		floorSubsys.setInputFile(System.getProperty("user.dir")+"\\src\\app\\FloorSubsystem\\inputfile.txt");
-		floorSubsys.addInputRequests("src/app/FloorSubsystem/inputfile.txt");
+		floorSubsys.setInputFile(System.getProperty("user.dir")+"\\src\\test\\FloorSubsystemTests\\test_inputfile.txt");
+		floorSubsys.addInputRequests("src/tests/FloorSubsystemTests/test_inputfile.txt");
 		assertNotEquals(0,floorSubsys.getRequests().size());
 		assertNull(floorSubsys.getRequests().get(floorSubsys.getRequests().size() - 1).getTime());
 		assertNotNull(floorSubsys.getRequests().get(0).getTime());
@@ -80,12 +82,43 @@ public class FloorSubsystemTests {
 	}
 //	
 	//testing scheduler packets
+	/**
+	 * Fake packet receiver that simulates ElevatorSubsystem_SchedulerPacketReceiver but doesn't involve a real ElevatorSubsystem
+	 * @author Millan Wang
+	 *
+	 */
+	private class FakePacketReceiver extends PacketReceiver{
+
+		protected FakePacketReceiver(String name, int port) {
+			super(name, port);
+		}
+
+		@Override
+		protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
+			//Create packet to reply with. Then send
+	        byte[] replyData = "200 OK".getBytes();
+	        System.out.println("200 OK");
+	        DatagramPacket replyPacket = new DatagramPacket(replyData, replyData.length, requestPacket.getAddress(), requestPacket.getPort());
+			return replyPacket;
+		}
+	
+		@Override
+		public void run() {
+			System.out.println("Starting " + name + "...");
+			this.sendReply(createReplyPacketGivenRequestPacket(this.receiveNextPacket()));
+			System.out.println("FakePacketReceiver - DONE");
+
+		}
+		
+	}
 	@Test
 	public void packetstest() {
-		Scheduler_FloorSubsystemPacketReceiver fssReceiver = new Scheduler_FloorSubsystemPacketReceiver(floorSubsystemReceivePort, scheduler);
+		
+		FakePacketReceiver fssReceiver = new FakePacketReceiver("test_fake_Packet", config.getInt("scheduler.floorReceivePort"));
 		(new Thread(fssReceiver, "FloorSubsystemPacketReceiver")).start();
 		floorSubsys.sendRequestToScheduler();
-		assertTrue(outputStreamCaptor.toString().trim().contains("Scheduler received request(s) from floor system")); //assures that scheduler received the requests 
+		assertTrue(outputStreamCaptor.toString().trim().contains("200 OK")); //assures that scheduler received the requests 
 	}
+
 }
 
