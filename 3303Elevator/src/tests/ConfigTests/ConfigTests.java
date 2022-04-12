@@ -4,6 +4,12 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import app.Config.Config;
 
+/***
+ * Testing Config class
+ * 
+ * @author benki
+ *
+ */
 public class ConfigTests {
 
 	@Test
