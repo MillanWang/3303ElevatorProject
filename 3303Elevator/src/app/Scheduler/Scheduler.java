@@ -217,6 +217,9 @@ public class Scheduler implements Runnable{
         sendNextPacket_UpdateGUI();
 	}
 	
+	/**
+	 * Sends a packet containing the current scheduler information to the GUI Subsystem to update the view
+	 */
 	private synchronized void sendNextPacket_UpdateGUI() {
 		GUIUpdateInfo guiInfo = this.elevatorSpecificSchedulerManager.createGUIUpdate();
 		 //Create byte array to build reply packet contents more easily
@@ -237,7 +240,7 @@ public class Scheduler implements Runnable{
 	 * @param allElevatorInfo Linked list of all ElevatorInfo objects
 	 * @return TreeSet of the remaining floors to visit in this direction
 	 */
-	private synchronized HashMap<Integer,Integer> getNextFloorsToVisit(LinkedList<ElevatorInfo> allElevatorInfos) {
+	public synchronized HashMap<Integer,Integer> getNextFloorsToVisit(LinkedList<ElevatorInfo> allElevatorInfos) {
 		return this.elevatorSpecificSchedulerManager.getAllElevatorsNextFloorToVisit(allElevatorInfos);
 	}
 	
