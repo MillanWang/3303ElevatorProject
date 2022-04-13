@@ -31,7 +31,6 @@ public class ServerLogger extends PacketReceiver{
 			
 			writer = new BufferedWriter(new FileWriter(filename, false));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -76,7 +75,6 @@ public class ServerLogger extends PacketReceiver{
 		LocalDateTime now = LocalDateTime.now(); 
 		String time = now.format(formatter);
 		time = time +"-logger.txt";
-		// TODO Auto-generated method stub
 		ServerLogger sLogger = new ServerLogger(c.getInt("logger.port"), time ); 
 		Thread sLoggerThread = new Thread(sLogger, "Server Logger Thread");
 		sLoggerThread.run();

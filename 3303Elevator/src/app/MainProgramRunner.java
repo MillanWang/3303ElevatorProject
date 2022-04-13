@@ -9,7 +9,6 @@ import app.Scheduler.TimeManagementSystem;
 
 public class MainProgramRunner {
 	
-	//TODO : Moves these constants to the config properties files. Much easier to adjust and move configs around
 	
 	public static final int FLOOR_COUNT = 7;
 	public static final int ELEVATOR_COUNT = 4;

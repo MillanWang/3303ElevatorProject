@@ -275,7 +275,6 @@ public class FloorSubsystem extends Thread{
 	    		 
 	    	//ADD REQUEST OPTION
 	    		 
-	    		 //TODO : THIS GOTTA BE TAILORED TO FLOOR SUBSYSTEM MAKING INPUT REQUESTS
 	    	 } else if (next.equals("n")) {
 	    		 System.out.println("Enter your command with the following format <Time in milliseconds delay or Timestamp 'hh:mm:ss'> <CurrentFloor> <Direction> <DestinationFloor> <requestTypeType> \n"
 	    				 +"Example: 1000,5,Down,2,0 for a request to go from floor 5 to 2 after 1000 milliseconds with no requestTypes \n" + 
