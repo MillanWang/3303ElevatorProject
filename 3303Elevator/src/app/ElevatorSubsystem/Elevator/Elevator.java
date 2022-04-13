@@ -132,12 +132,14 @@ public class Elevator implements Runnable {
 
 		if(state.getState() == ElevatorStateMachine.MoveUp) {
 			currentFloor++;
+			if(this.guiEnabled) {
+				this.sendGUIUpdate();
+			}
 		}else if(state.getState() == ElevatorStateMachine.MoveDown) {
 			currentFloor--;
-		}
-		
-		if(this.guiEnabled) {
-			this.sendGUIUpdate();
+			if(this.guiEnabled) {
+				this.sendGUIUpdate();
+			}
 		}
 	}
 
