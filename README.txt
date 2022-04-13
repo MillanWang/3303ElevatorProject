@@ -78,11 +78,11 @@ Source Code File Breakdown:
 		- FloorSubsystem_SchedulerPacketReceiver.java -> [WORK IN PROGRESS - Redesign possibly needed] to receive updates about the system. Planned for GUI operations
     
     -GUI
-    	-ElevatorSubsystemGUI.java-> 
-	-FloorSubsystemGUI.java->Floor Subsystem GUI class that will create and update a panel to be added to the main frame to display floor subsytem information
+    	-ElevatorSubsystemGUI.java-> Elevator Subsystem GUI class that will create and update the table to be added to the main frame to display Elevator subsystem information 
+	-FloorSubsystemGUI.java->Floor Subsystem GUI class that will create and update the table to be added to the main frame to display floor subsytem information
 	-GUI_PacketReceiver.java-> Class for receiving one way UDP Communication for the GUI system
 	-GUI.java-> GUI class to display each elevator status and make new requests
-	-GUIUpdateInfo.java -> 
+	-GUIUpdateInfo.java -> Communication object sent by scheduler and elevator subsystems to be handled by the GUI to update the view 
     -Scheduler:
 		-ElevatorSpecificScheduler.java -> To track the scheduling of a particular elevator
 		-ElevatorSpecificSchedulerState.java -> Enum for the state of a ElevatorSpecificScheduler
