@@ -19,9 +19,10 @@ Final version April 12, 2022
 	TO RUN WITH UDP COMMUNICATION:
 	-Load project and start in following order:
 		I) ServerLogger
-		II) Scheduler
-		III) FloorSubsystem
-		IV) ElevatorSubsystem
+		II) GUI
+		III) Scheduler
+		IV) FloorSubsystem
+		V) ElevatorSubsystem
 
 ## Project Planning Word Document
 https://cmailcarletonca-my.sharepoint.com/:w:/g/personal/benkittilsen_cmail_carleton_ca/EVCLIIHlio1Pg7XQRifEO-oBd3obcuQRZk8ShG26z0HKVA?e=eySmeT
@@ -182,6 +183,8 @@ Roles and Division of Responsibilities for iteration 4:
 		-Designed and implemented abstract PacketReceiver class
 	-UML Class Diagram
 	-UML Sequence Diagram
+	-Timing diagrams
+	-Demo video editing and recording
 	-Integration Testing
 
 

@@ -24,7 +24,6 @@ public class FloorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 
 	@Override
 	protected DatagramPacket createReplyPacketGivenRequestPacket(DatagramPacket requestPacket) {
-		// TODO Auto-generated method stub
 		//Deserialize packet contents to become input for scheduler's next floors to visit
 		//Object SchedulerSubsystemcomms
     	LinkedList<ElevatorInfo> schedulerSubsystemcomms = null;

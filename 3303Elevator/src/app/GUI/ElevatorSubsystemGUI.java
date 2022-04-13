@@ -90,41 +90,6 @@ public class ElevatorSubsystemGUI extends JPanel{
 					
 				}
 				
-//				//Setting Elevator Location Colours
-//				if (elevatorInfo.getFloor() == floors[data+1] && columns == 0) { //If elevator is on current floor
-//					if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Idle
-//						c.setBackground(Color.LIGHT_GRAY);
-//					}
-//					else if(elevatorInfo.getState() == ElevatorStateMachine.MoveUp || elevatorInfo.getState() == ElevatorStateMachine.MoveDown) { //Moving
-//						c.setBackground(Color.DARK_GRAY);
-//					}
-//					else if(elevatorInfo.getState() == ElevatorStateMachine.DoorOpening) { //Doors Opening
-//						c.setBackground(new Color(50,205,50));
-//					}
-//					else if(elevatorInfo.getState() == ElevatorStateMachine.OpenDoor) { //Doors Open
-//						c.setBackground(new Color(34,139,34));
-//					}
-//					else if(elevatorInfo.getState() == ElevatorStateMachine.DoorClosing) { //Doors Closing
-//						c.setBackground(Color.ORANGE);
-//					}
-//					else if(elevatorInfo.getError() == 1) { //Temp Error
-//						c.setBackground(Color.YELLOW);
-//					}
-//					else if(elevatorInfo.getError() == 2) { //Permanent Error
-//						c.setBackground(Color.RED);
-//					}
-//				} else {
-//					c.setBackground(Color.WHITE);
-//				}
-				
-//				//Setting Elevator Button Colours
-//				if (destinations.contains(floors[data+1]) && columns == 1) {
-//					c.setBackground(Color.GREEN);
-//				}
-//				else {
-//					c.setBackground(Color.WHITE);
-//				}
-				
 				return c;
 			}
 		};
