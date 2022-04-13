@@ -1,3 +1,8 @@
+/**
+ * Communication object sent by scheduler and elevator subsystems to be handled by the GUI to update the view
+ * @author Benki 
+ *
+ */
 package app.GUI;
 
 import java.io.Serializable;
