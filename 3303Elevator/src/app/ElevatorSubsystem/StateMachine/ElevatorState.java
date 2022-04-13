@@ -2,6 +2,15 @@ package app.ElevatorSubsystem.StateMachine;
 
 import app.ElevatorSubsystem.Direction.Direction;
 
+
+/***
+ * Each elevator has an instance of this class 
+ * it is used to interact with the state machine 
+ * enum, repesting the state of each elevator
+ * 
+ * @author benki
+ *
+ */
 public class ElevatorState {
 	
 	private ElevatorStateMachine state;

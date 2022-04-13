@@ -19,7 +19,7 @@ import java.util.TreeSet;
 
 /**
  * @author Abdelrahim Karaja
- *Floor Subsystem GUI class that will create and update a panel to be added to the main frame to display floor subsytem information
+ *Elevator Subsystem GUI class that will create and update the table to be added to the main frame to display Elevator subsystem information
  */
 
 public class ElevatorSubsystemGUI extends JPanel{
@@ -30,6 +30,7 @@ public class ElevatorSubsystemGUI extends JPanel{
 	private String[][] data = {{"22", "22"}, {"21", "21"}, {"20", "20"}, {"19", "19"}, {"18", "18"}, {"17", "17"}, {"16", "16"}, {"15", "15"}, {"14", "14"}, {"13", "13"}, {"12", "12"}, {"11", "11"}, {"10", "10"}, {"9", "9"}, {"7", "7"}, {"6", "6"}, {"5", "5"}, {"4", "4"}, {"3", "3"}, {"2", "2"}, {"1", "1"}};
 	private ElevatorInfo elevatorInfo;
 	private TreeSet<Integer> destinations;
+	private boolean isPermanentlyDown;
 	
 	/**
 	 * Constructor to initialize the FSS GUI panel
@@ -37,6 +38,7 @@ public class ElevatorSubsystemGUI extends JPanel{
 	public ElevatorSubsystemGUI(ElevatorInfo EI, TreeSet<Integer> dests) {
 		elevatorInfo = EI;
 		destinations = dests;
+		isPermanentlyDown = false;
 		
 		//Elevator Table
 		table = new JTable(data, columns){
@@ -51,29 +53,30 @@ public class ElevatorSubsystemGUI extends JPanel{
 				if (columns == 0) {
 					//Setting Elevator Location Colours
 					if (elevatorInfo.getFloor() == floors[data+1]) { //If elevator is on current floor
-						if(elevatorInfo.getState() == ElevatorStateMachine.Idle) { //Idle
-							c.setBackground(Color.LIGHT_GRAY);
+						if(elevatorInfo.getError() == -2) { //Temp Error
+							c.setBackground(Color.YELLOW);
+						}
+						else if(elevatorInfo.getError() == -3 || isPermanentlyDown) { //Permanent Error
+							c.setBackground(Color.RED);
+							isPermanentlyDown = true;
+						}
+						else if(elevatorInfo.getState() == ElevatorStateMachine.Idle && elevatorInfo.getError() != -3 && elevatorInfo.getError() != -2) { //Idle
+							c.setBackground(Color.PINK);
 						}
 						else if(elevatorInfo.getState() == ElevatorStateMachine.MoveUp || elevatorInfo.getState() == ElevatorStateMachine.MoveDown) { //Moving
 							c.setBackground(Color.DARK_GRAY);
 						}
 						else if(elevatorInfo.getState() == ElevatorStateMachine.DoorOpening) { //Doors Opening
-							c.setBackground(new Color(50,205,50));
+							c.setBackground(Color.CYAN);//new Color(50,205,50));
 						}
 						else if(elevatorInfo.getState() == ElevatorStateMachine.OpenDoor) { //Doors Open
-							c.setBackground(new Color(34,139,34));
+							c.setBackground(Color.MAGENTA);//new Color(34,139,34));
 						}
 						else if(elevatorInfo.getState() == ElevatorStateMachine.DoorClosing) { //Doors Closing
 							c.setBackground(Color.ORANGE);
 						}
-						else if(elevatorInfo.getError() == 1) { //Temp Error
-							c.setBackground(Color.YELLOW);
-						}
-						else if(elevatorInfo.getError() == 2) { //Permanent Error
-							c.setBackground(Color.RED);
-						}
 					} else {
-						c.setBackground(Color.WHITE);
+						c.setBackground(Color.LIGHT_GRAY);
 					}
 					
 				} else if (columns == 1) {
@@ -133,7 +136,10 @@ public class ElevatorSubsystemGUI extends JPanel{
 		//this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Elevator " + elevatorInfo.getId(), TitledBorder.CENTER, TitledBorder.TOP));
 	}
 	
-	
+	/**
+	 * Main method for testing this component individually
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		JFrame frame = new JFrame();
 		frame.setTitle("Elevator Subsystem GUI");

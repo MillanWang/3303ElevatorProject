@@ -4,6 +4,14 @@ import java.util.LinkedList;
 
 import app.ElevatorSubsystem.Elevator.ElevatorInfo;
 
+/***
+ * This class was designed to passed the status of each elevator
+ * to the elevator subsystem.
+ * 
+ * 
+ * @author benki
+ *
+ */
 public class ElevatorStatusBuffer {
 	
 	private int numOfElevators, dec;
@@ -33,7 +41,7 @@ public class ElevatorStatusBuffer {
 		}
 		
 		// If the elevator has been permenatly disabled
-		if(req.getFloor() == -3){
+		if(req.getError() == -3){ //USED TO BE GET FLOOR
 			this.dec++;
 		}
 

@@ -14,7 +14,7 @@ import java.util.TreeSet;
 
 /**
  * @author Abdelrahim Karaja
- *Floor Subsystem GUI class that will create and update a panel to be added to the main frame to display floor subsytem information
+ *Floor Subsystem GUI class that will create and update the table to be added to the main frame to display floor subsytem information
  */
 
 public class FloorSubsystemGUI extends JPanel{
@@ -58,7 +58,10 @@ public class FloorSubsystemGUI extends JPanel{
 		add(jps);
 	}
 	
-	
+	/**
+	 * Main method for testing
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		//Creating treesets TEST
 		TreeSet<Integer> up = new TreeSet<>();

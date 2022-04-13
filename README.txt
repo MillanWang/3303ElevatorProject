@@ -1,6 +1,6 @@
 # 3303ElevatorProject
 Group project for SYSC 3303 : Real-Time Concurrent Systems
-Iteration 4 Due : March 27th @ 23:59 EST
+Final version April 12, 2022
 
 ##SETUP INSTRUCTIONS
 
@@ -36,7 +36,6 @@ Millan Wang (101114457), millanwang@cmail.carleton.ca
 Source Code File Breakdown:
     -App
 		-MainProgramRunner.java -> main(String[] args) to run the program
-			-Provides command line UI options to choose an input file and dynamically add requests
 		-Logger.java -> Logs the occurance of events in the program in a single object locally. Eventually will be used for performance tracking
 		-ServerLogger.java -> Logs events accross all systems into one location through communication with Logger
 
@@ -69,6 +68,7 @@ Source Code File Breakdown:
     -Floor Subsystem:
       	-FloorSubsystem.java -> Makes requests to and recieves requests from scheduler as subsytem will act as multiple floors and operates command line UI to send new requests
 	 to scheduler
+	-Provides command line UI options to choose an input file and dynamically add requests
      	-ScheduledElevatorRequest.java -> contains the elevator request details to be sent to the scheduler from floor subsystem
       	-TextFileReader.java -> Reads an input file to create elevator requests event objects
 		-emptyinputfile.txt -> Empty input file
@@ -76,7 +76,13 @@ Source Code File Breakdown:
 
 	-Floor Subsystem Threads
 		- FloorSubsystem_SchedulerPacketReceiver.java -> [WORK IN PROGRESS - Redesign possibly needed] to receive updates about the system. Planned for GUI operations
-
+    
+    -GUI
+    	-ElevatorSubsystemGUI.java-> Elevator Subsystem GUI class that will create and update the table to be added to the main frame to display Elevator subsystem information 
+	-FloorSubsystemGUI.java->Floor Subsystem GUI class that will create and update the table to be added to the main frame to display floor subsytem information
+	-GUI_PacketReceiver.java-> Class for receiving one way UDP Communication for the GUI system
+	-GUI.java-> GUI class to display each elevator status and make new requests
+	-GUIUpdateInfo.java -> Communication object sent by scheduler and elevator subsystems to be handled by the GUI to update the view 
     -Scheduler:
 		-ElevatorSpecificScheduler.java -> To track the scheduling of a particular elevator
 		-ElevatorSpecificSchedulerState.java -> Enum for the state of a ElevatorSpecificScheduler

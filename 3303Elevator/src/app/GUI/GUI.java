@@ -32,13 +32,21 @@ import app.UDP.Util;
  *
  */
 public class GUI implements Runnable {
-	private ArrayList<ElevatorInfo> elevatorInfo;
-	private ArrayList<JPanel> panels;
-	private ArrayList<Elevator> elevators;
+	/**
+	 * GUI Components
+	 */
 	private JFrame frame;
 	private JPanel topPanel, bottomPanel, floorPanel, e1Panel, e2Panel, e3Panel, e4Panel, colourKeyPanel;
+	private JTextArea elevator1Text,elevator2Text,elevator3Text,elevator4Text;
+	
+	/**
+	 * Launch context config
+	 */
 	private Config config;
 	
+	/**
+	 * Fields to contain all possible GUI update properties
+	 */
 	private ElevatorInfo elevator1Info;
 	private ElevatorInfo elevator2Info;
 	private ElevatorInfo elevator3Info;
@@ -49,9 +57,6 @@ public class GUI implements Runnable {
 	private TreeSet<Integer> elevator4Destinations;
 	private TreeSet<Integer> allUpwardsFloorButtons;
 	private TreeSet<Integer> allDownwardsFloorButtons;
-	
-	private JTextArea elevator1Text,elevator2Text,elevator3Text,elevator4Text;
-	
 	
 	/**
 	 * Constructor for GUI class
@@ -67,13 +72,11 @@ public class GUI implements Runnable {
 		this.config = config;
 		int numElevators = config.getInt("elevator.total.number");
 
-		
 		this.elevator1Info = new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP);
 		this.elevator2Info= new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP) ;
 		this.elevator3Info= new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP) ;
 		this.elevator4Info= new ElevatorInfo(1, 1, -1, ElevatorStateMachine.Idle, Direction.UP) ;
 
-		
 		frame.setVisible(true);
 
 		
@@ -125,7 +128,10 @@ public class GUI implements Runnable {
 
 	}
 	
-	
+	/**
+	 * Writes a message to the console
+	 * @param msg Message to be written on the console
+	 */
 	public void log(String msg) {
 		System.out.println("[GUI_PacketReceiver]" + msg);
 	}
@@ -181,6 +187,9 @@ public class GUI implements Runnable {
 		refreshView();
 	}
 	
+	/**
+	 * Refreshes the GUi with the most recent update
+	 */
 	private void refreshView() {
 		this.floorPanel.removeAll();
         this.floorPanel.add(new FloorSubsystemGUI(allUpwardsFloorButtons, allDownwardsFloorButtons));

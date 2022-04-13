@@ -51,6 +51,9 @@ public class ElevatorSpecificScheduler {
 	private LinkedList<TreeSet<Integer>> upwardsDestinationsPerFloor;
 	private LinkedList<TreeSet<Integer>> downwardsDestinationsPerFloor;
 	
+	/**
+	 * Treeset to track the destination floors of the current scheduler 
+	 */
 	private TreeSet<Integer> pressedButtons;
 
 	
@@ -89,6 +92,7 @@ public class ElevatorSpecificScheduler {
 	}
 
 	/**
+	 * Returns the current state of the ElevatorSpecificScheduler
 	 * @return the currentState of the current elevator scheduler
 	 */
 	public ElevatorSpecificSchedulerState getCurrentState() {
@@ -96,6 +100,7 @@ public class ElevatorSpecificScheduler {
 	}
 
 	/**
+	 * Returns the most recent floor visited by the elevator
 	 * @return the mostRecentFloor
 	 */
 	public int getMostRecentFloor() {
@@ -139,6 +144,17 @@ public class ElevatorSpecificScheduler {
 	}
 	
 	/**
+	 * Clears all destinations on the current elevatorSpecificScheduler for permanent errors
+	 */
+	public void clearAllFloorsToVisit() {
+		this.upwardsFloorsToVisit.clear();
+		this.downwardsFloorsToVisit.clear();
+		this.upwardsDestinationsPerFloor.clear();
+		this.downwardsDestinationsPerFloor.clear();
+	}
+	
+	/**
+	 * Returns the pressed buttons for the current elevator based on the destination floors
 	 * @return the pressedButtons
 	 */
 	public TreeSet<Integer> getPressedButtons() {
@@ -151,11 +167,7 @@ public class ElevatorSpecificScheduler {
 	 * @param destinationFloor destination floor of the request
 	 */
 	public synchronized void addRequest(int startFloor, int destinationFloor, int requestType) {
-		if (requestType==1) {
-			// Temporary error request type. Schedule incoming request to be dealt with when back online
-//			this.previousStateBeforeTempError = currentState; //TODO Conclude if ESSched should know about temp errors
-//			this.currentState = ElevatorSpecificSchedulerState.TEMPORARY_OUT_OF_SERVICE;
-		} else if (requestType==2) {
+		if (requestType==2) {
 			//Permanent error request type. Discard incoming request
 			this.currentState = ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE;
 			return;
@@ -193,6 +205,7 @@ public class ElevatorSpecificScheduler {
 	 * @param floor that elevator just arrived to
 	 */
 	private void upwardsFloorIsVisited(Integer floor) {
+		if (currentState==ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE)return;
 		if (currentState==ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT) {
 			if (floor>this.mostRecentNextFloor) return;
 		}
@@ -208,6 +221,7 @@ public class ElevatorSpecificScheduler {
 	 * @param floor that elevator just arrived to
 	 */
 	private void downwardsFloorIsVisited(Integer floor) {
+		if (currentState==ElevatorSpecificSchedulerState.PERMANENT_OUT_OF_SERVICE)return;
 		if (currentState==ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT) {
 			if (floor<this.mostRecentNextFloor) return;
 		}
@@ -238,7 +252,8 @@ public class ElevatorSpecificScheduler {
 		int highestDownStopBelowCurrent = this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor, false).isEmpty() ? -1 : this.downwardsFloorsToVisit.headSet(elevatorCurrentFloor, false).last();
 
 			
-		if (this.currentState == ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT) {
+		if (this.currentState == ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT || 
+				this.currentState == ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT) {
 			//Check if there are downwards stops below the current floor
 			if (highestDownStopBelowCurrent != -1) {
 				this.currentState = ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT;
@@ -272,7 +287,8 @@ public class ElevatorSpecificScheduler {
 
 			
 			
-		} else if (this.currentState == ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT) {
+		} else if (this.currentState == ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT ||
+				   this.currentState == ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT ) {
 			//Check if there are upwards stops above the current floor
 			if (lowestUpStopAboveCurrent != -1) {
 				this.currentState = ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT;
@@ -303,73 +319,6 @@ public class ElevatorSpecificScheduler {
 			}
 			//At this point, there are no more stops at all. Carry on to outside general case
 
-		
-		
-		} else if (this.currentState == ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT) {
-			//Check if there are downwards stops below the current floor
-			if (highestDownStopBelowCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT;
-				this.isUpwards = false;
-				this.mostRecentNextFloor = highestDownStopBelowCurrent;
-				return highestDownStopBelowCurrent;
-			}
-			//Check if there are upwards stops below the current floor
-			if (lowestUpStopBelowCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT;
-				this.isUpwards = true;
-				this.mostRecentNextFloor = lowestUpStopBelowCurrent;
-				return lowestUpStopBelowCurrent;
-			}
-			//Check if there are upwards stops above the current floor
-			if (lowestUpStopAboveCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT;
-				this.isUpwards = true;
-				this.mostRecentNextFloor = lowestUpStopAboveCurrent;
-				return lowestUpStopAboveCurrent;
-			}
-			//Check if there are downwards stops above the current floor
-			if (highestDownStopAboveCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT;
-				this.isUpwards = false;
-				this.mostRecentNextFloor = highestDownStopAboveCurrent;
-				return highestDownStopAboveCurrent;
-			}
-			//At this point, there are no more stops at all. Carry on to outside general case
-	
-			
-			
-		} else if (this.currentState == ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT) {
-			//Check if there are upwards stops above the current floor
-			if (lowestUpStopAboveCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.SERVICING_UPWARDS_FLOORS_TO_VISIT;
-				this.isUpwards = true;
-				this.mostRecentNextFloor = lowestUpStopAboveCurrent;
-				return lowestUpStopAboveCurrent;
-			}
-			//Check if there are downwards stops above the current floor
-			if (highestDownStopAboveCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.MOVING_UP_TO_HIGHEST_DOWNWARDS_FLOOR_TO_VISIT;
-				this.isUpwards = false;
-				this.mostRecentNextFloor = highestDownStopAboveCurrent;
-				return highestDownStopAboveCurrent;
-			}
-			//Check if there are downwards stops below the current floor
-			if (highestDownStopBelowCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.SERVICING_DOWNWARDS_FLOORS_TO_VISIT;
-				this.isUpwards = false;
-				this.mostRecentNextFloor = highestDownStopBelowCurrent;
-				return highestDownStopBelowCurrent;
-			}
-			//Check if there are upwards stops below the current floor
-			if (lowestUpStopBelowCurrent != -1) {
-				this.currentState = ElevatorSpecificSchedulerState.MOVING_DOWN_TO_LOWEST_UPWARDS_FLOOR_TO_VISIT;
-				this.isUpwards = true;
-				this.mostRecentNextFloor = lowestUpStopBelowCurrent;
-				return lowestUpStopBelowCurrent;
-			}
-			//At this point, there are no more stops at all. Carry on to outside general case
-
-			
 			
 		} else if (this.currentState == ElevatorSpecificSchedulerState.AWAITING_NEXT_ELEVATOR_REQUEST) {
 			//Check if there are down stops below the current floor

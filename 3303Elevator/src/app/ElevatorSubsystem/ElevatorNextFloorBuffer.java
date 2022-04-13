@@ -1,7 +1,13 @@
 package app.ElevatorSubsystem;
 
 import java.util.HashMap;
-
+/***
+ * This call was designed to pass nextFloors and errors to 
+ * there corresponding elevator based on there elevator id
+ * 
+ * @author benki
+ *
+ */
 public class ElevatorNextFloorBuffer {
 	private HashMap<Integer, Integer> eReq;
 	private HashMap<Integer, Integer> errors;

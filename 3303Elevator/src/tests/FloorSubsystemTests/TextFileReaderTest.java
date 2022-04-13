@@ -30,7 +30,7 @@ public class TextFileReaderTest {
 	public void getRequestTest() {
 		reqs = TextFileReader.getRequests("src/app/FloorSubsystem/emptyinputfile.txt");
 		assertEquals(0, reqs.size());
-		reqs = TextFileReader.getRequests("src/app/FloorSubsystem/inputfile.txt");
+		reqs = TextFileReader.getRequests("src/tests/FloorSubsystemTests/test_inputfile.txt");
 		assertNotEquals(0,reqs.size());
 		assertNull(reqs.get(reqs.size() - 1).getTime());
 		assertNotNull(reqs.get(0).getTime());
