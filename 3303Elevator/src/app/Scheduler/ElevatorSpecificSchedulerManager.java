@@ -182,7 +182,7 @@ public class ElevatorSpecificSchedulerManager {
 	 * @param isUpwards if the request is upwards
 	 * @return The ID of the most suitable elevator for this request
 	 */
-	private synchronized int getBestElevatorId_DirectionalPriorityAlgorithm(int startFloor, boolean isUpwards) { //TODO : Feature flag to determine if we shall use easy or hard algorithm
+	private synchronized int getBestElevatorId_DirectionalPriorityAlgorithm(int startFloor, boolean isUpwards) {
 		if (isUpwards) {
 			//Upwards. First check if there are any upwards or parked elevators under us
 			if (this.findClosestElevatorBelowWithState(startFloor, Direction.UP)!=-1) {

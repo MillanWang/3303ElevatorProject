@@ -31,7 +31,6 @@ public class FloorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
 			schedulerSubsystemcomms = (LinkedList<ElevatorInfo>) Util.deserialize(requestPacket.getData());
 			
 		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} //this is going to be the list of elevatorInfo
 		this.FloorSubsystem.addElevatorInfo(schedulerSubsystemcomms);
@@ -43,7 +42,6 @@ public class FloorSubsystem_SchedulerPacketReceiver extends PacketReceiver {
         try {
 			packetMessageOutputStream.write("200 OK".getBytes());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
