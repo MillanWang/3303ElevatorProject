@@ -42,6 +42,19 @@ public class Elevator implements Runnable {
 	 */
 	private int maxFloorCount;
 
+	
+	/***
+	 * Elevator Constructor
+	 * 
+	 * @param id of the elvator 
+	 * @param maxFloorCount max floor the elevator can visit
+	 * @param logger used to log messages 
+	 * @param guiAddr ip addr and port the gui to send messages to the gui
+	 * @param guiEnabled if the gui is active
+	 * @param tms the time managment system 
+	 * @param nextFloorBuf buffer to access next floors
+	 * @param statusBuf buffer to pass status
+	 */
 	public Elevator(int id, int maxFloorCount,Logger logger, InetSocketAddress guiAddr, boolean guiEnabled, TimeManagementSystem tms, ElevatorNextFloorBuffer nextFloorBuf, ElevatorStatusBuffer statusBuf) {
 		this.maxFloorCount = maxFloorCount;
 		this.currentFloor = 1;
