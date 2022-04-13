@@ -36,7 +36,7 @@ public class GUI implements Runnable {
 	 * GUI Components
 	 */
 	private JFrame frame;
-	private JPanel floorPanel, e1Panel, e2Panel, e3Panel, e4Panel;
+	private JPanel topPanel, bottomPanel, floorPanel, e1Panel, e2Panel, e3Panel, e4Panel, colourKeyPanel;
 	private JTextArea elevator1Text,elevator2Text,elevator3Text,elevator4Text;
 	
 	/**
@@ -67,7 +67,7 @@ public class GUI implements Runnable {
 		frame.setTitle("Elevator Information");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(750,750);
-		frame.setLayout(new FlowLayout());
+		frame.setLayout(new GridLayout(2, 1));
 		
 		this.config = config;
 		int numElevators = config.getInt("elevator.total.number");
@@ -103,22 +103,26 @@ public class GUI implements Runnable {
 
 		
 		
-        frame.add(this.floorPanel);
-        frame.add(this.e1Panel);
-        frame.add(this.e2Panel);
-        frame.add(this.e3Panel);
-        frame.add(this.e4Panel);
+        this.topPanel = new JPanel();
+        topPanel.add(this.floorPanel);
+        topPanel.add(this.e1Panel);
+        topPanel.add(this.e2Panel);
+        topPanel.add(this.e3Panel);
+        topPanel.add(this.e4Panel);
+        frame.add(topPanel);
 		
+        
         elevator1Text = new JTextArea();
         elevator2Text = new JTextArea();
         elevator3Text = new JTextArea();
         elevator4Text = new JTextArea();
-
-        frame.add(this.elevator1Text);
-        frame.add(this.elevator2Text);
-        frame.add(this.elevator3Text);
-        frame.add(this.elevator4Text);
         
+        this.bottomPanel = new JPanel();
+        bottomPanel.add(this.elevator1Text);
+        bottomPanel.add(this.elevator2Text);
+        bottomPanel.add(this.elevator3Text);
+        bottomPanel.add(this.elevator4Text);
+        frame.add(bottomPanel);
         
         frame.pack();
 
