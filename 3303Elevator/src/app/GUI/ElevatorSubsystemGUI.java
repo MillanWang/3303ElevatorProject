@@ -19,7 +19,7 @@ import java.util.TreeSet;
 
 /**
  * @author Abdelrahim Karaja
- *Floor Subsystem GUI class that will create and update a panel to be added to the main frame to display floor subsytem information
+ *Elevator Subsystem GUI class that will create and update the table to be added to the main frame to display Elevator subsystem information
  */
 
 public class ElevatorSubsystemGUI extends JPanel{
