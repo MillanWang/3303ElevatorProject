@@ -1,6 +1,6 @@
 # 3303ElevatorProject
 Group project for SYSC 3303 : Real-Time Concurrent Systems
-Final version April 12, 2022
+Code Complete Final Version : April 12, 2022 - No anticipated changes after submission
 
 ##SETUP INSTRUCTIONS
 
